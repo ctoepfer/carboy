@@ -63,14 +63,14 @@ revision itself.
 |---|---|---|
 | `format` | string | Constant identifying the document type: `"recipe-revision"`. Brand-neutral (R10) |
 | `schema_version` | string `"MAJOR.MINOR"` | See §4 |
-| `recipe_id` | UUID string | Assigned once when the recipe is created; shared by all its revisions. Copying a recipe ("save as new") assigns a new `recipe_id` and records the source in `content.lineage` |
-| `revision_id` | UUID string | Assigned by whoever creates the revision. Proposed: UUIDv7 ([RFC 9562](https://www.rfc-editor.org/rfc/rfc9562)) so IDs sort roughly by creation time; ordering never depends on it |
+| `recipe_id` | UUID string | UUIDv7 (Q1 decided). Assigned once when the recipe is created; shared by all its revisions. Copying a recipe ("save as new") assigns a new `recipe_id` and records the source in `content.lineage` |
+| `revision_id` | UUID string | UUIDv7 ([RFC 9562](https://www.rfc-editor.org/rfc/rfc9562)), assigned by whoever creates the revision (Q1 decided). IDs sort roughly by creation time, but ordering never depends on it |
 | `parents` | array of UUID strings | Revision IDs this revision was derived from. `[]` = root; one = edit; two or more = merge. Sorted ascending (byte order) so the hash doesn't depend on the order of merging |
 | `created_at` | string | UTC timestamp, RFC 3339, `Z` suffix, millisecond precision. Informational; never used for ordering or conflict resolution |
 | `origin` | string | How this revision came to exist: `user_edit`, `import`, `ai_proposal_accepted`, `ai_created`, `merge`, `migration`. Values-level provenance is in `content`; this is the revision-level summary |
 | `content_hash` | string | `"sha256:"` + 64 lowercase hex digits. See §3 |
 
-IDs are lowercase hyphenated UUID strings. Device identity, user identity,
+IDs are lowercase hyphenated UUID strings. **Writers generate UUIDv7** for recipe, revision, entity, and proposal IDs. **Readers accept any valid RFC 9562 UUID** and never derive meaning (such as time) from it, so imported or older IDs of other versions stay valid. Device identity, user identity,
 and account identity are **not** in the envelope: they are personal data,
 they differ between local and synced copies, and they belong in sidecars.
 
@@ -140,7 +140,7 @@ release that users can save files with is `"1.0"`.
 | Older MAJOR | Migrate forward through the ordered migrations; the migration creates a new revision with `origin: "migration"`, and the original stays in history unchanged |
 | Newer MAJOR | Reject with a clear message. Never partially open or overwrite |
 
-**Proposed answer to D-022 (schema negotiation).** A service holding
+**D-022 (schema negotiation), decided 2026-10-11 (Q3).** A service holding
 revisions for several devices records, per device, the highest
 `schema_version` it supports (sent at pairing and on every sync). The
 service:
@@ -154,8 +154,11 @@ service:
 - never down-converts across a MAJOR.
 
 Recipe Core therefore needs a "write at version X" capability for MINORs in
-its supported range. That is a Phase 2 requirement; it is listed in
-[Open questions](#open-questions) because it adds cost.
+its supported range. That is a Phase 2 requirement. It stays cheap because
+MINOR changes are additive: every optional member and enum value records
+the MINOR that introduced it, and "write at X" means checking the content
+uses nothing newer than X and stamping `schema_version` X. No content is
+converted.
 
 ## 5. Typed quantities
 
@@ -171,7 +174,7 @@ Every physical value is an object, not a bare number:
 | `unit` | A token from the unit table below. The dimension is implied by the unit, so it is not stored (it would be redundant and could disagree) |
 | `provenance` | Optional on input; see §6. When absent, the containing entity's provenance applies |
 
-**Unit tokens: proposal.** Adopt brewconvert's unit tokens and exact
+**Unit tokens: decided 2026-10-11 (Q2).** Adopt brewconvert's unit tokens and exact
 factors (`model/units.py`, MIT), because brewconvert is the oracle for the
 BeerXML port and its factors are exact. That means `kg`, `g`, `lb`, `oz`
 (mass); `L`, `mL`, `US gal`, `qt`, `US fl oz` (volume); `s`, `min`, `h`,
@@ -188,9 +191,9 @@ BeerXML port and its factors are exact. That means `kg`, `g`, `lb`, `oz`
   them as volume, and a mass-based calculation that needs density reports
   "cannot compute" unless the ingredient snapshot provides one.
 
-The alternative is UCUM (`Cel`, `[degF]`, `[gal_us]`, ...): a formal standard,
-but less readable, and it would not match the BeerXML oracle. Open question
-Q2.
+The rejected alternative was UCUM (`Cel`, `[degF]`, `[gal_us]`, ...): a
+formal standard, but less readable, and it would not match the BeerXML
+oracle.
 
 **Count additions** (`package`, `tablet`, `count`) never convert to mass or
 volume unless the ingredient snapshot states a unit mass or volume. Then the
@@ -240,7 +243,7 @@ content
 ├── water?               source/target profiles, treatments
 ├── statistics           layered stated values (no calculated layer, see §8)
 ├── calculation_settings formula choices, e.g. which IBU model
-├── notes                string or array of strings, never interpreted by calculations
+├── notes[]              { id, text }, never interpreted by calculations
 └── presentation?        graph coordinates, collapsed state, viewport
 ```
 
@@ -276,10 +279,32 @@ catalog changes:
 ```
 
 `kind` v0: `fermentable`, `hop`, `culture`, `water_agent`, `fruit`,
-`honey`, `sugar`, `adjunct`, `nutrient`, `acid`, `fining`, `other`. Property
-names per kind are part of the formula coverage work (D-006) and are not
-listed here, so no property is invented ahead of its formula. `catalog_ref`
-is optional; refreshing from the catalog is an explicit, reviewed edit.
+`honey`, `sugar`, `adjunct`, `nutrient`, `acid`, `fining`, `other`.
+`catalog_ref` is optional; refreshing from the catalog is an explicit,
+reviewed edit.
+
+**Ingredient property table.** Which properties each `kind` may carry is
+defined in **one place**: a per-kind property table, published with the
+schema. Each row gives the property name, its value type (a quantity with
+allowed dimensions, or an enum or string), and which formulas read it. Commands
+(`set_ingredient_property`), validation, import mapping, and the UI all read
+this table. Nothing else in the schema or the command contract names
+individual properties, so answering Q9 changes the table and nothing else.
+
+> **Decided 2026-10-11 (owner): Q9, closed table plus `unmapped`.**
+> Only properties in the table are accepted by commands and read by
+> calculations. A row is added when a formula with a cited source (D-006) or
+> an import format (BeerXML, BeerJSON) needs it. Imported fields with no
+> row go into `ingredient.unmapped` verbatim, with provenance `imported`.
+> They are kept, shown, and exported, but never calculated from and never
+> writable by commands. An unknown property name in a command is rejected
+> (`unknown-property`).
+>
+> *Rejected alternative:* open, free-named properties. They would avoid a
+> schema MINOR bump per new property, but a misspelled name would silently
+> make a statistic "cannot compute", and two writers could store one fact
+> under two names. Still to decide per row: representations such as
+> potential (Lumina `ppg`, BeerXML `YIELD` %, or specific gravity).
 
 `degL` (degrees Lovibond), `EBC`, and `SRM` are color units. brewconvert's
 table has `SRM` and `EBC` (factor 1/1.97) but no Lovibond. Lovibond ↔ SRM is
@@ -298,24 +323,71 @@ An **addition** places an amount of an ingredient into a stage:
 }
 ```
 
-`timing.basis` ∈ `at_start`, `after_start`, `before_end`, `at_end`. A boil
-addition "60 minutes" is `before_end` 60 min, stated explicitly instead of
-assumed (Lumina README, "Process stages"). Separating ingredient and
+`timing` members:
+
+| Member | Rule |
+|---|---|
+| `basis` | `at_start`, `after_start`, `before_end`, `at_end` |
+| `offset` | Duration quantity; required for `after_start` and `before_end` |
+| `point` | Optional named timing point: `first_wort`, `flameout` (boil), `dry_hop` (fermentation, conditioning). Allowed values per stage kind come from the stage-kind table (§7.3; Q5 decided) |
+| `contact` | Optional duration the ingredient stays in contact (dry hop days, oak, fruit), when it is removed before the stage ends |
+
+A boil addition "60 minutes" is `before_end` 60 min, stated explicitly
+instead of assumed (Lumina README, "Process stages"). Separating ingredient and
 addition lets one ingredient be added several times (mash and sparge salts,
 staggered nutrients, sake's three additions) without merging (Lumina's
 `mash-sparge-salt-merge` rule).
 
 ### 7.3 Process
 
-`stages[]`: `{ id, kind, name?, parameters }`. `kind` starts from Lumina's
-`PROCESS_STAGES` (`mash`, `sparge`, `first_wort`, `boil`, `flameout`,
-`whirlpool`, `chilling`, `fermentation`, `conditioning`, `dry_hop`,
-`stabilization`, `packaging`). Non-beer stages (for example sake's moto and
-three-stage addition) are added with the beverage formulas. Lumina's
-`first_wort`, `flameout`, and `dry_hop` are arguably addition timings, not
-stages: open question Q5. `parameters` holds typed quantities (duration,
-temperature, volume) and an ordered `steps[]` for multi-step mash or
-fermentation schedules.
+`stages[]`: `{ id, kind, name?, parameters, steps[] }`. `parameters` holds
+typed quantities (duration, temperature, volume). `steps[]` is an ordered
+list of `{ id, name?, parameters }` for multi-step schedules such as mash
+rests.
+
+**Stage-kind table.** Stage kinds are defined in **one place**: a
+stage-kind table published with the schema. Each row gives the kind, its
+parameters (name, dimension, required or optional), its step parameters,
+and the named timing points (`timing.point`, §7.2) that additions in a
+stage of that kind may use. Commands (`add_stage`, `set_stage_parameter`,
+`add_step`, `add_addition`), validation, and formulas read the table. The
+command contract names no stage kind. Answering Q5 changes only rows of
+this table, plus the Lumina and BeerXML mapping.
+
+Candidate rows come from Lumina's `PROCESS_STAGES`, minus the three that
+became timing points (Q5): `mash`, `sparge`, `boil`, `whirlpool`,
+`chilling`, `fermentation`, `conditioning`, `stabilization`, `packaging`. Non-beer stages
+(for example sake's moto and three-stage addition) are added with the
+beverage formulas.
+
+> **Decided 2026-10-11 (owner): Q5, timing points, not stages.** The
+> stage-kind table has no `first_wort`, `flameout`, or `dry_hop` kinds:
+> - the `boil` row allows points `first_wort` (with `basis: "at_start"`)
+>   and `flameout` (with `at_end`);
+> - the `fermentation` and `conditioning` rows allow `dry_hop`, with
+>   `after_start` or `before_end` timing and an optional `contact` duration.
+>
+> `whirlpool` and `chilling` stay stages, because they have their own
+> duration, temperature, and volume. This matches BeerXML 1.0, where a
+> hop's `USE` (`Boil`, `Dry Hop`, `Mash`, `First Wort`, `Aroma`) is a
+> property of the addition. A dry hop shows in the graph as an addition on
+> its fermentation stage, not as its own node. A first-wort hop is
+> `add_addition` with `stage: <boil>, timing: { basis: "at_start", point: "first_wort" }`.
+>
+> *Rejected alternative:* separate stage kinds, as in Lumina. That would
+> create zero-length stages with no flow of their own that overlap the
+> boil, complicating the linear-chain calculation.
+>
+> **Decided 2026-10-11 (owner): Q5b, vessel = stage, temperature = step.**
+> A new `fermentation` or `conditioning` stage begins when the beer moves to
+> another vessel (a `transfer` flow), so losses and volumes follow each
+> racking. A change of temperature or time in the same vessel is a step
+> within the stage. Lumina's `primary`, `secondary`, `tertiary`, and
+> `conditioning` (`validation.py` `VALID_FERMENTATION_STAGES`) map to steps
+> of one stage, because Lumina never records a separate vessel.
+>
+> *Rejected alternative:* always steps of one `fermentation` stage. Simpler,
+> but volume and loss through racking couldn't be modeled.
 
 `flows[]`: `{ id, kind, from, to, amount? }`, with `kind` ∈ `transfer`,
 `addition`, `loss`, `dilution`, `blend` (OVERVIEW §5). v0 launch supports a
@@ -409,17 +481,15 @@ accepts. Placeholder until then: none.
 
 ## Open questions
 
+Decided 2026-10-11 and recorded above: Q1 (UUIDv7, §2), Q2 (brewconvert
+unit tokens, §5), Q3 (D-022, §4), Q5 and Q5b (§7.3), Q9 (§7.2).
+
 | # | Question | Owner | Target |
 |---|---|---|---|
-| Q1 | Accept UUIDv7 for `revision_id` (and v4 or v7 for `recipe_id`)? | Owner | Phase 0 |
-| Q2 | Unit tokens: brewconvert's (proposed) or UCUM? | Owner | Phase 0 |
-| Q3 | D-022: is "write at the lowest supported MINOR" worth the cost, or should a newer MINOR simply be held until devices update? | Owner, with the Bridge plan | Phase 0 |
 | Q4 | Layout-only edits: new revision (current draft) or sidecar? | Owner | Phase 1 (graph spike) |
-| Q5 | Are `first_wort`, `flameout`, and `dry_hop` stages or addition timings? | Owner | Phase 0, with the command contract |
 | Q6 | D-016 native file extension, media type, and the JSON Schema `$id` base (brand-neutral) | Owner | Phase 0 |
 | Q7 | D-019: `gruit` and `soda` | Owner | Phase 0 |
 | Q8 | Is NFC normalization of strings acceptable (it can change user text byte-for-byte while it looks identical)? | Owner | Phase 2 |
-| Q9 | Ingredient property names per kind | Formula coverage table (D-006) | Phase 0 |
 
 ## Not decided by this draft
 

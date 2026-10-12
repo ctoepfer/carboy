@@ -43,15 +43,23 @@ Updated: 2026-10-11. Ordered. Owner decisions are marked **(owner)**.
 
 - [x] Recipe schema v0 and revision envelope draft
       (`docs/architecture/RECIPE_SCHEMA.md`, 2026-10-11).
-- [ ] **(owner)** Answer RECIPE_SCHEMA.md open questions: Q1 UUID versions,
-      Q2 unit tokens, Q3 the D-022 approach, Q5 stage vs. timing.
-- [ ] Editor command contract v0 (`docs/architecture/EDITOR_COMMANDS.md`),
-      written to double as the AI proposal contract (ADR 0007).
+- [x] **(owner)** RECIPE_SCHEMA Q1 (UUIDv7), Q2 (brewconvert unit tokens),
+      Q3 (D-022) decided 2026-10-11.
+- [x] Editor command contract v0 draft (`docs/architecture/EDITOR_COMMANDS.md`,
+      2026-10-11); doubles as the AI proposal contract (ADR 0007).
+- [x] **(owner)** RECIPE_SCHEMA Q5 (timing points) and Q9 (closed property
+      table plus `unmapped`) decided 2026-10-11.
+- [x] **(owner)** RECIPE_SCHEMA Q5b and EDITOR_COMMANDS E1–E6 decided
+      2026-10-11 (recommendations accepted).
+- [ ] Draft the stage-kind table and ingredient property table rows from
+      the formula coverage table (only rows a cited formula or an import
+      format needs).
 - [ ] Formula coverage table with cited sources per beverage; propose D-006
       final staging.
 - [ ] Lumina ⇄ Carboy field mapping draft, including legacy imperial fields.
 - [ ] Decide D-016 (native file extension / media type; brand-neutral) and
-      D-019 (`soda`/`gruit`).
+      D-019 (`soda`/`gruit`) (RECIPE_SCHEMA Q6/Q7). Q8 (NFC) targets Phase 2;
+      Q4 (layout revisions) the Phase 1 graph spike.
 - [ ] Phase 1 spike plan: Recipe Core language and shell candidates (ADRs
       0003/0004), graph library and UI framework candidates, devices, CI matrix.
 
