@@ -1,0 +1,33 @@
+# Operating system
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors (shared workspace files live outside the repository)
+.idea/
+*.swp
+*~
+.vscode/*
+!.vscode/extensions.json
+
+# Logs and scratch
+*.log
+tmp/
+.scratch/
+
+# Local environment and secrets: never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Build output and dependencies (toolchain not selected yet; extend when it is)
+node_modules/
+dist/
+build/
+target/
+coverage/
+__pycache__/
+.venv/

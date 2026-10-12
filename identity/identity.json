@@ -1,0 +1,24 @@
+{
+  "$comment": "Central identity configuration. The brand section is the only place the user-facing product name, logo, and icons are defined. Technical identifiers are never derived from it. Policy: docs/architecture/NAMING.md.",
+  "identityVersion": 1,
+  "codename": "carboy",
+  "brand": {
+    "status": "development-default",
+    "displayName": "Carboy",
+    "shortName": "Carboy",
+    "assets": {
+      "logo": null,
+      "appIcon": null
+    }
+  },
+  "technicalIdentifiers": {
+    "$comment": "Brand-neutral and permanent once released. Pending items are decided in the phase noted, then recorded in docs/architecture/NAMING.md.",
+    "packageNamespace": "pending (codename-based; chosen with the toolchain, ADR 0004 / Phase 1)",
+    "recipeFormat": {
+      "fileExtension": "pending (D-016, brand-neutral)",
+      "mediaType": "pending (D-016, brand-neutral)",
+      "schemaIdBase": "pending (recipe schema v0, brand-neutral)"
+    },
+    "osApplicationIds": "not created (conventions reviewed in Phase 1; ADR before Phase 6)"
+  }
+}
