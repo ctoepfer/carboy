@@ -1,6 +1,6 @@
 # Carboy — Decision Register
 
-Updated: 2026-10-09. Owner of all decisions: Charles Toepfer unless noted.
+Updated: 2026-10-11. Owner of all decisions: Charles Toepfer unless noted.
 Architectural decisions with lasting consequences also get an ADR in
 [`../architecture/adr/`](../architecture/adr/).
 
@@ -34,6 +34,7 @@ Architectural decisions with lasting consequences also get an ADR in
 | — | One BrewIO protocol over stdio/WebSocket | Sidecar track; Phase 9 | ([ADR 0005](../architecture/adr/0005-brewio-host-protocol.md)) |
 | — | SQLite + JSON revision documents | Save/reopen; interruption tests | Phase 1–3 ([ADR 0006](../architecture/adr/0006-local-persistence.md)) |
 | — | AI tiers and proposal boundary | Phase 8 tests | ([ADR 0007](../architecture/adr/0007-ai-integration-tiers.md)) |
+| — | Revision envelope and hashing: RFC 8785 JCS + SHA-256 over envelope and content; decimal strings, no floats, unknown = absent; `calculated` statistics kept outside the hash; service metadata only in sidecars | Phase 2 test vectors passing in two implementations | Phase 0 draft → Phase 2 ([RECIPE_SCHEMA.md](../architecture/RECIPE_SCHEMA.md)) |
 
 ## Open
 
@@ -42,7 +43,7 @@ Architectural decisions with lasting consequences also get an ADR in
 | D-009 | Ingredient catalog source and redistribution rights | Phase 3 catalog | Phase 0 |
 | D-010 | UI framework: React vs. Svelte (evaluated with graph spike) | Phase 1 spike | Phase 1 |
 | D-011a | AI Bridge sync and conflict model. **Proposed** in Bridge ADR B-0005: revision DAG, server never merges, user resolves divergence in the app, tombstones (BR-05) | App sync client; Bridge data model | Bridge B0 |
-| D-022 | Schema-version negotiation for AI-created documents: a server-side Recipe Core may be newer than a user's paired app, so the Bridge must write (or serve) at a schema version every paired device supports, or hold the document until devices update | Bridge B3/B5; app sync client | Phase 0 envelope draft |
+| D-022 | Schema-version negotiation for AI-created documents: a server-side Recipe Core may be newer than a user's paired app, so the Bridge must write (or serve) at a schema version every paired device supports, or hold the document until devices update | Bridge B3/B5; app sync client | Phase 0 envelope draft. **Proposal** in [RECIPE_SCHEMA.md §4](../architecture/RECIPE_SCHEMA.md#4-schema-versioning): devices report their highest supported version; the service writes at the lowest supported MINOR, else holds the revision for devices that need an update; never down-converts across a MAJOR (open question Q3) |
 | D-014 | May AI proposals auto-apply to unsaved drafts (still undoable)? Related: Bridge BR-07 proposes that new AI-created recipes enter the library directly, marked `ai_proposed` + unreviewed, while edits to existing recipes are always proposals | Phase 8 UX; Bridge B5 | Phase 8 / Bridge B4 |
 | D-015 | May desktop 1.0 ship with the list editor only if the graph slips? | Release planning | Phase 4 |
 | D-016 | Native file extension and MIME type | Phase 1 file exchange | Phase 0 |

@@ -27,6 +27,8 @@ entry points yet.
 | 2026-10-11 | brewconvert sized (5,671 lines; BeerXML port ≈ 3,400) and tested (137 passed); brewpanel tested on its working tree (142 passed, 2 skipped, 1 environmental failure); fixture and BJCP provenance classified | Test runs recorded in REUSE_BASELINE.md |
 | 2026-10-11 | Repository bootstrap (this repo and `carboy-bridge`) and workspace `~/Documents/Workspaces/carboy.code-workspace` | Validation listed in the bootstrap report; JSON validated; no build/test tooling exists to run |
 | 2026-10-11 | [GETTING_STARTED.md](GETTING_STARTED.md): ordered path from plan to first code and owner prerequisites; bootstrap committed and pushed | Documentation only; relative links checked |
+| 2026-10-11 | Lumina port map for `stats_hooks.py`, `quantity.py`, `beerxml_quantity.py`, `import_validation.py`, `water_chemistry.py` in [REUSE_BASELINE.md](../architecture/REUSE_BASELINE.md#lumina-port-map-2026-10-11): formula, inputs/units, cited source, covering tests, and port hazards per function | Lumina tests in Lumina's `runtime/venv` (brewconvert at pin `e0f9975a`): 151 passed across 6 files. Against local codesamples `master` `0b5e05d`: 40 fail (changed `Diagnostic` API) |
+| 2026-10-11 | Recipe schema v0 and revision envelope draft: [RECIPE_SCHEMA.md](../architecture/RECIPE_SCHEMA.md) (envelope, RFC 8785 + SHA-256 hashing rule, schema-version reader rules, D-022 proposal, typed quantities, provenance, statistics layers with `calculated` outside the hash, sidecars for service metadata) | Documentation only; no test vectors yet (Phase 2) |
 
 ## Capability matrix
 
@@ -58,24 +60,29 @@ language and application shell (ADRs 0003/0004) from Phase 1 spike evidence.
 ## Known limitations
 
 - Platform facts reflect knowledge as of mid-2026; re-verify.
-- Formula sources for non-beer calculations are not yet collected.
+- Formula sources for non-beer calculations are not yet collected. Lumina's
+  beer formulas cite no sources either (port map); primary sources for MCU,
+  Morey, extract points, attenuation, ABV (131.25), and Tinseth still need
+  collecting.
+- brewconvert `master` is API-incompatible with Lumina's pin; the pinned
+  commit `e0f9975a` is not in the local codesamples clone.
 - Local disk on the development host (`/`) was 100% full on 2026-10-11; the
   repositories live on `/mnt/lumina_share`, which has space.
 
 ## Next task
 
-Map Lumina's deterministic port surface, then draft the recipe schema v0 and
-revision envelope. Suggested prompt:
+Draft the editor command contract v0. Suggested prompt:
 
-> Continue Carboy Phase 0. Read `AGENTS.md`, `docs/project/STATUS.md`, and the
-> Phase 0 section of `docs/project/PROJECT_PLAN.md`. In
-> `docs/architecture/REUSE_BASELINE.md`, add a per-function port map for
-> Lumina's `brains/recipes/stats_hooks.py`, `quantity.py`,
-> `import_validation.py`, and `water_chemistry.py`: what each function computes,
-> the formula and its published source, inputs/outputs and units, and the
-> Lumina tests that cover it. Do not modify Lumina. Then draft
-> `docs/architecture/RECIPE_SCHEMA.md` (schema v0 and revision envelope:
-> IDs, parents, schema-version semantics, canonical JSON + hashing rule,
-> provenance and statistics layers), keeping every identifier brand-neutral per
-> `docs/architecture/NAMING.md`. No application code. Update STATUS.md,
-> NEXT_ACTIONS.md, and DECISIONS.md.
+> Continue Carboy Phase 0. Read `AGENTS.md`, `docs/project/STATUS.md`,
+> `docs/architecture/RECIPE_SCHEMA.md`, ADR 0007, and the Bridge
+> co-design needs listed in the "Contracts" section of
+> `docs/project/NEXT_ACTIONS.md`. Inspect Lumina's command vocabulary
+> (`brains/recipes/state.py` `apply_recipe_action`, `commands.py`) without
+> modifying Lumina. Draft `docs/architecture/EDITOR_COMMANDS.md`: command
+> types targeting the entity IDs in RECIPE_SCHEMA.md, JSON encoding,
+> validation error shape, all-or-nothing application, the diff format for
+> review, rebasing a proposal whose base revision is no longer current,
+> and the empty template for a new recipe. It doubles as the AI proposal
+> format. No application code. Then ask the owner to answer RECIPE_SCHEMA.md
+> open questions Q1–Q3 and Q5. Update STATUS.md, NEXT_ACTIONS.md, and
+> DECISIONS.md.

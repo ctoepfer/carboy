@@ -28,19 +28,23 @@ Updated: 2026-10-11. Ordered. Owner decisions are marked **(owner)**.
       1 environmental) suites.
 - [x] Locate fixtures and classify provenance; BJCP data is codes/names only.
 - [x] Verdant Reverie and Ultimate Coffee Schwarzbier are the owner's; publishable.
-- [ ] Map Lumina's port surface: per-function list for `stats_hooks.py`,
-      `quantity.py`, `import_validation.py`, `water_chemistry.py`, with the
-      formula each implements and its source.
+- [x] Map Lumina's port surface (2026-10-11): per-function port map in
+      `REUSE_BASELINE.md`; Lumina cites no formula sources.
+- [ ] Collect primary sources for Lumina's beer formulas (MCU, Morey SRM,
+      extract points/OG, attenuation/FG, ABV 131.25, Tinseth) and confirm
+      Tinseth's gravity and volume inputs. Feeds the formula coverage table.
+- [ ] Choose the brewconvert revision that is the BeerXML port oracle;
+      record why (`master` `0b5e05d` vs. Lumina's pin `e0f9975a`).
 - [ ] Complete the reuse matrix in `docs/architecture/REUSE_BASELINE.md` for
       every remaining asset (license, provenance, intent, size).
 - [ ] Ingredient catalog sources (D-009): candidate datasets with licenses.
 
 ### Contracts
 
-- [ ] Recipe schema v0 and revision envelope (`docs/architecture/RECIPE_SCHEMA.md`):
-      IDs, parents, schema-version semantics, canonical JSON + hashing,
-      typed quantities, provenance, statistics layers, stages/flows/additions,
-      presentation metadata, batch snapshot. Brand-neutral identifiers only.
+- [x] Recipe schema v0 and revision envelope draft
+      (`docs/architecture/RECIPE_SCHEMA.md`, 2026-10-11).
+- [ ] **(owner)** Answer RECIPE_SCHEMA.md open questions: Q1 UUID versions,
+      Q2 unit tokens, Q3 the D-022 approach, Q5 stage vs. timing.
 - [ ] Editor command contract v0 (`docs/architecture/EDITOR_COMMANDS.md`),
       written to double as the AI proposal contract (ADR 0007).
 - [ ] Formula coverage table with cited sources per beverage; propose D-006

@@ -106,6 +106,148 @@ Run without `pytest-asyncio`, 40 async tests fail spuriously, so always use the
 | Ultimate Coffee Schwarzbier | Lumina `tests/fixtures/recipe-formats/Grainfather_Ultimate_Coffee_Schwarzbier_Final.xml` | Real Grainfather export of the owner's recipe (confirmed 2026-10-11) | Yes |
 | brewconvert format samples (Gose BeerJSON, Brewfather, ProMash, BeerTools, BSMX, Domo) | `codesamples/brewconvert/tests/fixtures/` | Synthetic per brewconvert README; Domo before/after needs confirmation | Yes for synthetic ones |
 
+## Lumina port map (2026-10-11)
+
+Inspected at Lumina commit `096a83b`, `brains/recipes/`. Lumina was read,
+not modified. Line counts: `stats_hooks.py` 261, `quantity.py` 365,
+`beerxml_quantity.py` 124, `import_validation.py` 366, `water_chemistry.py` 258.
+
+### Test baseline
+
+Run in Lumina's own `runtime/venv` (Python 3.12, brewconvert installed at
+Lumina's pinned commit `e0f9975a`, per `admin/requirements.txt`), with
+bytecode and pytest cache disabled so nothing was written into Lumina:
+
+| Test file | Result | Covers |
+|---|---|---|
+| `tests/test_lumina_hooks.py` | 26 passed | Every `stats_hooks.py` hook, pipeline order, beverage gating |
+| `tests/test_recipe_quantity.py` | 22 passed, 3 subtests | `quantity.py` round trips, conversion, divergence |
+| `tests/test_recipe_water_chemistry.py` | 12 passed | `water_chemistry.py` |
+| `tests/test_recipe_import_review.py` | 16 passed | `import_validation.py` rules end to end (Steez, Recursion, Pliny fixtures) |
+| `tests/test_recipe_beerxml_import.py` | 35 passed | Import mapping, `resolve_ambiguous_amount_kind`, boil-volume and salt-merge rules on Verdant Reverie |
+| `tests/test_recipe_builder_operational_proof.py` | 40 passed | Stats through the web service, including ABV |
+
+**brewconvert version skew.** The same files against the local codesamples
+`master` (`0b5e05d`) fail 40 tests (`'Diagnostic' object has no attribute
+'ingredient'`): brewconvert's `Diagnostic` changed after Lumina's pin. The
+pinned commit `e0f9975a` is not in the local codesamples clone. Carboy's
+BeerXML port must name the brewconvert revision it treats as the oracle,
+and the Lumina parity run must use Lumina's pin, not `master`.
+
+### `stats_hooks.py`: beer statistics
+
+A pipeline of hooks run in fixed order
+(`STANDARD_RECIPE_STATS_PIPELINE`), each reading `context.recipe` and
+writing `context.computed[...]`. Inputs are Lumina's legacy imperial
+fields, read through `quantity.resolve_amount()`.
+
+| Hook (computed key) | Formula as implemented | Inputs → output | Source cited in Lumina | Published source to verify |
+|---|---|---|---|---|
+| `RecipeColorMcuHook` (`color.mcu`) | Σ(`weight_lb` × `color_lovibond`) ÷ `batch_size_gal` | lb, °L, US gal → MCU | None | Standard MCU definition; source to collect |
+| `RecipeColorSrmHook` (`color.srm.morey`) | 1.4922 × MCU^0.6859 | MCU → SRM | None (name only: "Morey") | Morey equation; primary source to collect |
+| `RecipeGravityPointsHook` (`gravity.points`) | Σ(`weight_lb` × `ppg` × efficiency); efficiency = per-item `efficiency`, else equipment `efficiency`, else 1.0. Sums `fermentables`, `sugar_sources`, `honey`, `fruit` | lb, ppg, fraction → gravity points | None | Extract-points method; source to collect |
+| `RecipeGravityOgHook` (`gravity.og`) | 1 + (points ÷ `batch_size_gal`) ÷ 1000, **rounded to 3 places** | points, US gal → SG | None | As above |
+| `RecipeFermentationFgHook` (`fermentation.fg`) | 1 + (OG − 1) × (1 − attenuation), rounded to 3 places; attenuation defaults to **0.75** when absent | SG, fraction → SG | None | Apparent-attenuation definition; source to collect |
+| `RecipeFermentationAbvHook` (`fermentation.abv`) | (OG − FG) × 131.25, rounded to 1 place | SG, SG → % ABV | None | Common homebrew approximation; source to collect |
+| `RecipeHopsIbuTinsethHook` (`hops.ibu.tinseth`, `hops.ibu.additions`) | Per hop: 1.65 × 0.000125^(G − 1) × (1 − e^(−0.04 × t)) ÷ 4.15 × g × α × 1000 ÷ L, where G = computed OG (default 1.050), t = `boil_time_min`, g = `weight_oz` × 28.3495, L = `batch_size_gal` × 3.78541. α > 1 is treated as a percentage and divided by 100 with a warning. Total and per-addition rounded to 1 place | oz, α, min, US gal, SG → IBU | None (name only: "Tinseth") | Glenn Tinseth's hop utilization model; confirm the primary publication and whether G should be boil gravity |
+
+Gating: color and gravity hooks run only for beer-like, `gruit`, or untyped
+recipes (`_supports_beer_stats`); IBU only for beer-like or untyped
+(`_supports_ibu_stats`). OG, FG, and ABV hooks are not gated.
+
+**Port notes: behavior Carboy must not copy blindly**
+
+1. **Unknown becomes zero.** Missing `color_lovibond`, `ppg`, `alpha_acid`,
+   `boil_time_min`, or amounts default to 0, so an incomplete recipe silently
+   computes a low value. This breaks invariant 7. Carboy must report
+   "cannot compute" with the missing input instead.
+2. **Invented default attenuation.** 0.75 when the yeast states none. Carboy
+   must treat FG as unknown, or use an explicitly provenanced assumption.
+3. **Mid-pipeline rounding.** OG is rounded to 3 places before FG, ABV, and
+   IBU use it. Parity fixtures must reproduce this rounding or document the
+   difference. Carboy should round only for display (Phase 2 precision policy).
+4. **Inexact constants.** 28.3495 g/oz and 3.78541 L/gal versus the exact
+   28.349523125 and 3.785411784 that brewconvert uses. Parity tolerances must
+   cover the difference.
+5. **Efficiency applies to every gravity source**, including sugars, honey,
+   and fruit, with a default of 1.0 when nothing is configured.
+6. **Tinseth gravity.** Lumina uses the computed OG (or 1.050) and batch
+   volume. Whether the published model calls for boil gravity and
+   post-boil volume needs confirmation from the primary source before Carboy
+   ports it.
+7. Only boil additions feed IBU. Non-boil additions are kept as import
+   evidence (`source_import["excluded_hop_additions"]`).
+
+### `quantity.py`: typed quantities
+
+| Symbol | What it does | Tests |
+|---|---|---|
+| `DIMENSIONS` | `mass`, `volume`, `count`, `duration`, `temperature`. Gravity, pressure, and concentration are deliberately excluded (statistics and water are modeled separately) | `test_recipe_quantity.py` |
+| `TemperatureQuantity` | Decimal value + `degF`/`degC`; SI value in °C via (F − 32) × 5/9; unknown unit sets `status` to `ambiguous` | same |
+| `DurationQuantity` | Decimal value + `sec`/`min`/`hr`/`day`; SI value in seconds by exact integer factors; negative values are invalid | same |
+| mass/volume/count | Delegated to `brewconvert.model.units.Quantity` (exact factors: lb = 0.45359237 kg, oz = 0.028349523125 kg, US gal = 3.785411784 L, ...) | same |
+| `quantity_to_json` / `quantity_from_json` | Stored shape: `value` (decimal string), `unit`, `dimension`, `normalized_value`/`normalized_unit` (derived, not authoritative), `status` (`explicit`/`inferred`/`ambiguous`), `source_field`, `original_display`, `provenance` {`origin`, `source_filename`, `source_format`, `adapter_profile`, `resolution`} | `test_recipe_quantity.py`, `test_recipe_export.py`, `test_recipe_water_chemistry.py` |
+| `resolve_amount` | Single read path: typed quantity converted to the legacy unit when usable, else the legacy field unchanged | `test_recipe_quantity.py` |
+| `set_amount_with_quantity`, `set_process_quantity` | Single write paths: typed quantity plus legacy projection. Recipe-level quantities live in `recipe["process"]["quantities"][name]` | first: `test_recipe_quantity.py`; `set_process_quantity`: **no direct test** |
+| `find_quantity_divergence` | Detects a legacy field that drifted from its typed quantity (tolerance 1e-6) | `test_recipe_quantity.py` |
+| `build_quantity_from_parsed` | Builds a quantity from chat-parsed (value, unit) | `test_recipe_quantity.py` |
+| `PROCESS_STAGES` | `mash`, `sparge`, `first_wort`, `boil`, `flameout`, `whirlpool`, `chilling`, `fermentation`, `conditioning`, `dry_hop`, `stabilization`, `packaging` | via import tests |
+
+**Port intent.** Carboy ports the model, not the dual-field mechanism: a
+Carboy revision has typed quantities only, so `resolve_amount`,
+`set_amount_with_quantity`, and `find_quantity_divergence` belong in the
+Lumina ⇄ Carboy mapping (Phase 2), not in Recipe Core. Unit tokens differ
+between Lumina (`degF`, `sec`, `hr`) and brewconvert (`F`, `s`, `h`); the
+schema draft picks one vocabulary ([RECIPE_SCHEMA.md](RECIPE_SCHEMA.md#5-typed-quantities)).
+
+### `beerxml_quantity.py`: ambiguous BeerXML amounts
+
+| Symbol | What it does | Tests |
+|---|---|---|
+| `canonical_quantity` | Builds the imported-amount record: kind (`mass`, `liquid_volume`, `count`, `package`, `tablet`, `teaspoon`, `tablespoon`, `package_equivalent`), phase, timing, confidence (`confirmed`/`estimated`/`ambiguous`), validation status, original and display values | **No direct test** |
+| `resolve_ambiguous_amount_kind` | A count word in `DISPLAY_AMOUNT` ("1 tablet", "0.14 pkg") overrides BeerXML's weight/volume flag, with confidence `estimated` | `test_recipe_beerxml_import.py` |
+
+Port to Recipe Format's BeerXML reader (Phase 4), not Recipe Core.
+
+### `import_validation.py`: import rules
+
+Severity is `info`/`warning`/`blocking`. Blocking never stops parsing or the
+preview; it only blocks committing the import until resolved or
+acknowledged. Resolutions: `preserve`, `manual`, `reinterpret`,
+`retain_both`, `unresolved`.
+
+| Function (code) | Rule | Severity | Tests (fixture) |
+|---|---|---|---|
+| `import_warnings_from_report` | Maps brewconvert `Diagnostic` codes to severities: 9 blocking codes, 7 warning codes, everything else `info` | per code | `test_recipe_import_review.py` (indirect) |
+| `check_implausible_volume_ratio` (`boil-volume-implausible`) | boil ÷ batch outside [0.5, 2.5] | blocking | `test_recipe_import_review.py` (Steez), `test_recipe_beerxml_import.py` |
+| `check_notes_vs_calculated_ibu` (`notes-vs-calculated-ibu`) | IBU stated in notes (regex: "~38 IBU", "90-95 IBU") versus calculated; ratio outside [0.6, 1.6] | warning | `test_recipe_import_review.py` (Steez, Pliny) |
+| `check_boil_vs_whirlpool_ambiguity` (`boil-vs-whirlpool-ambiguity`) | Notes mention an N-minute whirlpool and a hop is labeled an N-minute boil addition; evidence carries IBU under both readings (whirlpool approximated as t = 0) | blocking | `test_recipe_import_review.py` (Steez) |
+| `check_mash_sparge_salt_merge` (`mash-sparge-salt-merge`) | Salt phases in the source differ from the mapped water treatments | blocking | `test_recipe_beerxml_import.py` (Verdant Reverie) |
+| `check_ro_target_vs_salts` (`ro-target-vs-salts`) | Wraps `water_chemistry.check_target_consistency` | warning if volume missing, else blocking | via water chemistry |
+| `run_import_validation` | brewconvert diagnostics first, then the Lumina rules in the order above | — | `test_recipe_import_review.py` |
+
+Thresholds (0.5–2.5, 0.6–1.6, the whirlpool t = 0 approximation) are
+Lumina heuristics with no cited source. Carboy should carry them as named,
+versioned rule parameters, not as facts. The thresholds and the ion-to-ion
+tolerance below are candidates for owner review.
+
+### `water_chemistry.py`: salt ion contributions
+
+Consistency checking only; no mash pH or Kolbach prediction.
+
+| Symbol | What it does | Tests |
+|---|---|---|
+| `_ATOMIC_WEIGHTS`, `_formula_mass` | Ca 40.078, Mg 24.305, Na 22.990, S 32.06, O 15.999, H 1.008, C 12.011, Cl 35.453 g/mol. These match IUPAC/CIAAW abridged standard atomic weights (edition to cite in Phase 2) | `test_recipe_water_chemistry.py` |
+| `SALT_FORMS`, `SaltForm.ppm_per_gram_per_liter` | Seven forms (gypsum CaSO₄·2H₂O, CaCl₂·2H₂O, CaCl₂, Epsom MgSO₄·7H₂O, NaHCO₃, CaCO₃, NaCl). ppm per g/L = 1000 × ion-group mass ÷ molar mass, derived from formulas | same |
+| `resolve_salt_form` | Substring match on names, explicit hydration markers first. A generic "calcium chloride" resolves to the dihydrate and reports `form_was_assumed` | same |
+| `predict_ion_contribution_ppm` | Σ grams ÷ total litres × ppm-per-g/L per ion; returns `None` when volume is missing or non-positive | same |
+| `check_target_consistency` | Compares stated chloride/sulfate ppm and Cl:SO₄ ratio to the prediction; flags differences over 25 % | same |
+
+**Port intent.** Port as is. The chemistry is derived from formulas, so
+its only external source is the atomic-weight table. The 25 % tolerance is
+a Lumina choice. The salt-name aliases belong in the ingredient catalog
+(D-009), not in Recipe Core.
+
 ## brewpanel / Pacific BrewIO
 
 Per its README: SQLite persistence with versioned migrations, keyring-backed
