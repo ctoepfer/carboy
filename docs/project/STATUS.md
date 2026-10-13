@@ -50,6 +50,9 @@ is committed and pushed to `origin/main` (owner's instruction).
 | 2026-10-13 | **First editor-command code (spike):** `applyCommands` with `set_addition_amount` in `spikes/phase1/recipe-core/src/commands.ts`: ID targets, normalized decimal strings only, unknown members and ops rejected, all or nothing, semantic diff with recalculated OG | Core tests **14/14** (4 new: apply and diff, all-or-nothing rejection naming the failing command index, encoding rules) |
 | 2026-10-13 | **Recipe page Edit control:** choose an addition, enter an amount, Preview change (diff and OG before → after, nothing stored), Save as new revision (child with `parents` = previous); the UI normalizes what was typed | Hidden auto run: invalid input refused with a message; 4.30913 kg → 5 kg previews OG 1.064 → 1.071 (checked by hand: +7.6 points); child revision's parent correct; reopened from SQLite editable with the new amount; export/import still pass |
 | 2026-10-13 | **Screen-reader structure check** of every page through AT-SPI, the tree Orca reads (`spikes/phase1/tools/atspi_check.py`). Fixed in both graph candidates: Delete removed stages directly (now disabled; the graph never deletes), a misleading library description, 16 stray "Handle" buttons in Svelte Flow, a "Toggle Interactivity" control. Found an upstream key swap in xyflow's description lookup | After fixes: 8/8 stages named "Stage N of 8: …", focusable, focus lands; Carboy's description read; only meaningful buttons; auto runs still 7/7; Recipe and Library fields and buttons named. Speech by ear still to do ([GRAPH_REPORT.md](../../spikes/phase1/GRAPH_REPORT.md#accessibility-tree-check-at-spi-2026-10-13)) |
+| 2026-10-13 | Usability, accessibility, and localization plan v0: [USABILITY.md](../architecture/USABILITY.md) (rules U1–U12; how assistive technology reaches Carboy through each OS accessibility API; build rules incl. spoken units and live-region pacing; other-software channels; message catalogs, language packs, locale vs. units vs. number input; GUI feature plan by phase; proposed Phase 1 measurements; UQ1–UQ11; open as D-023) | Documentation only; platform and library claims marked verified or to verify |
+| 2026-10-13 | Extension model: [ADR 0008](../architecture/adr/0008-extension-model.md) (Proposed; D-024): tiers A data-only packs/themes, B external integrations, C build-time modules after 1.0, D runtime plugins not planned; built-in modules register through one point; control rules | Documentation only; consistent with ADR 0001 |
+| 2026-10-13 | Repository setup review: README brought up to Phase 1; `.gitattributes` (LF everywhere, `**/fixtures/**` byte-exact, binaries); [SECURITY.md](../../SECURITY.md) (private reporting, scope, hardware safety); `phase1-spike.yml` actions pinned to commit SHAs (latest v4 releases, no major upgrade); open D-025 telemetry/privacy, D-026 alcohol obligations, D-027 hardware safety; four risks added to PROJECT_PLAN §7 | `git add --renormalize .` changed no files; workflow YAML parses. Owner applied the GitHub settings; verified through the API: private vulnerability reporting on, Dependabot alerts and security updates on, wiki off, `main` protected (no force-push or deletion, admins included, no review requirement), Actions limited to GitHub-made and verified |
 | 2026-10-13 | `spikes/phase1/spike.sh`: `start [page]`, `refresh`, `test`, `reset-data` (never runs git; checks for Node, cargo, WebKitGTK) | `spike.sh test`: core 14/14; checks 5/5; recipe pass; library all revisions verified, integrity ok; graph-react 7/7; graph-svelte 7/7 |
 
 ## Capability matrix
@@ -116,7 +119,9 @@ None yet. Targets proposed in D-007. Spike verified on Linux desktop only.
 lands, and add interface and navigation elements to the spike shell as
 each capability starts working (PHASE1_SPIKE_PLAN "Interface growth").
 
-1. **(owner)** Commit decision for `carboy-bridge` (this repository was
+1. **(owner)** Review [USABILITY.md](../architecture/USABILITY.md): accept
+   U1–U12, answer UQ1–UQ11 (or defer), and say whether to add its §5
+   measurements to the Phase 1 spike. Review ADR 0008 (D-024). Commit decision for `carboy-bridge` (this repository was
    committed and pushed 2026-10-13); Phase 1 prerequisites (GitHub Actions with macOS
    runners; devices; more recipe fixtures); listen to Orca on both graph
    pages and try drag and pan (the accessibility tree is already verified;
@@ -135,7 +140,10 @@ each capability starts working (PHASE1_SPIKE_PLAN "Interface growth").
       the Library page that groups revisions by recipe and shows parent
       links; then a second command (`add_addition` or `set_target` for batch
       volume), each with Node tests first.
-   d. Performance budget once the owner's recipes arrive; resize the large
+   d. If the owner approves USABILITY §5: measure media-query, `Intl`, zoom,
+      and axe-core results in the Tauri shell on Linux; trial the two message
+      formats on the Recipe page in React and Svelte (feeds D-010, UQ2).
+   e. Performance budget once the owner's recipes arrive; resize the large
       recipe and rerun track C.
 3. When the owner has pushed and enabled Actions: run
    `.github/workflows/phase1-spike.yml` manually and record the per-OS

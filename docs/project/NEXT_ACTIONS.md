@@ -97,6 +97,16 @@ Plan: [PHASE1_SPIKE_PLAN.md](PHASE1_SPIKE_PLAN.md). Spike code: `spikes/phase1/`
 - [x] Recipe page Edit control: one editor command with preview, diff, and a child revision (2026-10-13).
 - [ ] Undo/redo on the Recipe page; History view on the Library page; a second command.
 - [ ] Performance budgets from measured recipes; define the "large recipe".
+- [x] Usability, accessibility, and localization plan v0 (`docs/architecture/USABILITY.md`, 2026-10-13).
+- [ ] **(owner)** USABILITY: accept U1–U12; answer or defer UQ1–UQ11 (D-023); approve §5 spike measurements.
+- [x] ADR 0008 extension model drafted (Proposed, 2026-10-13).
+- [ ] **(owner)** Review ADR 0008 (D-024); theme format by Phase 4.
+- [x] Repository setup review (2026-10-13): README updated, `.gitattributes` (LF; byte-exact fixtures), `SECURITY.md`, workflow actions pinned to commit SHAs.
+- [x] **(owner)** GitHub settings (applied by the owner 2026-10-13; verified through the API): private vulnerability reporting **on** (SECURITY.md relies on it); Dependabot alerts and security updates on; wiki off (it is empty); protect `main` (no force-push, no deletion); Actions limited to GitHub-made and verified actions.
+- [ ] **(owner)** Decide D-025 (telemetry/privacy) before Phase 4 code; D-026 (alcohol) by Phase 6; D-027 (hardware safety) before Phase 9.
+- [ ] **(owner)** Continuity notes in `carboy-bridge` (who can reach signing keys, store accounts, domains, Bridge host), before Phase 6.
+- [ ] Threat model (`docs/architecture/THREAT_MODEL.md`) before Phase 4: imports, packs/themes, local connector, LAN pairing, secrets.
+- [ ] USABILITY §5 measurements in the spike shell (media queries, `Intl`, zoom, axe-core, RTL, message-format trial with D-010).
 - [ ] **(owner)** Push, enable Actions, and start `phase1-spike`; then record the results.
 - [ ] Track B on Windows, macOS, Android, iOS (simulator runs marked as such).
 - [ ] Tracks D (sidecar) and E (secrets, file associations, HTTP).

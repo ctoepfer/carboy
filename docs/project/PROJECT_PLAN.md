@@ -13,6 +13,7 @@ Companion documents: [product brief](../product/PRODUCT_BRIEF.md),
 [invariants](../architecture/INVARIANTS.md),
 [public/private boundary](../architecture/PUBLIC_PRIVATE_BOUNDARY.md),
 [naming policy](../architecture/NAMING.md),
+[usability, accessibility, and localization](../architecture/USABILITY.md),
 [reuse baseline](../architecture/REUSE_BASELINE.md),
 [platform feasibility](../architecture/PLATFORM_FEASIBILITY.md),
 [ADRs](../architecture/adr/), [decision register](DECISIONS.md),
@@ -41,6 +42,9 @@ piece — a hosted connector for cloud AI assistants.
    "supported" only with verification evidence.
 6. **Free core, optional paid connector** ([ADR 0002](../architecture/adr/0002-open-core-boundary.md)).
 7. **Accessible by default.** WCAG 2.1 AA minimum, WCAG 2.2 AA target.
+8. **Usable in the user's language and units.** Every string externalized;
+   language, number format, and units are separate settings; display never
+   changes data ([USABILITY.md](../architecture/USABILITY.md)).
 
 ## 3. Release boundaries
 
@@ -384,7 +388,8 @@ only as a separately designed feature.
 | Persistence | Interrupted writes; recovery; backups; migration rollback; revision immutability |
 | Editor | Representative workflows; undo/redo atomicity; invalid drafts |
 | Graph | Semantic equivalence with list commands; valid/invalid moves; layout isolation |
-| Accessibility | WCAG 2.2 AA review; keyboard-only completion; screen readers; touch targets; zoom |
+| Accessibility | WCAG 2.2 AA review; keyboard-only completion; screen readers; touch targets; zoom ([USABILITY.md §1.5](../architecture/USABILITY.md#15-verification)) |
+| Localization | No hard-coded strings (lint); pseudo-locale and RTL runs; number input never guessed ([USABILITY.md §2](../architecture/USABILITY.md#2-localization)) |
 | AI | Invalid proposals; provider failure/cancellation; secret redaction; reviewed acceptance |
 | Hardware | Simulated faults; physical verification per model/firmware/platform |
 | Packaging | Fresh-machine install/open/save/export on every supported target |
@@ -403,3 +408,7 @@ only as a separately designed feature.
 | Shop neutrality questioned | Generic contract; no default shop | 11 |
 | AI Bridge data-custodian and security obligations | Opt-in per recipe; export always available; privacy/retention design in the Bridge plan | 13 |
 | Name/trademark conflict | Check before public launch (D-013) | 0, 6 |
+| Untrusted input (imported files, packs, themes, local connector, LAN pairing) | Threat model before Phase 4; parsers hardened and fuzzed; packs data-only (ADR 0008) | 4, 8 |
+| Store rejection or wrong age rating for alcohol-related content | Decide ratings and disclaimers (D-026); review current store policies at submission | 6, 12 |
+| Unsafe hardware operation | Written safety rules (D-027) and simulated faults before physical verification | 9, 10 |
+| Single maintainer holds keys, accounts, and domains | Continuity notes in the private repository | Before 6 |

@@ -14,6 +14,7 @@ evidence needed to accept them.
 | [0005](0005-brewio-host-protocol.md) | One BrewIO host protocol over stdio or WebSocket | Proposed — Phase 1/9 evidence |
 | [0006](0006-local-persistence.md) | SQLite with revisions stored as versioned JSON documents | Proposed — Phase 1/3 evidence |
 | [0007](0007-ai-integration-tiers.md) | AI integration tiers and the proposal boundary | Proposed — Phase 8 evidence |
+| [0008](0008-extension-model.md) | Extension model: data packs, external integrations, build-time modules | Proposed — owner review; Phase 4 evidence |
 
 ## Template
 

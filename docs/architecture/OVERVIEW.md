@@ -73,7 +73,9 @@ Shared fixture suite ⇄ Lumina (Python) and brewconvert (Python) parity
    no circular imports.
 6. Shared utilities stay small and owned. No unowned `shared/` second core.
 7. All modules are compiled in. Optional features can be disabled; no runtime
-   code download (required for mobile store policies anyway).
+   code download (required for mobile store policies anyway). Extensions
+   are data-only packs or out-of-process integrations
+   ([ADR 0008](adr/0008-extension-model.md), Proposed).
 8. Packages are workspace packages in one monorepo. Separate publication
    (e.g. Recipe Core as a library) follows a real reuse need.
 

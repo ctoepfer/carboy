@@ -1,0 +1,15 @@
+# Line endings: LF everywhere, including Windows checkouts (CI runs there).
+* text=auto eol=lf
+
+# Windows scripts, if any are added, need CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Test fixtures are byte-exact (hashes and RFC 8785 vectors): never convert.
+**/fixtures/** -text
+
+# Binary assets.
+*.png binary
+*.ico binary
+*.icns binary

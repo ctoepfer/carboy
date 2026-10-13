@@ -8,9 +8,11 @@ designing recipes, improving them batch by batch, and brewing them.
 > decided yet and is configured in [`identity/identity.json`](identity/identity.json)
 > ([naming policy](docs/architecture/NAMING.md)).
 
-**Status: Phase 0 (discovery and decisions).** There is no application code
-yet. This repository currently holds the plan, architecture, contracts work,
-and decisions the implementation will follow. Current state:
+**Status: Phase 1 (platform proof).** There is no application yet. This
+repository holds the plan, architecture, contracts, and decisions, plus
+throwaway spike code under [`spikes/phase1/`](spikes/phase1/README.md) that
+tests candidate technologies; none of it is product code, and no language
+or framework is selected yet. Current state:
 [`docs/project/STATUS.md`](docs/project/STATUS.md).
 
 ## What it will do
@@ -51,6 +53,9 @@ carboy/
     product/       Product brief, beverage scope
     architecture/  Overview, invariants, boundary, naming, ADRs, reuse baseline
     development/   Developer setup
+    references/    Notes on cited reference works
+  spikes/phase1/   Throwaway Phase 1 spike code (not product code)
+  .github/         Manual-only spike CI workflow
 ```
 
 Source directories are added when their technology is selected (ADRs
@@ -70,9 +75,11 @@ is in [`docs/architecture/OVERVIEW.md`](docs/architecture/OVERVIEW.md).
 | [INVARIANTS.md](docs/architecture/INVARIANTS.md) | Properties every change preserves |
 | [PUBLIC_PRIVATE_BOUNDARY.md](docs/architecture/PUBLIC_PRIVATE_BOUNDARY.md) | What lives where; the dependency rule |
 | [NAMING.md](docs/architecture/NAMING.md) | Codename vs. brand vs. data identifiers |
+| [USABILITY.md](docs/architecture/USABILITY.md) | Accessibility, localization, and GUI feature plan |
 | [ADRs](docs/architecture/adr/README.md) | Architecture decision records |
 | [SETUP.md](docs/development/SETUP.md) | Developer setup |
 | [AGENTS.md](AGENTS.md) | Rules for contributors and coding agents |
+| [SECURITY.md](SECURITY.md) | How to report a vulnerability |
 
 ## License
 
