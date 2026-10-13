@@ -1,0 +1,76 @@
+# Phase 1 throwaway spike (docs/project/PHASE1_SPIKE_PLAN.md, step 5).
+# Manual trigger only: nothing runs, and no runner minutes are used (macOS
+# minutes may cost money), until the owner starts it from the Actions tab.
+name: phase1-spike
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  core-tests:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: spikes/phase1/recipe-core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm test
+
+  shell:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: spikes/phase1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Linux system libraries (WebKitGTK 4.1, display server for the run)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libsoup-3.0-dev libjavascriptcoregtk-4.1-dev libssl-dev build-essential xvfb
+      - run: rustup show && cargo --version
+      - run: (cd recipe-core && npm ci) && (cd graph && npm ci)
+      - run: ./shell-tauri/prepare.sh
+      - run: cargo build --manifest-path shell-tauri/src-tauri/Cargo.toml
+      - name: Run the core checks, Recipe, and Library pages in the webview (hidden window)
+        timeout-minutes: 6
+        run: |
+          exe=shell-tauri/src-tauri/target/debug/spike-shell
+          [ -f "$exe.exe" ] && exe="$exe.exe"
+          run() { if [ "$RUNNER_OS" = Linux ]; then xvfb-run -a "$@"; else "$@"; fi; }
+          for page in index recipe library; do
+            SPIKE_HIDDEN=1 SPIKE_START=$page.html SPIKE_AUTO=1 SPIKE_EXIT=1 SPIKE_REPORT=$PWD/report-$page.json \
+              run "$exe" || echo "::warning::$page run exited with $?"
+            cat report-$page.json || echo "::error::no report for $page"
+          done
+      - name: Graph pages (visible window; animation frames don't run when hidden)
+        timeout-minutes: 6
+        run: |
+          exe=shell-tauri/src-tauri/target/debug/spike-shell
+          [ -f "$exe.exe" ] && exe="$exe.exe"
+          run() { if [ "$RUNNER_OS" = Linux ]; then xvfb-run -a "$@"; else "$@"; fi; }
+          for g in graph-react graph-svelte; do
+            SPIKE_START=$g/index.html SPIKE_AUTO=1 SPIKE_EXIT=1 SPIKE_REPORT=$PWD/report-$g.json \
+              run "$exe" || echo "::warning::$g run exited with $?"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spike-reports-${{ matrix.os }}
+          path: spikes/phase1/report-*.json
+          if-no-files-found: warn

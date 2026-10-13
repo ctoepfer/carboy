@@ -1,0 +1,6 @@
+src-tauri/target/
+ui/core/
+ui/fixtures/
+ui/shared/
+ui/graph-react/
+ui/graph-svelte/

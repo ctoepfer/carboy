@@ -1,0 +1,141 @@
+# Formula Coverage
+
+- Status: **Draft (Phase 0), 2026-10-12. Not implemented.** FQ1–FQ4 and
+  D-006 decided 2026-10-12 (recommendations accepted).
+- Feeds: the Phase 2 formula registry, the ingredient property table
+  (RECIPE_SCHEMA §7.2), and the stage-kind table (§7.3).
+
+For each calculation in [BEVERAGE_SCOPE.md](../product/BEVERAGE_SCOPE.md):
+the candidate formula, how well its source is established, its inputs, and
+the schema rows it needs. **No formula here is approved for users.** A
+formula ships only when its source status is good enough (FQ1) and
+independently checked fixtures pass (BEVERAGE_SCOPE).
+
+## Source status
+
+| Status | Meaning |
+|---|---|
+| **Primary checked** | The original publication was read, and the formula and its inputs match |
+| **Secondary checked** | A published, citable secondary source was read (with page), and it cites a primary we have not read yet |
+| **Secondary only (web)** | Only calculators, forums, or summaries were found. Not citable for release |
+| **Needs source** | No source checked yet. The formula is a candidate only |
+
+Checked on 2026-10-12. "Holle" means the notes in
+[HOLLE_BREWING_CALCULATIONS.md](../references/HOLLE_BREWING_CALCULATIONS.md)
+(read from an OCR transcription; page items need checking against print).
+
+## Beer
+
+| Calculation | Candidate formula | Source status | Inputs | Property rows | Stage-kind rows |
+|---|---|---|---|---|---|
+| Malt color units (MCU) | Σ(mass × color) ÷ volume (lb, °L, US gal) | **Secondary checked**: Holle H1.6, citing Daniels 1996 p. 59 | mass per addition; fermentable color; batch volume | fermentable `color` | mash (additions); target batch volume |
+| Beer color, SRM | Morey: 1.4922 × MCU^0.6859 (Lumina `color.srm.morey`) | **Secondary only (web)**: calculators agree on the exponent form; some pages misprint it as a product. Primary (Morey) not found. Holle uses Daniels's lookup table instead | MCU | as MCU | — |
+| SRM ↔ EBC | EBC = 1.97 × SRM | **Secondary checked**: Holle H1.5 (also an older 2.65 form) | color | — | — |
+| Lovibond ↔ SRM | Needs choice (often treated as equal for wort) | **Needs source**. RECIPE_SCHEMA §7.2 already requires this before Phase 2 | color | fermentable `color` unit | — |
+| Extract / OG, points method | OG = 1 + Σ(mass × potential × efficiency) ÷ volume ÷ 1000 (Lumina `gravity.points`/`gravity.og`) | **Needs source** for the points form | mass; potential; efficiency; volume | fermentable/sugar `potential`; per-item efficiency? | target efficiency; batch volume |
+| Extract / OG, mass method | extract mass = Σ(mass × extract fraction × (1 − moisture) × brewhouse efficiency); °P from extract mass ÷ wort mass | **Secondary checked**: Holle H1.1–H1.2, citing Kunze p. 266 and Narziss II:313 | mass; extract cg db; moisture; efficiency; volume | fermentable `extract_yield`, `moisture` | as above |
+| SG ↔ °P | Cubic fit to De Clerck's tables: °P = −616.868 + 1111.14·SG − 630.272·SG² + 135.997·SG³ | **Secondary only (web)**: a patent and calculators attribute it to a regression of De Clerck (1957). The ASBC table is the likely authority; not read. Holle's 4-points-per-°P rule is a stated approximation and is **not** a candidate | gravity | — | — |
+| FG from attenuation | FG = 1 + (OG − 1)(1 − apparent attenuation) | Definition is **secondary checked** (Holle H9.4 defines ADF). **No default attenuation** (REUSE_BASELINE port note 2): unknown culture attenuation means FG "cannot compute" | OG; culture attenuation | culture `attenuation` | fermentation |
+| Real extract / RDF | RDF ≈ 0.82 × ADF; RE = OE × (1 − RDF) | **Secondary checked**: Holle H9.4 (factor 0.819) | OE; AE | — | — |
+| ABV from OG/FG | (OG − FG) × 131.25 (Lumina) | **Needs source**. Holle gives only ABV ↔ ABW. A cited formula (for example one based on real extract) must be chosen | OG; FG (stated or measured) | — | — |
+| IBU, Tinseth | per addition: 1.65 × 0.000125^(G − 1) × (1 − e^(−0.04 t)) ÷ 4.15 × mg α-acid ÷ L | **Secondary only (web)**: the original page (realbeer.com) has been retired. Secondary sources quote it as using the **average boil gravity**, not OG; Lumina uses OG or 1.050 (port note 6) | hop mass; alpha acid; boil minutes; gravity; volume | hop `alpha_acid`, `form` (pellet/whole) | boil (`before_end` timing; `first_wort`, `flameout` points) |
+| IBU, definition | IBU ≈ mg iso-α-acid per L = mg hops × utilization × α ÷ L | **Secondary checked**: Holle H7.1, citing Lewis 1995 | as above, plus utilization | hop `alpha_acid` | boil |
+| Volumes: shrinkage, boil-off, losses | Cool = hot × ρ(T_hot)/ρ(20 °C); boil-off rate; loss flows | **Secondary checked**: Holle H2.2, H2.4, H6.1 (citing Singh & Heldman p. 611 for the density basis) | volumes; temperatures; equipment rates | — | boil (duration, boil-off); `loss` flows |
+| Grain absorption, sparge water | absorption × grist mass; sparge = total − mash water | **Secondary checked**: Holle H2.6, citing Narziss II:157 | grist mass; equipment absorption | — | mash, sparge (water volumes) |
+| Strike / infusion temperature | Holle H5.1–H5.3 (grain heat capacity 0.38–0.42) | **Secondary checked**: Holle, citing Bamforth 2002 pp. 103–104 | masses; temperatures; heat capacity | — | mash steps (temperature, infusion volume) |
+| Decoction volume | Holle H5.4 | **Secondary checked**, citing Narziss II:166 and Kunze pp. 196–199 | temperatures; mash volume | — | mash steps (decoction) |
+| Water: ion contribution from salts | ion mass fraction × salt mass ÷ water volume, from atomic weights (Lumina `water_chemistry.py`) | **Secondary checked** for the method (Holle H3.1). The atomic weights (IUPAC/CIAAW) still need their edition cited (REUSE_BASELINE) | salt mass; hydration form; water volume | water_agent `formula`/`hydration` | mash, sparge (salt additions) |
+| Residual alkalinity | RA = alk − (Ca/3.5 + Mg/7), in mEq | **Secondary checked**: Holle H3.3, citing Kolbach 1941/1953 (primary not read) | water ions | — | — (water profile) |
+| Mash pH estimate | malt lab pH + 0.03 × RA (°dH) | **Secondary checked**: Holle H3.4 (Kolbach 1953). Holle calls it crude | RA; malt congress pH | fermentable `di_ph` (congress mash pH) | mash |
+| Carbonation: priming sugar | (target − residual CO₂) ÷ 0.46 ÷ fermentable fraction | **Secondary checked**: Holle H9.7, citing Kunze p. 332 and Hough p. 115 | target CO₂; temperature; volume; sugar fermentability | sugar `fermentability` | packaging (priming addition) |
+| Carbonation: forced (pressure) | vol ≈ 4.85(psig + 14.7)/(°F + 12.4) | **Secondary checked** as Holle's table footer; the fit's origin is not given | temperature; pressure | — | packaging / conditioning |
+
+## Wine, mead, cider
+
+| Calculation | Candidate | Source status | Inputs | Property rows | Stage-kind rows |
+|---|---|---|---|---|---|
+| Brix ↔ SG | Sucrose-solution table or fit (ICUMSA/ASBC) | **Needs source** | gravity | — | — |
+| Sugar contribution (juice, honey, fruit, sugars) | Points or sugar mass per volume | **Needs source** and catalog data (D-009) | mass/volume; sugar content | `sugar_content` per kind | fermentation (additions) |
+| OG prediction | From sugar sources and volume | **Needs source** | as above | as above | — |
+| ABV from measured OG/FG | Same choice as beer, with a check of whether it is valid at wine strength | **Needs source** | OG; FG | — | — |
+| Titratable acidity adjustment | Acid mass for a TA change | **Needs source** | volume; TA; acid | acid `acid_type` | stabilization / fermentation |
+| Sulfite by pH | Free SO₂ needed for a target molecular SO₂ at a given pH | **Needs source** (high-verification; BEVERAGE_SCOPE) | pH; target molecular SO₂; volume; sulfite salt | `sulfite_fraction` | stabilization |
+| YAN and staggered nutrients (TOSNA etc.) | Published schedule, versioned | **Needs source** (the schedule's own publication, by version) | YAN; gravity; volume; yeast nitrogen class | nutrient `yan_contribution`; culture `nitrogen_need` | fermentation (steps) |
+| Stabilizing and backsweetening | Sorbate by ABV; sugar by target gravity | **Needs source** | ABV; volume | — | stabilization |
+| Blending and dilution | Mass balance A·a + B·b = C·c | **Secondary checked**: Holle H4.1 (by mass for gravity) | volumes; property | — | `blend`/`dilution` flows |
+
+## Sake
+
+No predicted gravity or ABV (parallel fermentation; BEVERAGE_SCOPE).
+Ratios (polishing, koji/rice/water) and the three-stage schedule are
+recording helpers, **Needs source** with domain review, and need new stage
+kinds (moto, the three additions with the rest day).
+
+## Rows these formulas need
+
+**Ingredient property table (RECIPE_SCHEMA §7.2), first rows.** Add a row
+only when its formula's source is at least "secondary checked", or an
+import format needs it:
+
+| Kind | Property | Type | Read by | Status |
+|---|---|---|---|---|
+| fermentable | `color` | quantity, units `degL`/`SRM`/`EBC` | MCU | Ready (Holle) |
+| fermentable | `extract_yield` | fraction (coarse grind, dry basis) | mass-method OG | Ready (Holle) |
+| fermentable | `moisture` | fraction | mass-method OG | Ready (Holle) |
+| fermentable, sugar | `potential` | SG (or points) | points-method OG | Blocked: representation and source (Q9 note) |
+| fermentable | `di_ph` | pH | mash pH estimate | Ready (Holle), 1.x only |
+| hop | `alpha_acid` | fraction | IBU | Needed by any IBU model |
+| hop | `form` | enum `pellet`, `whole`, `extract` | IBU utilization | Needed by any table-based or corrected model |
+| culture | `attenuation` | fraction (apparent) | FG | Ready (definition) |
+| water_agent | `formula`, `hydration` | enum | ion contribution | Ready (method); atomic-weight edition to cite |
+| sugar | `fermentability` | fraction | priming | Ready (Holle) |
+
+**Stage-kind table (§7.3) parameters these need:** `mash` (water volume,
+grist temperature; steps with temperature, duration, infusion volume and
+temperature, or decoction); `sparge` (water volume, temperature); `boil`
+(duration, boil-off rate or volume; points `first_wort`, `flameout`);
+`fermentation` (temperature steps; point `dry_hop`); `packaging`
+(carbonation target, temperature). Equipment snapshot: brewhouse efficiency,
+grain absorption, boil-off, losses.
+
+## Proposed D-006 staging
+
+Keep BEVERAGE_SCOPE's staging, with one gate per statistic: **a statistic
+is enabled in a release only when its formula's source status meets FQ1 and
+its fixtures pass.** On today's evidence:
+
+| Statistic | Desktop 1.0 if… |
+|---|---|
+| Beer MCU, EBC/SRM conversion, volumes, strike/infusion, salt ion contributions, priming | Ready to implement once FQ1 accepts Holle as a secondary source, or the cited primaries are read |
+| Beer SRM (Morey), IBU (Tinseth), ABV, SG ↔ °P | Blocked until a citable source is read (see NEXT_ACTIONS) |
+| Beer FG | Only from a stated culture attenuation; never defaulted |
+| Mash pH estimate, residual alkalinity | 1.x, labeled as estimates (Holle calls them crude) |
+| Wine, mead, cider: Brix/SG, sugar sources, OG, ABV from measurements | Blocked on sources (all "Needs source") |
+| Sulfite, acid, nutrients, stabilization | 1.x, high-verification, as BEVERAGE_SCOPE says |
+| Sake | Recording only, as BEVERAGE_SCOPE says |
+
+## Decisions
+
+Decided 2026-10-12 (owner accepted the recommendations):
+
+| # | Question | Decision |
+|---|---|---|
+| FQ1 | Is a reviewed secondary source enough to ship a formula? | Yes, when it is published and reviewed (such as Holle, MBAA 2003), the formula is labeled with both citations, and the primary is listed "to verify". Web-only sources never are |
+| FQ2 | OG method | Both, as named formulas: the mass method is the default for recipes created in Carboy; the points method for Lumina and BeerXML parity |
+| FQ3 | Tinseth gravity | Follow the published model once a citable copy is read; Lumina's OG-based variant is kept only as a parity variant |
+| FQ4 | ABV formula | Choose one with a citable source before Phase 2; 131.25 only as a Lumina parity variant |
+
+**D-006, decided 2026-10-12:** BEVERAGE_SCOPE's staging, gated per statistic as in [Proposed D-006 staging](#proposed-d-006-staging): a statistic is enabled only when its source meets FQ1 and its fixtures pass.
+
+## Web sources consulted (2026-10-12, secondary only)
+
+- Morey exponent form: Brewer's Friend SRM calculator,
+  <https://www.brewersfriend.com/srm-calculator>; *Craft Beer & Brewing*,
+  <https://www.beerandbrewing.com/seeing-the-color-in-your-future>.
+- SG ↔ °P cubic and its De Clerck origin: US patent 8,818,562 (PDF via
+  USPTO); *Craft Beer & Brewing* SG–Plato converter,
+  <https://www.beerandbrewing.com/tools/sg-plato-converter>.
+- Tinseth formula and gravity guidance: Brewer's Friend forum,
+  <https://www.brewersfriend.com/forum/threads/update-to-the-boil-size-target-volume-and-batch-size.11921/>;
+  Grainfather help, <https://help.grainfather.com/hc/en-us/articles/360014527537-Calculation-IBU>.
+  The original realbeer.com page now redirects elsewhere.

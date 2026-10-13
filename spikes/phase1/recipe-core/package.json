@@ -1,0 +1,15 @@
+{
+  "name": "spike-recipe-core",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Phase 1 throwaway spike: pure TypeScript Recipe Core proof (decimal arithmetic, RFC 8785 hashing, one parity-checked statistic). Not a package; deleted or archived once ADR 0004 is decided.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

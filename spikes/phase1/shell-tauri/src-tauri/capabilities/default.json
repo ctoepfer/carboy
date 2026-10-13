@@ -1,0 +1,5 @@
+{
+  "identifier": "default",
+  "windows": ["main"],
+  "permissions": ["core:default", "sql:default", "sql:allow-execute"]
+}

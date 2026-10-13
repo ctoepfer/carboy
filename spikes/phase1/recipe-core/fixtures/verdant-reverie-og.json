@@ -1,0 +1,70 @@
+{
+  "fixture": "verdant-reverie-og-points",
+  "purpose": "Phase 1 spike parity check: Lumina's points-method OG reproduced by the TypeScript spike",
+  "provenance": {
+    "recipe": "Verdant Reverie Saison, the owner's recipe, cleared for publication as a fixture (DECISIONS 2026-10-11)",
+    "source_file": "Lumina tests/fixtures/recipe-formats/verdant-reverie/01-original-beerxml.xml",
+    "source_sha256": "1c004c13c4e9f6aafa4d8fd1ba472680f99fabbe12d81516bbb131d512e14d78",
+    "producer": "Lumina brains/recipes beerxml_import.parse_beerxml + stats_hooks.calculate_recipe_stats, run read-only on 2026-10-12",
+    "lumina_revision": "1385e718ecff2bafaa6f266dcd553835d9555667 (working tree had an uncommitted change in beerxml_import.py; stats_hooks.py unmodified)",
+    "notes": "Masses and batch volume are the BeerXML values (kg, L). ppg and efficiency are what Lumina's importer derived (ppg = YIELD% x 0.46; efficiency = recipe EFFICIENCY). Their sources are not established; this fixture tests parity, not correctness."
+  },
+  "input": {
+    "batch_volume": {
+      "value": "20.8198",
+      "unit": "L"
+    },
+    "sources": [
+      {
+        "name": "Belgian Pilsner Malt",
+        "amount": {
+          "value": "4.30913",
+          "unit": "kg"
+        },
+        "ppg": "36.8",
+        "efficiency": "0.75"
+      },
+      {
+        "name": "White Wheat Malt",
+        "amount": {
+          "value": "0.680389",
+          "unit": "kg"
+        },
+        "ppg": "38.64",
+        "efficiency": "0.75"
+      },
+      {
+        "name": "Vienna Malt",
+        "amount": {
+          "value": "0.340194",
+          "unit": "kg"
+        },
+        "ppg": "35.88",
+        "efficiency": "0.75"
+      },
+      {
+        "name": "Acidulated Malt",
+        "amount": {
+          "value": "0.113398",
+          "unit": "kg"
+        },
+        "ppg": "34.5",
+        "efficiency": "0.75"
+      },
+      {
+        "name": "Cane Sugar",
+        "amount": {
+          "value": "0.226796",
+          "unit": "kg"
+        },
+        "ppg": "46.0",
+        "efficiency": "0.75"
+      }
+    ]
+  },
+  "expected_lumina": {
+    "gravity.points": 349.5713938265761,
+    "gravity.og": 1.064,
+    "note": "gravity.points is a Python float; gravity.og is rounded to 3 places by Lumina"
+  }
+}

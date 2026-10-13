@@ -1,6 +1,6 @@
 # Carboy — Decision Register
 
-Updated: 2026-10-11. Owner of all decisions: Charles Toepfer unless noted.
+Updated: 2026-10-12. Owner of all decisions: Charles Toepfer unless noted.
 Architectural decisions with lasting consequences also get an ADR in
 [`../architecture/adr/`](../architecture/adr/).
 
@@ -28,13 +28,15 @@ Architectural decisions with lasting consequences also get an ADR in
 | 2026-10-11 | **Schema Q2:** unit tokens and exact factors follow brewconvert's `model/units.py`; Lumina's `degF`/`sec`/`hr` are mapped on import; gravity scales convert only by versioned formula | [RECIPE_SCHEMA.md §5](../architecture/RECIPE_SCHEMA.md#5-typed-quantities) |
 | 2026-10-11 | **D-022 (schema Q3):** devices report their highest supported schema version; a service writes at the lowest MINOR every paired device supports, else holds the revision and reports "update required"; never down-converts across a MAJOR. Newer-MINOR documents open read-only | [RECIPE_SCHEMA.md §4](../architecture/RECIPE_SCHEMA.md#4-schema-versioning) |
 | 2026-10-11 | **Editor commands E1–E6:** nobody writes calculated values; `scale_recipe` waits for the Phase 2 scaling policy; proposals are all or nothing; user-authored proposals deferred to Phase 13; notes get IDs; no AI dry-run mode beyond preview | [EDITOR_COMMANDS.md](../architecture/EDITOR_COMMANDS.md#decisions) |
+| 2026-10-12 | **Sync protocol SQ1–SQ4:** devices report their supported schema version at registration and on every request; no app-pushed proposals before Phase 13; merges need no extra sidecar; tombstone retention is a service choice published in capabilities | [SYNC_PROTOCOL.md](../architecture/SYNC_PROTOCOL.md#decisions) |
+| 2026-10-12 | **AI tools TQ1–TQ5:** tool hosts accept `new:<label>` placeholders and assign UUIDv7s (command contract unchanged); `create_recipe` placement stays with D-014; search filters limited to stably indexed fields; one JSON Schema source for all tiers; `get_recipe` returns full content, capped | [AI_TOOLS.md](../architecture/AI_TOOLS.md#decisions) |
+| 2026-10-12 | **D-006:** beverage launch staging per BEVERAGE_SCOPE, gated per statistic: enabled only when its source meets FQ1 and its fixtures pass. **FQ1–FQ4:** reviewed secondary sources (e.g. Holle, MBAA) may back a formula with both citations; OG has mass (default) and points (parity) methods; Tinseth and ABV wait for citable sources, Lumina variants kept for parity only | [FORMULA_COVERAGE.md](../architecture/FORMULA_COVERAGE.md#decisions) |
 
 ## Proposed (direction set, evidence pending)
 
 | ID | Proposal | Evidence needed | Target |
 |---|---|---|---|
 | D-005 | Shared TS/Python fixture suite as the parity contract with Lumina and brewconvert | First parity fixture passing in both | Phase 2 |
-| D-006 | Beverage launch staging per [BEVERAGE_SCOPE.md](../product/BEVERAGE_SCOPE.md) | Sourced formula coverage table | Phase 0 |
 | D-007 | Desktop 1.0: Windows x64, macOS universal, Linux x64; Android before iOS | Phase 1 builds | Phase 0–1 |
 | — | Tauri 2 shell, Electron + Capacitor fallback | Graph spike, mobile builds | Phase 1 ([ADR 0003](../architecture/adr/0003-application-shell.md)) |
 | — | Pure TypeScript Recipe Core | Port sizing; core on mobile | Phase 0–1 ([ADR 0004](../architecture/adr/0004-typescript-recipe-core.md)) |
@@ -43,6 +45,8 @@ Architectural decisions with lasting consequences also get an ADR in
 | — | AI tiers and proposal boundary | Phase 8 tests | ([ADR 0007](../architecture/adr/0007-ai-integration-tiers.md)) |
 | — | Revision envelope and hashing: RFC 8785 JCS + SHA-256 over envelope and content; decimal strings, no floats, unknown = absent; `calculated` statistics kept outside the hash; service metadata only in sidecars | Phase 2 test vectors passing in two implementations | Phase 0 draft → Phase 2 ([RECIPE_SCHEMA.md](../architecture/RECIPE_SCHEMA.md)) |
 | — | Editor commands target entity IDs with absolute values; all-or-nothing; provenance assigned by channel; semantic diff; stale proposals rebased and re-reviewed. Q5, Q5b, Q9 and E1–E6 decided 2026-10-11 (see Decided) | Owner answers; Phase 2 implementation | Phase 0 draft ([EDITOR_COMMANDS.md](../architecture/EDITOR_COMMANDS.md), [RECIPE_SCHEMA.md §7](../architecture/RECIPE_SCHEMA.md#7-content)) |
+| — | Sync protocol: brand-neutral `/sync/v0` under a user-chosen service base; system-browser OAuth with PKCE, per-device tokens; cursor change feed; per-item idempotent revision push; `unsynced` vs `deleted` tombstones; reconciliation never deletes locally; D-022 delivery with `update-required`; export never blocked | Contract tests with two simulated clients (listed in the document) | Phase 0 outline → Phase 13 ([SYNC_PROTOCOL.md](../architecture/SYNC_PROTOCOL.md)) |
+| — | One AI tool surface for all tiers: scoped reads, `preview_changes`, additive `create_recipe`, `propose_changes`, `import_recipe`; no delete/accept/export/URL/device tools | Phase 8 tests | Phase 0 draft → Phase 8 ([AI_TOOLS.md](../architecture/AI_TOOLS.md)) |
 
 ## Open
 
@@ -50,7 +54,7 @@ Architectural decisions with lasting consequences also get an ADR in
 |---|---|---|---|
 | D-009 | Ingredient catalog source and redistribution rights | Phase 3 catalog | Phase 0 |
 | D-010 | UI framework: React vs. Svelte (evaluated with graph spike) | Phase 1 spike | Phase 1 |
-| D-011a | AI Bridge sync and conflict model. **Proposed** in Bridge ADR B-0005: revision DAG, server never merges, user resolves divergence in the app, tombstones (BR-05) | App sync client; Bridge data model | Bridge B0 |
+| D-011a | AI Bridge sync and conflict model. **Proposed**: revision DAG, server never merges, user resolves divergence in the app, tombstones. Public protocol outline in [SYNC_PROTOCOL.md](../architecture/SYNC_PROTOCOL.md) | App sync client; Bridge data model | Bridge B0 |
 | D-014 | May AI proposals auto-apply to unsaved drafts (still undoable)? Related: Bridge BR-07 proposes that new AI-created recipes enter the library directly, marked `ai_proposed` + unreviewed, while edits to existing recipes are always proposals | Phase 8 UX; Bridge B5 | Phase 8 / Bridge B4 |
 | D-015 | May desktop 1.0 ship with the list editor only if the graph slips? | Release planning | Phase 4 |
 | D-016 | Native file extension and MIME type | Phase 1 file exchange | Phase 0 |

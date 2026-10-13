@@ -1,6 +1,6 @@
 # Carboy — Next Actions
 
-Updated: 2026-10-11. Ordered. Owner decisions are marked **(owner)**.
+Updated: 2026-10-13. Ordered. Owner decisions are marked **(owner)**.
 
 ## Phase 0 — Discovery and decisions
 
@@ -30,9 +30,14 @@ Updated: 2026-10-11. Ordered. Owner decisions are marked **(owner)**.
 - [x] Verdant Reverie and Ultimate Coffee Schwarzbier are the owner's; publishable.
 - [x] Map Lumina's port surface (2026-10-11): per-function port map in
       `REUSE_BASELINE.md`; Lumina cites no formula sources.
-- [ ] Collect primary sources for Lumina's beer formulas (MCU, Morey SRM,
-      extract points/OG, attenuation/FG, ABV 131.25, Tinseth) and confirm
-      Tinseth's gravity and volume inputs. Feeds the formula coverage table.
+- [x] Reference notes on Holle's *Handbook of Basic Brewing Calculations*
+      (`docs/references/HOLLE_BREWING_CALCULATIONS.md`, 2026-10-12): covers
+      MCU (Daniels), the mass-based extract method, Kolbach residual
+      alkalinity, mashing and carbonation; lists the primary sources it cites.
+- [ ] Collect primary sources for Lumina's beer formulas still uncovered
+      (Morey SRM, Tinseth IBU, ABV 131.25, exact SG ↔ °P) and confirm
+      Tinseth's gravity and volume inputs. Check Holle's page-specific
+      items against print. Feeds the formula coverage table.
 - [ ] Choose the brewconvert revision that is the BeerXML port oracle;
       record why (`master` `0b5e05d` vs. Lumina's pin `e0f9975a`).
 - [ ] Complete the reuse matrix in `docs/architecture/REUSE_BASELINE.md` for
@@ -51,11 +56,17 @@ Updated: 2026-10-11. Ordered. Owner decisions are marked **(owner)**.
       table plus `unmapped`) decided 2026-10-11.
 - [x] **(owner)** RECIPE_SCHEMA Q5b and EDITOR_COMMANDS E1–E6 decided
       2026-10-11 (recommendations accepted).
+- [x] Sync protocol v0 outline (`docs/architecture/SYNC_PROTOCOL.md`) and
+      AI tool surface v0 (`docs/architecture/AI_TOOLS.md`), 2026-10-12.
+- [x] **(owner)** SYNC_PROTOCOL SQ1–SQ4 and AI_TOOLS TQ1–TQ5 decided 2026-10-12 (recommendations accepted).
 - [ ] Draft the stage-kind table and ingredient property table rows from
       the formula coverage table (only rows a cited formula or an import
       format needs).
-- [ ] Formula coverage table with cited sources per beverage; propose D-006
-      final staging.
+- [x] Formula coverage table draft (`docs/architecture/FORMULA_COVERAGE.md`,
+      2026-10-12) with source status per formula and a proposed D-006 gate.
+- [x] **(owner)** FORMULA_COVERAGE FQ1–FQ4, then D-006 (accepted 2026-10-12).
+- [ ] Citable sources for the blocked statistics (Morey, Tinseth, ABV,
+      SG ↔ °P, Brix ↔ SG, non-beer sugar contributions).
 - [ ] Lumina ⇄ Carboy field mapping draft, including legacy imperial fields.
 - [ ] Decide D-016 (native file extension / media type; brand-neutral) and
       D-019 (`soda`/`gruit`) (RECIPE_SCHEMA Q6/Q7). Q8 (NFC) targets Phase 2;
@@ -63,8 +74,36 @@ Updated: 2026-10-11. Ordered. Owner decisions are marked **(owner)**.
 - [ ] Phase 1 spike plan: Recipe Core language and shell candidates (ADRs
       0003/0004), graph library and UI framework candidates, devices, CI matrix.
 
+## Phase 1 — Platform proof (active since 2026-10-12)
+
+Plan: [PHASE1_SPIKE_PLAN.md](PHASE1_SPIKE_PLAN.md). Spike code: `spikes/phase1/`.
+
+- [x] Track A: TypeScript core spike, 10/10 tests in Node (2026-10-12).
+- [x] Track B on Linux: Tauri 2 shell runs the same build in WebKitGTK;
+      SQLite save/reopen and native file round trip, 5/5 checks (2026-10-12).
+- [x] **(owner)** Commit and push this repository (2026-10-13). `carboy-bridge` still uncommitted.
+- [ ] **(owner)** GitHub Actions with macOS runners; Windows, Android, iOS
+      test access; more recipe fixtures with publish notes.
+- [x] Track C automated part on WebKitGTK: both candidates 7/7
+      (`spikes/phase1/GRAPH_REPORT.md`, interim, 2026-10-12).
+- [x] Spike shell navigation and a Recipe page surfacing current capabilities (2026-10-12).
+- [x] Accessibility tree of every page checked over AT-SPI; four graph issues fixed (2026-10-13).
+- [ ] **(owner)** Listen with Orca on both graph pages; try drag and pan (steps in GRAPH_REPORT.md).
+- [x] Recipe page buttons automated (2026-10-13).
+- [x] Library page; kill-during-write test, 3 rounds, all verified (2026-10-13).
+- [x] Manual-only CI workflow written (`.github/workflows/phase1-spike.yml`); never run.
+- [ ] Rerun the navigation test without interference (GRAPH_REPORT finding 3).
+- [ ] SQLite `synchronous` setting for power loss (ADR 0006).
+- [x] Recipe page Edit control: one editor command with preview, diff, and a child revision (2026-10-13).
+- [ ] Undo/redo on the Recipe page; History view on the Library page; a second command.
+- [ ] Performance budgets from measured recipes; define the "large recipe".
+- [ ] **(owner)** Push, enable Actions, and start `phase1-spike`; then record the results.
+- [ ] Track B on Windows, macOS, Android, iOS (simulator runs marked as such).
+- [ ] Tracks D (sidecar) and E (secrets, file associations, HTTP).
+- [ ] Spike reports → decide ADRs 0003, 0004, 0006, D-010, D-017, Q4, D-016.
+
 ## Not now
 
-No packages, language workspaces, framework scaffolding, CI, or OS bundle
-identifiers until the Phase 1 spike selects the toolchain (ADRs 0003/0004)
-and the conventions are reviewed.
+No packages, language workspaces, framework scaffolding, or OS bundle
+identifiers outside `spikes/` until the Phase 1 spike selects the toolchain
+(ADRs 0003/0004) and the conventions are reviewed.

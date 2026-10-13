@@ -49,7 +49,7 @@ UI text never contains a typed-in product name.
 | Native recipe file extension and media type | Pending; brand-neutral | D-016 (Phase 0) |
 | Schema `$id` base | Pending; brand-neutral | Recipe schema v0 (Phase 0) |
 | OS application/bundle IDs, URL scheme, data-folder names | **Not created**; review conventions first | Phase 1 review, ADR before Phase 6 |
-| Bridge API base path and version | Pending; brand-neutral | Bridge contract (Phase 13 prerequisite) |
+| Sync API base path and version | Proposed: `{service base}/sync/v0` ([SYNC_PROTOCOL.md](SYNC_PROTOCOL.md)); AI tool names proposed in [AI_TOOLS.md](AI_TOOLS.md) | Sync protocol and tool surface (Phase 13 / Phase 8) |
 | User-facing brand | Undecided; development default "Carboy" | Owner, before Phase 6 |
 
 ## Rebranding procedure

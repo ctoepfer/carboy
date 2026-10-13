@@ -64,7 +64,10 @@ Rules:
 2. **New entities get their ID from the command.** The author generates a
    UUID (RFC 9562) for each entity it creates, so later commands in the same
    list can refer to it, and every implementation produces byte-identical
-   content (C3). A duplicate ID is rejected.
+   content (C3). A duplicate ID is rejected. AI tool hosts may let a model write
+   placeholder references that the host turns into UUIDs before
+   application ([AI_TOOLS.md](AI_TOOLS.md) TQ1); Recipe Core never sees
+   placeholders.
 3. **Values use the schema's representations**: quantities as
    `{ "value": "<decimal string>", "unit": "<token>" }`, decimal strings
    normalized per RECIPE_SCHEMA §3. A command that carries a JSON number

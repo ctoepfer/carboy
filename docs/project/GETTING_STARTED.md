@@ -1,18 +1,21 @@
 # Getting Carboy going
 
-Updated: 2026-10-11. This page answers one question: **what has to happen,
+Updated: 2026-10-12. This page answers one question: **what has to happen,
 in what order, to get from today's plan to working code?** It links to the
 detailed documents rather than repeating them. For where the project stands
 right now, read [STATUS.md](STATUS.md).
 
 ## Where things stand
 
-- Phase 0 (discovery and decisions) is in progress. There is no application code.
+- Phase 0 is done (2026-10-12), with its unfinished items carried to later
+  phases (STATUS.md). **Phase 1 (platform proof) is active**: steps 1–4 below
+  are done, and step 5 has started on Linux. Only throwaway spike code
+  exists, in `spikes/phase1/`.
 - The license (Apache-2.0), the repositories, macOS CI (hosted runners), and the
   codename are decided ([DECISIONS.md](DECISIONS.md)).
-- No language, framework, or build tool is selected. ADRs 0003–0007 are Proposed.
-  Do not scaffold packages or tooling until the Phase 1 spike selects them
-  ([AGENTS.md](../../AGENTS.md)).
+- No language, framework, or build tool is selected yet. ADRs 0003–0007 are
+  Proposed. Outside `spikes/`, don't scaffold packages or tooling until the
+  spike reports decide them ([AGENTS.md](../../AGENTS.md)).
 
 ## The path to first code
 
