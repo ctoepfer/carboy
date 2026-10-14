@@ -23,5 +23,7 @@ export { INGREDIENT_PROPERTIES, propertyRow } from "./properties.js";
 export type { PropertyRow } from "./properties.js";
 export { beverageAdvisories } from "./advisories.js";
 export type { Advisory } from "./advisories.js";
+export { scaleRecipe } from "./scaling.js";
+export type { NotScaled, ScaleCommand, ScaleResult } from "./scaling.js";
 export { calculateStatistics } from "./calculate.js";
 export type { CalculatedStatistics, CalculationDiagnostic } from "./calculate.js";

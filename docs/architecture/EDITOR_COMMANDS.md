@@ -230,7 +230,7 @@ sees every changed value.
 
 | `op` | Arguments | Expands to |
 |---|---|---|
-| `scale_recipe` | `batch_volume` (quantity), *`scope`* | `set_target` for the batch volume and `set_addition_amount` for each scaled addition. Which additions scale, and how (linear for grain; not for cultures, which Lumina also skips with a warning; hop utilization and boil-off are not linear), is the Phase 2 scaling policy. Until then, rejected as `unsupported-op` |
+| `scale_recipe` | `batch_volume` (quantity), *`scope`* | `set_target` for the batch volume and `set_addition_amount` for each scaled addition. Which additions scale, and how (linear for grain; not for cultures, which Lumina also skips with a warning; hop utilization and boil-off are not linear), is the Phase 2 scaling policy: v1 in [RECIPE_CORE §7a](RECIPE_CORE.md#7a-scaling-policy-v1-2026-10-14) (`scaleRecipe`). The command applier arrives in Phase 4 |
 | `replace_ingredient` | `ingredient`, `with` (an `add_ingredient` body) | `add_ingredient`, one `move`-equivalent per addition re-pointed to the new ingredient, `remove_ingredient`. Amounts are kept; properties are not copied (the new ingredient has its own) |
 
 A stored proposal keeps the commands as submitted. The expansion is

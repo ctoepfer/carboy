@@ -223,6 +223,30 @@ JSON Pointer; nothing is repaired or filled in.
   invalid, so an unfinished recipe stays editable. Sake has none (no
   source).
 
+## 7a. Scaling policy v1 (2026-10-14)
+
+`scaleRecipe(content, batchVolume)` (`scaling.ts`) returns the expansion of
+the `scale_recipe` macro (EDITOR_COMMANDS §5.8): a `set_target` for the
+batch volume and a `set_addition_amount` per changed addition. It never
+edits content; applying the commands is the editor's job (Phase 4).
+
+| Addition | Treatment | Source |
+|---|---|---|
+| Fermentable, sugar, honey, fruit, hop, adjunct, by mass or volume | × new/old batch volume | Lumina `state.py` `_scale_batch` (botanicals there ≈ adjuncts here) |
+| Culture | Not scaled (`culture`): pitch rate is the brewer's call | Lumina ("review pitch rate") |
+| Any amount in a count unit (package, sachet, tablet, count) | Not scaled (`count`) | Whole units can't be multiplied by a fraction |
+| Water agent, nutrient, acid, fining, other | Not scaled (`review-dose`): the dose may follow mash or sparge water, or a measured value, rather than batch volume | Lumina doesn't scale them; no source for a rule |
+| Other volume targets (boil volume, …) | Not scaled (`equipment-volume`): boil-off and losses aren't linear | EDITOR_COMMANDS §5.8 |
+| Hops | Scaled, with note `hop-utilization-not-modelled` (utilization depends on boil gravity and volume; no IBU formula yet) | EDITOR_COMMANDS §5.8 |
+
+**Rounding:** each amount is computed from exact rationals with one
+division, rounded half-even to 34 significant digits, and stored at that
+precision; nothing is rounded to "nice" values. Whether scaled amounts
+should be rounded to a stated precision before they are stored (for
+example 1 g, or 0.01 kg) is open question **SQ1** for the owner; display
+rounding is a UI matter either way. Statistics of the scaled recipe are
+recalculated, never carried over.
+
 ## 8. Verification
 
 `npm test` at the repository root builds and runs every package's tests;
@@ -234,7 +258,7 @@ regression values are the ones brewconvert documents as its oracle.
 
 ## 9. Next in Recipe Core
 
-In order: scaling and its rounding policy; migrations; the Python-side
+In order: migrations; the Python-side
 fixture runner (D-005); more formulas as their sources are read (Morey,
 Tinseth, ABV; wine-condition pK₁, YAN requirements). Stage parameter rows
 come with the formulas that read them.
