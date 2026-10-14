@@ -29,6 +29,12 @@ read; the original is still to be read and checked).
   Abhandlungen der Kaiserlichen Normal-Eichungskommission* 2, 153 ff.
   **Via** NBS C440 Table 113 (the original not read).
 
+- IUPAC Commission on Isotopic Abundances and Atomic Weights (CIAAW).
+  *Abridged Standard Atomic Weights 2024* (based on the Atomic Weights 2021
+  report). <https://www.ciaaw.org/abridged-atomic-weights.htm>. **Read
+  2026-10-14.** Used for `sulfite.so2-from-metabisulfite` and
+  `nutrient.yan-from-dap`.
+
 ## Primary sources (via Holle, to be read)
 
 - Kolbach, P. (1941). Zur Beurteilung gipshaltiger Brauwässer.

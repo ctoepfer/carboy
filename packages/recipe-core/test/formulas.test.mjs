@@ -38,7 +38,9 @@ test("every registered formula documents source, assumptions, inputs, applicabil
 
 test("only enabled formulas are offered to users; sake has none yet", () => {
   assert.deepEqual(formulasFor("beer", { enabledOnly: true }).map((f) => f.id).sort(), ["color.mcu", "extract.mass", "gravity.og.mass-method", "gravity.sg-plato"]);
-  for (const b of ["wine", "mead", "cider"]) assert.deepEqual(formulasFor(b).map((f) => f.id), ["gravity.sg-plato"], b);
+  for (const b of ["wine", "mead", "cider"]) {
+    assert.deepEqual(formulasFor(b).map((f) => f.id).sort(), ["gravity.sg-plato", "nutrient.yan-from-dap", "sulfite.so2-from-metabisulfite"], b);
+  }
   assert.deepEqual(formulasFor("sake"), []);
   assert.equal(getFormula("gravity.og.points-lumina").status, "parity-reference");
 });

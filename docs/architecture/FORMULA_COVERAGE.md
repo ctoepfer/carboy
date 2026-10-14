@@ -36,6 +36,8 @@ holds these so far:
 | `extract.mass` v1 | **Enabled** | Holle ch. 1 (Kunze p. 266, Narziss II:313 via); extract mass in kg |
 | `gravity.sg-plato` v1 | **Enabled** | **Primary checked**: NBS Circular C440 (1942) Tables 113–114, Plato's sucrose densities (1900); linear interpolation, 0–40 °P; [reference table](../../fixtures/reference-tables/README.md) |
 | `gravity.og.mass-method` v2 | **Enabled** | Holle ch. 1 (Kunze, Narziss via) for extract = volume × density × °P/100, solved with Plato's densities; v1 was the registered-unavailable placeholder |
+| `sulfite.so2-from-metabisulfite` v1 | **Enabled** (2026-10-14) | **Primary checked**: CIAAW atomic weights; factor 0.5763; SO₂ *released*, not resulting free SO₂; wine, cider, mead |
+| `nutrient.yan-from-dap` v1 | **Enabled** (2026-10-14) | **Primary checked**: CIAAW atomic weights; factor 0.2121; YAN *added*, no requirement calculated; wine, cider, mead |
 | `gravity.og.points-lumina` v1 | Parity reference | Opt-in only; matches Lumina on Verdant Reverie (points within 1e-9 relative; OG 1.064 at 3 places) |
 
 **SG ↔ °P (2026-10-13).** The source is the tabulated data, not a fitted
@@ -148,7 +150,7 @@ leads, not citations.
 | Calculation | Candidate | Source status | Needed before enabling |
 |---|---|---|---|
 | Molecular SO₂ from free SO₂ and pH | molecular = free ÷ (1 + 10^(pH − pK₁)), the bisulfite equilibrium | **Needs source** for pK₁. Usseglio-Tomasset & Bosia (1984) are reported to give pK₁ 1.78 at 19 °C in water and nearer 2.0 under wine conditions; calculators use 1.77 or 1.81. Read only via web articles | Read Usseglio-Tomasset & Bosia (1984) and a reviewed text (Boulton et al. 1996, *Principles and Practices of Winemaking*; or Ribéreau-Gayon et al., *Handbook of Enology* vol. 2). pK₁ becomes a **named, versioned assumption** (temperature and ethanol dependent), never a hidden constant |
-| SO₂ released by potassium metabisulfite | K₂S₂O₅ → 2 SO₂: 2 × 64.064 ÷ 222.32 = 0.5763 of the salt's mass | **Chemistry**: stoichiometry from standard atomic weights (cite the IUPAC/CIAAW edition) | The atomic-weight citation |
+| SO₂ released by potassium metabisulfite | K₂S₂O₅ → 2 SO₂: 128.116 ÷ 222.311 = 0.5763 of the salt's mass | **Primary checked** (CIAAW Abridged Standard Atomic Weights 2024) | **Enabled** as `sulfite.so2-from-metabisulfite` (2026-10-14) |
 | Addition to reach a free SO₂ target | (target free − measured free) × volume ÷ 0.5763 | Arithmetic on the two rows above | Must say it is an **estimate**: part of any addition binds, so the resulting free SO₂ has to be measured, not assumed |
 | Molecular SO₂ targets (≈0.8 mg/L white, ≈0.5 mg/L red) | Guidance values | Secondary (attributed to Jackson, *Wine Science*) | Read the cited text. Targets are **user-chosen**, shown with their source, never a silent default. Red wines: pigment-bound SO₂ makes molecular SO₂ unreliable from free SO₂ alone (reported); limit or flag |
 | Cider: SO₂ by juice pH bands | Tabulated total SO₂ per pH band (Long Ashton tradition) | **Community** (cider.org.uk); primary (Beech & Carr; Lea) not read | Read Lea, *Craft Cider Making*, or Lea & Drilleau (2003); otherwise cider uses the molecular-SO₂ rows above |
@@ -163,7 +165,7 @@ result is unavailable.
 | Calculation | Candidate | Source status | Needed before enabling |
 |---|---|---|---|
 | Staggered additions | Additions with timing on the fermentation stage (RECIPE_SCHEMA §7.2) | **Schema, no formula needed** | Nothing: supported now as recipe data |
-| YAN added by DAP | mass × 0.2121 (2 N × 14.007 ÷ 132.06) | **Chemistry**: stoichiometry | Atomic-weight citation |
+| YAN added by DAP | mass × 0.2121 (28.014 ÷ 132.056) | **Primary checked** (CIAAW 2024) | **Enabled** as `nutrient.yan-from-dap` (2026-10-14) |
 | YAN added by other nutrients | mass × the product's stated nitrogen content | **Maker data**: a cited data-sheet property per product (catalog) | Data sheets; unknown content stays unknown |
 | Total YAN added | Σ of the rows above | Arithmetic | None beyond its inputs |
 | Must YAN | Measured value | **Measurement only**; honey musts are reported to be very low in YAN, but no value is assumed | — |
