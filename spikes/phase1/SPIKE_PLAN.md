@@ -28,9 +28,10 @@
 | 2 | A + B on Linux: Tauri 2 desktop app that runs the track A build in WebKitGTK and reports the same results; SQLite save/reopen; native file export/import | This Linux host (Rust installed per user; WebKitGTK 4.1 present) | **Done 2026-10-12**: 5/5 checks on two launches (save, then reopen) |
 | 3 | Performance budget input: measure the owner's real recipes (ingredient, addition, and stage counts) and define a "large recipe" for track C | This host | Needs the owner's recipe exports beyond the two fixtures |
 | 4 | C on Linux (WebKitGTK), React vs. Svelte | This host | **Automated part done 2026-10-12**: both 7/7 ([GRAPH_REPORT.md](GRAPH_REPORT.md)); Orca and drag-feel checks are manual and open |
-| 5 | B on Windows, macOS, iOS, Android; C on iOS WKWebView | GitHub Actions (macOS runners, D-008) and devices | **Desktop CI run 1, 2026-10-13** ([run 38491921666](https://github.com/ctoepfer/carboy/actions/runs/38491921666)): **macOS (WKWebView)** and **Ubuntu (WebKitGTK, xvfb)** pass everything: core checks 5/5, Recipe edit (OG 1.064 → 1.071), Library (3/3 revisions verified, integrity ok, WAL), both graph candidates 7/7. **Windows** failed at build: Tauri needs `icons/icon.ico` (added; rerun pending). Android and iOS: not started (devices or emulators needed) |
+| 5 | B on Windows, macOS, iOS, Android; C on iOS WKWebView | GitHub Actions (macOS runners, D-008) and devices | **Desktop done 2026-10-13.** Run 1 (38491921666): macOS and Ubuntu pass everything, Windows needed `icon.ico`. Run 2 (38507879149) and [run 38509477157](https://github.com/ctoepfer/carboy/actions/runs/38509477157): **Windows WebView2, macOS WKWebView, and Ubuntu WebKitGTK all pass**: core checks 5/5, Recipe edit (OG 1.064 → 1.071), Library 3/3 verified (WAL, `synchronous=2`), both graph candidates 7/7. Android and iOS: not started; see Mobile investigation |
 | 6 | D, E | Desktop first | After step 5 starts |
-| — | ADR 0006 evidence: kill during write, reopen | This host | **Done 2026-10-13**: 3/3 rounds clean; power loss open |
+| — | ADR 0006 evidence: kill during write, reopen | This host | **Done 2026-10-13**: 3/3 rounds clean. Durability default FULL confirmed at runtime on all three desktops; FULL vs NORMAL measured (ADR 0006 "Measurements"); macOS needs `fullfsync` for real power-loss durability (follow-up) |
+| — | USABILITY §5 measurements: media features, Intl, axe-core | CI, three desktops | **Done 2026-10-13** (USABILITY §5 "Results"); zoom, RTL rendering, keyboard-only, Orca by ear, magnification, and the message-format trial remain manual or later |
 | 7 | Spike reports and ADR decisions | — | End of Phase 1 |
 
 ## Interface growth
@@ -42,14 +43,61 @@ amount with preview and diff, save as a child revision, export, import),
 Library (list and verify), Core checks, Process graph (React Flow), Process
 graph (Svelte Flow). Next planned: undo/redo and a History view.
 
+## Mobile investigation (2026-10-13)
+
+The owner directed: investigate Android and iOS, don't block Recipe Core on
+missing devices, and record gaps against platform release gates.
+
+**What the risk actually depends on.** Recipe Core is pure ES2022 with
+BigInt and no host APIs (RECIPE_CORE §1), so its portability is a question
+of JavaScript engines, not devices:
+
+| Mobile webview | Engine | Closest evidence so far |
+|---|---|---|
+| iOS WKWebView | JavaScriptCore | macOS WKWebView in CI (JavaScriptCore): core checks 5/5, Recipe edit, Library, both graphs 7/7 (runs 38491921666, 38507879149) |
+| Android System WebView | V8 (Chromium) | Windows WebView2 in CI (Chromium/V8): the same passes; Node (V8): Recipe Core 57/57 on Node 20, 22, 24 |
+
+That makes a core failure on mobile unlikely, but it is **inference, not
+verification**: mobile engine builds, memory limits, and JIT restrictions
+differ. The shell (Tauri 2 mobile: plugins, file access, SQLite, lifecycle)
+has no evidence at all yet.
+
+**Options, cheapest first:**
+
+1. **Engine check without the shell:** run Recipe Core's vectors under
+   `jsc` (JavaScriptCore's command-line shell, present on macOS runners)
+   from a single bundled file. Cheap; proves the engine, not the app.
+2. **iOS Simulator in CI:** macOS runners include Xcode and simulators.
+   `tauri ios` builds for the simulator need no signing team; the spike's
+   env-driven auto mode can pass through `xcrun simctl launch` (variables
+   prefixed `SIMCTL_CHILD_`), and the report can be read from the app
+   container. Moderate effort; macOS minutes.
+3. **Android emulator in CI:** Linux runners support hardware acceleration
+   (KVM) for the emulator; the Android SDK is preinstalled. Third-party
+   emulator actions may not pass the repository's "GitHub-made or verified"
+   Actions policy, so scripting `sdkmanager` / `emulator` directly may be
+   needed. Moderate to high effort.
+4. **Real devices:** still needed before any mobile support claim
+   (PROJECT_PLAN Phase 12: "No mobile claim based on a responsive browser
+   preview"; simulator runs are labelled as such).
+
+**Gaps and their gates:**
+
+| Gap | Blocks | Gate |
+|---|---|---|
+| Recipe Core on mobile engines (option 1) | Nothing now; confirms ADR 0004 item 2 | Before ADR 0003 is decided (end of Phase 1) |
+| Tauri mobile shell on simulator/emulator (options 2–3) | ADR 0003 for mobile; D-018 | End of Phase 1 for a go/no-go; fallback shell considered otherwise |
+| Physical Android and iOS devices | Any mobile support claim | Phase 12 release gate |
+
 ## Owner prerequisites
 
 Needed from the maintainer:
 
 - Enable GitHub Actions, including macOS runners, on this repository.
   Hosted macOS minutes may cost money.
-- Test devices: a Windows machine or VM, an Android device, and an iOS
-  device or simulator access through CI.
+- Test devices: an Android device and an iOS device for Phase 12 (Windows
+  is covered by CI since 2026-10-13; simulators and emulators can run in
+  CI, see "Mobile investigation").
 - More of the owner's recipes as fixtures (each with a publish or
   no-publish note), for the performance budget and the large-recipe
   graph test.

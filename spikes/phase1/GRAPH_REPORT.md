@@ -46,6 +46,12 @@ WebKitGTK under xvfb** (`ubuntu-24.04`). Windows (WebView2) did not build
 (missing `icon.ico`, since added). iOS WKWebView still needs a simulator or
 device run.
 
+**Second CI run (2026-10-13, [run 38509477157](https://github.com/ctoepfer/carboy/actions/runs/38509477157)):** both candidates 7/7 again on
+**Windows WebView2**, macOS WKWebView, and WebKitGTK. axe-core 4.13.0 on the
+graph pages: **0 violations**; "needs review": one `aria-prohibited-attr`
+node and 22–27 colour-contrast nodes on each candidate (inputs to D-017 and
+to the manual contrast check).
+
 ## Findings
 
 1. **Selection semantics differ.** After one node was selected, pressing
@@ -63,8 +69,11 @@ device run.
    process went away), so automated runs now open the window directly on the
    requested page. During the link test, extra page loads (back to the
    checks page, or React Flow loading twice) appeared in the log. They may
-   have been clicks in the visible test window. Unconfirmed; rerun headless
-   to check.
+   have been clicks in the visible test window. **Settled 2026-10-13**
+   ([run 38509477157](https://github.com/ctoepfer/carboy/actions/runs/38509477157), clean xvfb display, nobody at the window): the checks page loaded
+   once, finished, clicked "Process graph: React Flow", and the graph page
+   loaded **once** and ran 7/7. No extra loads: the earlier ones came from
+   interference with the visible window, not from the app.
 4. **Graph pages can't be measured in a hidden window** (2026-10-13): with
    `SPIKE_HIDDEN=1`, WebKitGTK doesn't run animation frames, so the
    measurements wait forever. Graph runs need a visible window (or a virtual

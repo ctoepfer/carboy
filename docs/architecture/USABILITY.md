@@ -349,6 +349,22 @@ contrast, and reduced motion.
    scaling on the Recipe page; does Tauri pass OS text scaling to the
    webview?
 
+### Results (2026-10-13)
+
+Measured in the spike's platform probe page and with axe-core 4.13.0 on
+every spike page, on Windows (WebView2), macOS (WKWebView), and Linux
+(WebKitGTK), in CI ([run 38509477157](https://github.com/ctoepfer/carboy/actions/runs/38509477157)) and locally on Linux:
+
+| Item | Result |
+|---|---|
+| 1. Media features | `prefers-color-scheme`, `prefers-reduced-motion`, `prefers-contrast`, `forced-colors`, `prefers-reduced-transparency`, `inverted-colors`: **recognized in all three webviews**, and they follow the OS (the Windows and macOS runners report reduced motion on; the Linux desktop reports its dark scheme). Whether each one **changes live** when the setting changes is still a manual check |
+| 2. `Intl` | All checks pass in all three: **exact formatting of decimal strings** (29 significant digits, beyond a binary double), de-DE decimal comma, Arabic digits, plural categories (en, de, ja, ar, pl), German dates, `Locale` text direction (ar → rtl), `DisplayNames`, `ListFormat`, grapheme `Segmenter`, NFC. The UI can format Recipe Core's decimal strings without converting to floats |
+| 5. axe-core | **0 violations** on every page (checks, Recipe, Library, probe, both graphs) in all three. "Needs review": colour contrast (Linux pages; 22–27 graph nodes everywhere) and one `aria-prohibited-attr` node per graph candidate. Automated rules are a floor, not evidence of conformance (§1.5) |
+| 3. Message-format trial | Not started (with D-010) |
+| 4. Pseudo-locale and RTL rendering | Not started: needs a visual check |
+| 6. Zoom and text scaling | Not started: manual |
+| Keyboard-only, focus, Orca by ear, magnification, contrast by eye | Manual; the accessibility tree was checked over AT-SPI (GRAPH_REPORT). Orca's speech still needs a person listening |
+
 ## 6. Decisions (owner, 2026-10-13)
 
 Rules U1–U12 are accepted as foundational product requirements. The

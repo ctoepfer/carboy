@@ -76,7 +76,7 @@ jobs:
           # No SPIKE_EXIT: the checks page reports, then clicks the nav link; the
           # graph page's report replaces it. The run ends at the timeout.
           SPIKE_START=index.html SPIKE_AUTO=1 SPIKE_NAV="Process graph: React Flow" SPIKE_REPORT=$PWD/report-nav.json \
-            timeout 90 xvfb-run -a "$exe" 2>nav.log || true
+            timeout 90 xvfb-run -a "$exe" >nav.log 2>&1 || true  # xvfb-run sends the app's stderr to stdout
           python3 tools/nav_summary.py nav.log report-nav.json > report-nav-summary.json
           cat report-nav-summary.json
       - name: SQLite durability benchmark, FULL vs NORMAL under WAL (ADR 0006)

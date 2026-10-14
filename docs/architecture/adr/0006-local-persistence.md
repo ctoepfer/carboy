@@ -46,3 +46,48 @@ format with migrations.
    revision.
 3. Latency of `synchronous=FULL` vs `NORMAL` under WAL measured on the
    target platforms (Phase 1 spike first).
+
+## Measurements
+
+**Runtime configuration (2026-10-13).** The spike reads the settings the
+SQLite plugin actually uses: Linux reports `journal_mode=wal`,
+`synchronous=2` (FULL). `tauri-plugin-sql` 2.5.0 uses sqlx, which leaves
+`synchronous` at SQLite's compile-time default (FULL) and the bundled
+SQLite sets no other default. Because the plugin holds a connection pool
+and `PRAGMA synchronous` is per connection, the real Recipe Library must
+set durability in its connection options, not with a one-off PRAGMA.
+
+**FULL vs NORMAL under WAL, one commit per save, ~3 KB documents**
+(`spikes/phase1/tools/sqlite_durability_bench.py`, 2 × 300 commits each;
+Linux 7.0, ext4 on the app's data disk, SQLite 3.53.1):
+
+| Setting | Median per save | 95th percentile | Worst |
+|---|---|---|---|
+| FULL | 3.0 ms | 7.2–7.3 ms | 16–32 ms |
+| NORMAL | 0.03 ms | 0.04–0.05 ms | 58–62 ms (checkpoint) |
+
+FULL costs a few milliseconds per save, off the UI thread, for an
+application that saves on user actions and autosave. NORMAL is faster on
+average but has larger worst-case pauses and can lose the most recent
+commits on power loss. **These numbers support keeping FULL.** 
+
+**CI runners ([run 38509477157](https://github.com/ctoepfer/carboy/actions/runs/38509477157); indicative only, runner disks are not user hardware).**
+Runtime configuration on all three desktops: `journal_mode=wal`,
+`synchronous=2` (FULL).
+
+| Runner | SQLite | FULL median / p95 / worst | NORMAL median |
+|---|---|---|---|
+| Windows | 3.49.1 | 12.5 / 32–35 / 67–93 ms | 0.04 ms |
+| macOS | 3.53.4 | 0.3–0.4 / 0.8–0.9 / 1.7–12 ms | 0.05 ms |
+| Linux | 3.45.1 | 0.3–0.4 / 0.5 / 0.8–1.2 ms | 0.04 ms |
+
+Windows is the slowest and still well under a frame per save at the
+median; FULL stays the default.
+
+**macOS caveat (storage configuration).** On macOS, `fsync` doesn't force
+the drive's write cache to stable storage; SQLite uses `F_FULLFSYNC` only
+when `PRAGMA fullfsync` is on, and it is off by default
+(<https://www.sqlite.org/pragma.html#pragma_fullfsync>). The fast macOS
+FULL figures above reflect that. **Follow-up before this ADR is
+accepted:** set `fullfsync` (and `checkpoint_fullfsync`) on Apple
+platforms through the connection options and measure the cost.
