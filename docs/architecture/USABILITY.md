@@ -363,7 +363,7 @@ every spike page, on Windows (WebView2), macOS (WKWebView), and Linux
 | 3. Message-format trial | Not started (with D-010) |
 | 4. Pseudo-locale and RTL rendering | Not started: needs a visual check |
 | 6. Zoom and text scaling | Not started: manual |
-| Keyboard-only, focus, Orca by ear, magnification, contrast by eye | Manual; the accessibility tree was checked over AT-SPI (GRAPH_REPORT). Orca's speech still needs a person listening |
+| Keyboard-only, focus, Orca by ear, magnification, contrast by eye | Manual; the accessibility tree was checked over AT-SPI (GRAPH_REPORT), also in CI. A scripted Orca run in CI confirms Orca attaches, receives focus on "Stage 1 of 8: Mash, 5 additions", and gets key events, but its speech output blocks without an audio device (GRAPH_REPORT). **Orca's speech still needs a person listening** |
 
 ## 6. Decisions (owner, 2026-10-13)
 

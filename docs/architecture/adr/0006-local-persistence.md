@@ -91,3 +91,28 @@ when `PRAGMA fullfsync` is on, and it is off by default
 FULL figures above reflect that. **Follow-up before this ADR is
 accepted:** set `fullfsync` (and `checkpoint_fullfsync`) on Apple
 platforms through the connection options and measure the cost.
+
+**`fullfsync` on macOS, measured (2026-10-13, CI run 38515541034; macOS 26.6
+arm64 runner, SQLite 3.53.4, 2 × 200 saves of ~3 KB, WAL):**
+
+| Setting | Median per save | 95th percentile | Worst |
+|---|---|---|---|
+| FULL, `fullfsync` off | 0.25–0.30 ms | 0.75–0.90 ms | 1.0–12 ms |
+| **FULL, `fullfsync` + `checkpoint_fullfsync` on** | **1.4–1.5 ms** | **6.5–7.3 ms** | 25–135 ms |
+| NORMAL, either | ≈0.04 ms | 0.05–0.16 ms | 0.3–0.5 ms |
+
+Real power-loss durability on macOS costs about 1.2 ms more per save at the
+median, with occasional pauses up to about 135 ms on this runner (CI disks
+are not user hardware). For saves driven by user actions and autosave,
+that is acceptable. On Linux the pragmas are accepted and have no effect,
+as documented.
+
+**Recommendation (durability setting):** WAL + `synchronous=FULL`
+everywhere, and on Apple platforms (macOS, iOS) also `fullfsync=ON` and
+`checkpoint_fullfsync=ON`, set in the connection options of every pooled
+connection.
+
+**Acceptance status.** The durability setting is supported by evidence. The
+ADR as a whole is **not yet acceptable**: evidence item 1 needs a mobile
+save/reopen (Android, iOS), and item 2 needs the Phase 3 interrupted-write
+and migration-rollback tests. It stays Proposed.

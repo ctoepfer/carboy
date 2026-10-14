@@ -59,7 +59,10 @@ Accepted by the owner to start Phase 2, with evidence as follows:
 2. **Partly met:** the same core build runs unchanged in Node and in the
    WebKitGTK webview (Linux), and in CI (2026-10-13, run 38491921666) in
    **macOS WKWebView** and WebKitGTK: core checks 5/5 including the RFC 8785
-   vectors and the Lumina parity fixture. **Android and iOS are not yet verified**;
+   vectors and the Lumina parity fixture. **Later the same day (CI run
+   38517172487):** the current Recipe Core package passes 13/13 checks (all
+   published hash vectors, decimal, units, gravity, OG, MCU) on macOS's
+   system JavaScriptCore, the iOS engine family, outside any app shell. **Android and iOS are not yet verified**;
    that check stays open in Phase 1. The risk is low for the core itself
    (pure ES2022 with BigInt, no platform APIs) and sits mainly with the
    shell (ADR 0003).

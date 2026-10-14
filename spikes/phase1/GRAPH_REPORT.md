@@ -115,6 +115,28 @@ The Recipe and Library pages have labelled form fields ("Addition", "New
 amount (kg)") and named buttons, and no unnamed focusable controls apart from
 the webview's own scroll pane.
 
+## Scripted Orca run in CI (2026-10-13, owner-approved; not a substitute for listening)
+
+`tools/orca_session.sh` runs Orca 46 with a debug log and the AT-SPI check
+inside a private session bus and virtual display on the Ubuntu runner
+([runs 38515541034, 38516366087, 38517172487](https://github.com/ctoepfer/carboy/actions/workflows/phase1-spike.yml)).
+
+- **Confirmed:** Orca starts and attaches to the app ("Screen reader on.",
+  then "Phase 1 shell spike frame." when the window appears); it receives
+  the focus event for **"Stage 1 of 8: Mash, 5 additions"**; keyboard
+  events reach it; the AT-SPI tree in CI matches the local check (8
+  stages named "Stage N of 8: …", focusable, Carboy's description, Move
+  stage earlier/later, Zoom In/Out, Fit View, a polite and an assertive
+  live region).
+- **Not obtained:** what Orca would *say* for the stages and the
+  move announcement. On the first key press Orca calls `speech.stop()` and
+  blocks inside the speech-dispatcher client (the runner has no audio
+  device); Orca's own watchdog then reports "something has hung". Moving
+  the AT-SPI check after Orca's run did not change it.
+- **Possible next step:** give speech-dispatcher an audio null sink in CI
+  so it answers normally. Even then, this remains a supplement: **Orca
+  still needs a person listening** on a real desktop.
+
 ## Not yet checked
 
 - **Orca speech, by ear.** The tree is right, but how Orca phrases it (and

@@ -62,6 +62,12 @@ verification**: mobile engine builds, memory limits, and JIT restrictions
 differ. The shell (Tauri 2 mobile: plugins, file access, SQLite, lifecycle)
 has no evidence at all yet.
 
+**Option 1 done (2026-10-13):** Recipe Core's 7 published hash vectors and
+6 formula and arithmetic checks pass **13/13 on macOS's system
+JavaScriptCore** (macOS 26 runner, through `osascript -l JavaScript`;
+recent macOS ships no `jsc` shell), CI run 38517172487. Engine-level
+evidence for iOS only; the iOS app shell is untested.
+
 **Options, cheapest first:**
 
 1. **Engine check without the shell:** run Recipe Core's vectors under
