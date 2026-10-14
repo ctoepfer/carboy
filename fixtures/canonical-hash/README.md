@@ -38,7 +38,7 @@ example bytes. CI runs `vectors.py check` (Python) and Recipe Core's tests
 | `jcs-escapes` | Control characters, quote and backslash, unescaped `/`, U+2028/U+2029 left literal, Latin-1, CJK, emoji |
 | `jcs-numbers` | Safe integers at ±(2⁵³−1); ECMAScript float formatting (`1e+21`, `1e-7`, `-0` → `0`, subnormal). Generic JCS only: recipe documents allow integers alone |
 | `revision-minimal` | Root revision with empty content |
-| `revision-typical` | Quantities, NFC text with umlauts and an en dash, emoji, nested arrays, and a `derived` block outside the hash |
+| `revision-typical` | Quantities, NFC text with umlauts and an en dash, emoji, nested arrays, additions with timing, a declared statistic, and a `derived` block outside the hash |
 | `revision-merge` | Two parents (sorted), mead, US gallons, non-zero milliseconds |
 
 Negative and edge cases (non-NFC strings, keys that collide after NFC,
@@ -46,6 +46,10 @@ modified content or envelope, reordered arrays, unsorted or duplicate
 parents, malformed quantities, `null`, non-integer numbers, lone surrogates,
 envelope format errors) are tested in
 `packages/recipe-core/test/revision.test.mjs` against these same files.
+
+The revision cases are also valid recipe content
+(`validateContent` reports no issues for them), so they double as small
+example documents.
 
 ## Regenerating
 

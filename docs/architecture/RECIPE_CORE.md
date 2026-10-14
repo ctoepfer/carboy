@@ -139,7 +139,42 @@ true }`) to compare with Lumina or BeerXML-derived values. The current
 entries and their sources are listed in
 [FORMULA_COVERAGE.md](FORMULA_COVERAGE.md#implemented-in-recipe-core-2026-10-13).
 
-## 7. Verification
+## 7. Provenance, statistics layers, and validation
+
+Implements RECIPE_SCHEMA §6–§9 (`provenance.ts`, `statistics.ts`,
+`stage-kinds.ts`, `content.ts`). Every check reports a coded issue with a
+JSON Pointer; nothing is repaired or filled in.
+
+- **Provenance:** the seven value origins (declared, imported, inferred,
+  calculated, measured, manually entered, AI-proposed), confidence,
+  resolution. A calculated value must name its formula
+  `{ id, version }` (version as a string). `source` may hold only
+  `format`, `field`, `original_display`: no file names or paths.
+- **Statistics layers:** `declared`, `imported_estimate`, `measured` in
+  content; `calculated` only in `derived` (a calculated layer or origin in
+  content is an error). Each layer holds only matching origins, so an
+  estimate can never sit in the measured layer, or a measured value be
+  passed off as declared by an import. Display rule: the chosen layer if
+  it has a value, else declared, imported estimate, calculated; measured
+  only when chosen; otherwise **unknown**, never zero.
+- **Calculated entries:** `toCalculatedStatistic` turns a formula result
+  into its `derived` entry, keeping an unavailable result unavailable;
+  `isCalculatedCurrent` detects a cached value from an older formula
+  version so it is recalculated and the change shown.
+- **Stage-kind table v0:** `mash`, `sparge`, `boil` (points `first_wort`,
+  `flameout`), `whirlpool`, `chilling`, `fermentation` and `conditioning`
+  (point `dry_hop`), `stabilization`, `packaging`. Parameter rows come with
+  the formulas that read them; non-beer kinds with their beverage formulas.
+- **Content validation, first slice:** beverage type (no fallback to beer);
+  ids valid and unique across the document; additions name an existing
+  ingredient and stage and have an amount; flows name existing stages;
+  ingredient, stage, and flow kinds from their tables; timing basis,
+  offsets, contact durations, and named points allowed by the stage kind
+  with their implied basis; statistics and provenance throughout. Not yet:
+  stage parameters and topology (linear chain), beverage-specific rules,
+  the ingredient property table.
+
+## 8. Verification
 
 `npm test` at the repository root builds and runs every package's tests;
 the `core` workflow runs them on Node 22 and 24 for every push and pull
@@ -148,7 +183,9 @@ implementation. Expected values are exact products or were computed independentl
 (Python `decimal`, 80 digits, rounded half-even to 34); the three oz/lb
 regression values are the ones brewconvert documents as its oracle.
 
-## 8. Next in Recipe Core
+## 9. Next in Recipe Core
 
-In order: provenance and statistics layers; validation; more formulas as
+In order: the remaining validation (stage parameters, topology,
+beverage-specific rules, ingredient property table); scaling and its
+rounding policy; native serialization (Recipe Format); more formulas as
 their sources are read (SG ↔ °P first, which unblocks mass-method OG).

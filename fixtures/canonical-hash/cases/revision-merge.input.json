@@ -31,16 +31,27 @@
       }
     ],
     "process": {
-      "stages": [],
+      "stages": [
+        {
+          "id": "0192f3a0-0000-7000-8000-000000000052",
+          "kind": "fermentation",
+          "parameters": {},
+          "steps": []
+        }
+      ],
       "flows": []
     },
     "additions": [
       {
         "id": "0192f3a0-0000-7000-8000-000000000051",
         "ingredient": "0192f3a0-0000-7000-8000-000000000050",
-        "quantity": {
+        "stage": "0192f3a0-0000-7000-8000-000000000052",
+        "amount": {
           "value": "6.8",
           "unit": "kg"
+        },
+        "timing": {
+          "basis": "at_start"
         }
       }
     ],

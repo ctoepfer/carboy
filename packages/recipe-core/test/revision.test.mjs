@@ -55,7 +55,7 @@ test("derived data is excluded from the hash", () => {
 
 test("modified content is detected", () => {
   const doc = stored("revision-typical");
-  doc.content.additions[0].quantity.value = "4.6";
+  doc.content.additions[0].amount.value = "4.6";
   const r = verifyRevision(doc);
   assert.equal(r.status, "hash-mismatch");
   assert.deepEqual(codes(r), ["hash-mismatch"]);
@@ -111,8 +111,8 @@ test("Unicode: keys equal after NFC are reported, not merged", () => {
 test("malformed quantities are rejected with paths", () => {
   const doc = load("revision-typical");
   const c = clone(doc.content);
-  c.additions[0].quantity.value = "4.50";
-  c.additions[1].quantity.unit = "grams";
+  c.additions[0].amount.value = "4.50";
+  c.additions[1].amount.unit = "grams";
   c.targets.batch_volume.value = "-20";
   c.targets.efficiency.value = "72%";
   const issues = (() => {
@@ -125,8 +125,8 @@ test("malformed quantities are rejected with paths", () => {
   assert.deepEqual(issues.sort(), [
     ["invalid-decimal", "/content/targets/efficiency"],
     ["negative-quantity", "/content/targets/batch_volume"],
-    ["non-normalized-decimal", "/content/additions/0/quantity"],
-    ["unknown-unit", "/content/additions/1/quantity"],
+    ["non-normalized-decimal", "/content/additions/0/amount"],
+    ["unknown-unit", "/content/additions/1/amount"],
   ]);
 });
 

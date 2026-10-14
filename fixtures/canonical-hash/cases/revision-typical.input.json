@@ -87,12 +87,26 @@
             }
           },
           "steps": []
+        },
+        {
+          "id": "0192f3a0-0000-7000-8000-000000000022",
+          "kind": "fermentation",
+          "parameters": {},
+          "steps": []
         }
       ],
       "flows": [
         {
+          "id": "0192f3a0-0000-7000-8000-000000000025",
+          "kind": "transfer",
           "from": "0192f3a0-0000-7000-8000-000000000020",
           "to": "0192f3a0-0000-7000-8000-000000000021"
+        },
+        {
+          "id": "0192f3a0-0000-7000-8000-000000000026",
+          "kind": "transfer",
+          "from": "0192f3a0-0000-7000-8000-000000000021",
+          "to": "0192f3a0-0000-7000-8000-000000000022"
         }
       ]
     },
@@ -101,28 +115,55 @@
         "id": "0192f3a0-0000-7000-8000-000000000030",
         "ingredient": "0192f3a0-0000-7000-8000-000000000010",
         "stage": "0192f3a0-0000-7000-8000-000000000020",
-        "quantity": {
+        "amount": {
           "value": "4.5",
           "unit": "kg"
+        },
+        "timing": {
+          "basis": "at_start"
         }
       },
       {
         "id": "0192f3a0-0000-7000-8000-000000000031",
         "ingredient": "0192f3a0-0000-7000-8000-000000000011",
         "stage": "0192f3a0-0000-7000-8000-000000000021",
+        "amount": {
+          "value": "28",
+          "unit": "g"
+        },
         "timing": {
-          "minutes_before_end": {
+          "basis": "before_end",
+          "offset": {
             "value": "60",
             "unit": "min"
           }
+        }
+      },
+      {
+        "id": "0192f3a0-0000-7000-8000-000000000032",
+        "ingredient": "0192f3a0-0000-7000-8000-000000000012",
+        "stage": "0192f3a0-0000-7000-8000-000000000022",
+        "amount": {
+          "value": "1",
+          "unit": "package"
         },
-        "quantity": {
-          "value": "28",
-          "unit": "g"
+        "timing": {
+          "basis": "at_start"
         }
       }
     ],
-    "statistics": {},
+    "statistics": {
+      "og": {
+        "declared": {
+          "value": "1.056",
+          "unit": "SG",
+          "provenance": {
+            "origin": "declared"
+          }
+        },
+        "display": "declared"
+      }
+    },
     "calculation_settings": {
       "ibu_model": "tinseth"
     },
@@ -136,8 +177,15 @@
   "derived": {
     "statistics": {
       "og": {
-        "value": "1.056",
-        "unit": "SG"
+        "value": "1.055",
+        "unit": "SG",
+        "provenance": {
+          "origin": "calculated",
+          "formula": {
+            "id": "gravity.og.points-lumina",
+            "version": "1"
+          }
+        }
       }
     }
   }
