@@ -57,7 +57,8 @@ export type UnavailableReason =
   | "not-enabled" // parity reference called without opting in
   | "unsupported-beverage"
   | "missing-input"
-  | "invalid-input";
+  | "invalid-input"
+  | "out-of-range"; // input outside the range the formula's source covers
 
 export type FormulaResult =
   | {
@@ -77,8 +78,8 @@ export type FormulaResult =
       readonly message: string;
     };
 
-export function computed(def: FormulaDefinition, value: Decimal): FormulaResult {
-  return { status: "computed", value, unit: def.output.unit, formula: ref(def), assumptions: def.assumptions };
+export function computed(def: FormulaDefinition, value: Decimal, unit: string = def.output.unit): FormulaResult {
+  return { status: "computed", value, unit, formula: ref(def), assumptions: def.assumptions };
 }
 
 export function unavailable(def: FormulaDefinition, reason: UnavailableReason, details: readonly string[], message: string): FormulaResult {

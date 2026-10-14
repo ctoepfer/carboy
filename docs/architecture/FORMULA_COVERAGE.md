@@ -34,12 +34,24 @@ holds these so far:
 |---|---|---|
 | `color.mcu` v1 | **Enabled** | Holle ch. 1 (Daniels p. 59 via); °L inputs only |
 | `extract.mass` v1 | **Enabled** | Holle ch. 1 (Kunze p. 266, Narziss II:313 via); extract mass in kg |
-| `gravity.og.mass-method` v1 | **Unavailable** | Needs a cited SG ↔ °P formula; reports `formula-unavailable` with that dependency |
+| `gravity.sg-plato` v1 | **Enabled** | **Primary checked**: NBS Circular C440 (1942) Tables 113–114, Plato's sucrose densities (1900); linear interpolation, 0–40 °P; [reference table](../../fixtures/reference-tables/README.md) |
+| `gravity.og.mass-method` v2 | **Enabled** | Holle ch. 1 (Kunze, Narziss via) for extract = volume × density × °P/100, solved with Plato's densities; v1 was the registered-unavailable placeholder |
 | `gravity.og.points-lumina` v1 | Parity reference | Opt-in only; matches Lumina on Verdant Reverie (points within 1e-9 relative; OG 1.064 at 3 places) |
 
-**Consequence for OG:** mass-method OG (FQ2's default) can't be shown until
-the SG ↔ °P relationship has a citable source (the ASBC tables or the
-original regression). Finding it is now the first blocker for beer OG.
+**SG ↔ °P (2026-10-13).** The source is the tabulated data, not a fitted
+equation: Plato's density measurements (Kaiserliche Normal-Eichungs-
+Kommission, 1900) as tabulated by the US National Bureau of Standards
+(Circular C440, 1942: Table 113 true density, Table 114 apparent SG at
+20/20 °C), a public-domain primary reference. The table was rebuilt from the
+scan and verified three ways: Table 114 recomputed from Table 113 by the
+circular's own method matches the printed Table 114 exactly at 398 of 401
+steps from 0 to 40 °P; the other three were read from the page images, two of
+them **misprints in the 1942 table** (7.4 °P and 36.3 °P), corrected; and
+second differences show no outliers. Published cubic fits were checked
+against it and **not adopted**: the fit to the NBS table agrees within
+±0.005 °P, but the widely quoted "ASBC" and web cubics drift above ~20 °P
+(−0.03 °P at 30 °P, −0.11 °P at 40 °P), which matters for strong worts and
+for wine and mead musts.
 
 ## Beer
 
@@ -51,7 +63,7 @@ original regression). Finding it is now the first blocker for beer OG.
 | Lovibond ↔ SRM | Needs choice (often treated as equal for wort) | **Needs source**. RECIPE_SCHEMA §7.2 already requires this before Phase 2 | color | fermentable `color` unit | — |
 | Extract / OG, points method | OG = 1 + Σ(mass × potential × efficiency) ÷ volume ÷ 1000 (Lumina `gravity.points`/`gravity.og`) | **Needs source** for the points form | mass; potential; efficiency; volume | fermentable/sugar `potential`; per-item efficiency? | target efficiency; batch volume |
 | Extract / OG, mass method | extract mass = Σ(mass × extract fraction × (1 − moisture) × brewhouse efficiency); °P from extract mass ÷ wort mass | **Secondary checked**: Holle ch. 1, citing Kunze p. 266 and Narziss II:313 | mass; extract cg db; moisture; efficiency; volume | fermentable `extract_yield`, `moisture` | as above |
-| SG ↔ °P | Cubic fit to De Clerck's tables: °P = −616.868 + 1111.14·SG − 630.272·SG² + 135.997·SG³ | **Secondary only (web)**: a patent and calculators attribute it to a regression of De Clerck (1957). The ASBC table is the likely authority; not read. Holle's 4-points-per-°P rule is a stated approximation and is **not** a candidate | gravity | — | — |
+| SG ↔ °P | Plato's sucrose density table (NBS C440 Tables 113–114), linear interpolation, 0–40 °P | **Primary checked** (2026-10-13), implemented as `gravity.sg-plato`. The web cubic (°P = −616.868 + 1111.14·SG − 630.272·SG² + 135.997·SG³) and Holle's 4-points-per-°P rule are **not** used: the cubic drifts above ~20 °P, and Holle's rule is a stated approximation | gravity | — | — |
 | FG from attenuation | FG = 1 + (OG − 1)(1 − apparent attenuation) | Definition is **secondary checked** (Holle ch. 9 defines ADF). **No default attenuation** (Lumina port note 2): unknown culture attenuation means FG "cannot compute" | OG; culture attenuation | culture `attenuation` | fermentation |
 | Real extract / RDF | RDF ≈ 0.82 × ADF; RE = OE × (1 − RDF) | **Secondary checked**: Holle ch. 9 (factor 0.819) | OE; AE | — | — |
 | ABV from OG/FG | (OG − FG) × 131.25 (Lumina) | **Needs source**. Holle gives only ABV ↔ ABW. A cited formula (for example one based on real extract) must be chosen | OG; FG (stated or measured) | — | — |
@@ -124,7 +136,7 @@ its fixtures pass.** On today's evidence:
 | Statistic | Desktop 1.0 if… |
 |---|---|
 | Beer MCU, EBC/SRM conversion, volumes, strike/infusion, salt ion contributions, priming | Ready to implement once FQ1 accepts Holle as a secondary source, or the cited primaries are read |
-| Beer SRM (Morey), IBU (Tinseth), ABV, SG ↔ °P | Blocked until a citable source is read (primary sources being collected) |
+| Beer SRM (Morey), IBU (Tinseth), ABV | Blocked until a citable source is read (primary sources being collected) |
 | Beer FG | Only from a stated culture attenuation; never defaulted |
 | Mash pH estimate, residual alkalinity | 1.x, labeled as estimates (Holle calls them crude) |
 | Wine, mead, cider: Brix/SG, sugar sources, OG, ABV from measurements | Blocked on sources (all "Needs source") |

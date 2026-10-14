@@ -16,6 +16,19 @@ read; the original is still to be read and checked).
   Calculations.* Master Brewers Association of the Americas, St. Paul, MN.
   ISBN 0-9718255-1-3. **Read.** Cited in FORMULA_COVERAGE as "Holle ch. N".
 
+## Primary sources (read)
+
+- Bates, F. J. and associates (1942). *Polarimetry, Saccharimetry and the
+  Sugars.* Circular of the National Bureau of Standards C440. US Government
+  Printing Office. doi:10.6028/NBS.CIRC.440. Scan:
+  <https://archive.org/details/circularofbureau440bate>. **Read**
+  (Tables 113 and 114; two misprints found in Table 114). US Government
+  work, public domain. Used for `gravity.sg-plato`.
+- Plato, F., Domke, J., Harting, H. (1900). Die Dichte, Ausdehnung und
+  Kapillarität von Lösungen reinen Rohrzuckers in Wasser. *Wissenschaftliche
+  Abhandlungen der Kaiserlichen Normal-Eichungskommission* 2, 153 ff.
+  **Via** NBS C440 Table 113 (the original not read).
+
 ## Primary sources (via Holle, to be read)
 
 - Kolbach, P. (1941). Zur Beurteilung gipshaltiger Brauwässer.

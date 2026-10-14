@@ -1,5 +1,6 @@
 import { Decimal } from "../decimal.js";
 import { convert, validateQuantity, type Quantity } from "../quantity.js";
+import { densityAtPlato, sgAtPlato } from "./gravity.js";
 import { checkBeverage, computed, unavailable, type Beverage, type FormulaDefinition, type FormulaResult } from "./registry.js";
 
 // First formulas (owner decision 2026-10-13): MCU and the mass-based extract
@@ -124,31 +125,73 @@ export function extractMass(beverage: Beverage, fermentables: readonly ExtractIn
   return computed(EXTRACT_MASS, sum.mul(fraction(efficiency!)));
 }
 
-// ---- OG, mass method: registered, not yet available -----------------------
+// ---- OG, mass method -------------------------------------------------------
 
 export const OG_MASS_METHOD: FormulaDefinition = {
   id: "gravity.og.mass-method",
-  version: 1,
+  version: 2,
   title: "Original gravity (mass method)",
-  status: "unavailable",
-  source: { status: "secondary-checked", citations: [{ ...HOLLE, locator: "ch. 1" }] },
-  expression: "extract_kg = volume × water density × SG × °P/100, solved for °P and SG",
-  assumptions: ["Needs the extract mass (extract.mass) and an SG ↔ °P relationship"],
+  status: "enabled",
+  source: {
+    status: "secondary-checked",
+    citations: [
+      { ...HOLLE, locator: "ch. 1" },
+      { work: "Kunze 1994, Technologie Brauer und Mälzer", locator: "p. 266", checked: "via" },
+      { work: "Narziss 1992, Die Bierbrauerei Bd. II", locator: "II:313", checked: "via" },
+      { work: "Bates et al. 1942, NBS Circular C440", locator: "Tables 113, 114 (Plato's densities)", checked: "read" },
+    ],
+  },
+  expression: "extract_kg = volume_L × density_20(°P) × °P / 100, solved for °P; SG from °P (gravity.sg-plato)",
+  assumptions: [
+    "extract is the extract mass in the wort (extract.mass)",
+    "volume is the cool wort volume at 20 °C; a hot or differently tempered volume must be converted first",
+    "The wort's density is that of a sucrose solution of the same °P (Plato's Table 113), the convention of the °P scale",
+    "Valid from 0 to 40 °P; stronger worts are unavailable, never extrapolated",
+  ],
   inputs: [
-    { name: "extract", description: "Result of extract.mass", units: ["kg"] },
-    { name: "volume", description: "Cool wort volume", units: ["L", "US gal"] },
+    { name: "extract", description: "Extract mass in the wort (result of extract.mass)", units: ["kg", "g", "lb", "oz"] },
+    { name: "volume", description: "Cool wort volume at 20 °C", units: ["L", "mL", "US gal", "qt", "US fl oz"] },
   ],
   applicability: { beverages: ["beer"] },
-  rounding: "—",
-  output: { name: "original gravity", unit: "Plato" },
-  limitation:
-    "Turning extract mass into °P or SG needs the SG ↔ °P relationship. No citable source has been read for it (FORMULA_COVERAGE: secondary only, web); Holle's 4-points-per-°P rule is an approximation and is not used. Unavailable until a cited gravity formula is registered.",
+  rounding: "°P solved to better than 1e-10 by bisection, then half-even to 2 decimals; SG from the unrounded °P, half-even to 5 decimals",
+  output: { name: "original gravity", unit: "SG" },
 };
 
-export function originalGravityMassMethod(beverage: Beverage): FormulaResult {
+/** OG by the mass method. Returns SG; `plato` holds the same gravity in °P. */
+export function originalGravityMassMethod(
+  beverage: Beverage,
+  extract: Quantity | undefined,
+  volume: Quantity | undefined,
+): FormulaResult & { readonly plato?: Decimal } {
   const bad = checkBeverage(OG_MASS_METHOD, beverage);
   if (bad) return bad;
-  return unavailable(OG_MASS_METHOD, "formula-unavailable", ["gravity.sg-plato"], OG_MASS_METHOD.limitation!);
+  const missing: string[] = [];
+  const invalid: string[] = [];
+  check(extract, "extract", "mass", missing, invalid);
+  check(volume, "volume", "volume", missing, invalid);
+  const blocked = blockers(OG_MASS_METHOD, missing, invalid);
+  if (blocked) return blocked;
+  const litres = convert(volume!, "L");
+  if (litres.isZero()) return unavailable(OG_MASS_METHOD, "invalid-input", ["volume"], "volume must be greater than zero");
+  // Solve P · density(P) = 100 · extract / volume. The left side increases
+  // strictly with P, so bisection finds the single root.
+  const target = Decimal.parse("100").mul(convert(extract!, "kg")).div(litres);
+  const f = (p: Decimal) => p.mul(densityAtPlato(p));
+  const MAX = Decimal.parse("40");
+  if (f(MAX).compare(target) < 0) {
+    return unavailable(OG_MASS_METHOD, "out-of-range", ["extract", "volume"], "the wort would be stronger than 40 °P, beyond the gravity table");
+  }
+  let lo = Decimal.ZERO;
+  let hi = MAX;
+  const HALF = Decimal.parse("0.5");
+  const EPS = Decimal.parse("0.0000000001");
+  while (hi.sub(lo).compare(EPS) > 0) {
+    const mid = lo.add(hi).mul(HALF);
+    if (f(mid).compare(target) < 0) lo = mid;
+    else hi = mid;
+  }
+  const p = lo.add(hi).mul(HALF);
+  return { ...computed(OG_MASS_METHOD, sgAtPlato(p).round(5), "SG"), plato: p.round(2) };
 }
 
 // ---- OG, points method: Lumina parity reference -----------------------------

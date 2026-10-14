@@ -1,10 +1,12 @@
 import { EXTRACT_MASS, MCU, OG_MASS_METHOD, OG_POINTS_LUMINA } from "./beer.js";
+import { SG_PLATO } from "./gravity.js";
 import type { Beverage, FormulaDefinition } from "./registry.js";
 
 export * from "./registry.js";
 export * from "./beer.js";
+export { SG_PLATO, densityAtPlato, platoFromSg, sgAtPlato, sgFromPlato } from "./gravity.js";
 
-const ALL: readonly FormulaDefinition[] = [MCU, EXTRACT_MASS, OG_MASS_METHOD, OG_POINTS_LUMINA];
+const ALL: readonly FormulaDefinition[] = [MCU, EXTRACT_MASS, OG_MASS_METHOD, OG_POINTS_LUMINA, SG_PLATO];
 
 /** The registry: every formula Recipe Core knows, keyed by id. */
 export const FORMULAS: ReadonlyMap<string, FormulaDefinition> = new Map(ALL.map((f) => [f.id, f]));

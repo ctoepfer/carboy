@@ -138,7 +138,7 @@ test("display rule: declared, then imported estimate, then calculated; measured 
   assert.equal(displayedStatistic({ measured: meas, display: "measured" }, calc).value, "1.057");
   assert.equal(displayedStatistic({ declared: decl, display: "calculated" }, calc).layer, "calculated");
   assert.deepEqual(displayedStatistic(undefined, undefined), { status: "unknown" });
-  const unavailable = toCalculatedStatistic(originalGravityMassMethod("beer"));
+  const unavailable = toCalculatedStatistic(originalGravityMassMethod("beer", undefined, undefined));
   assert.deepEqual(displayedStatistic({}, unavailable), { status: "unknown" }); // never zero, never a guess
 });
 
@@ -148,7 +148,8 @@ test("calculated layer: formula identity recorded; stale versions detected", () 
   assert.deepEqual(entry, { value: "4", unit: "MCU", provenance: { origin: "calculated", formula: { id: "color.mcu", version: "1" } } });
   assert.ok(isCalculatedCurrent(entry, MCU));
   assert.ok(!isCalculatedCurrent(entry, { ...MCU, version: 2 }));
-  const u = toCalculatedStatistic(originalGravityMassMethod("beer"));
-  assert.equal(u.unavailable.reason, "formula-unavailable");
-  assert.deepEqual(u.unavailable.details, ["gravity.sg-plato"]);
+  const u = toCalculatedStatistic(originalGravityMassMethod("beer", undefined, { value: "20", unit: "L" }));
+  assert.equal(u.unavailable.reason, "missing-input");
+  assert.deepEqual(u.unavailable.details, ["extract"]);
+  assert.deepEqual(u.unavailable.formula, { id: "gravity.og.mass-method", version: "2" });
 });

@@ -36,9 +36,10 @@ test("every registered formula documents source, assumptions, inputs, applicabil
   }
 });
 
-test("only enabled formulas are offered to users; none for non-beer yet", () => {
-  assert.deepEqual(formulasFor("beer", { enabledOnly: true }).map((f) => f.id).sort(), ["color.mcu", "extract.mass"]);
-  for (const b of ["wine", "mead", "cider", "sake"]) assert.deepEqual(formulasFor(b), [], b);
+test("only enabled formulas are offered to users; sake has none yet", () => {
+  assert.deepEqual(formulasFor("beer", { enabledOnly: true }).map((f) => f.id).sort(), ["color.mcu", "extract.mass", "gravity.og.mass-method", "gravity.sg-plato"]);
+  for (const b of ["wine", "mead", "cider"]) assert.deepEqual(formulasFor(b).map((f) => f.id), ["gravity.sg-plato"], b);
+  assert.deepEqual(formulasFor("sake"), []);
   assert.equal(getFormula("gravity.og.points-lumina").status, "parity-reference");
 });
 
@@ -88,13 +89,32 @@ test("extract mass: missing moisture or efficiency is never defaulted", () => {
   assert.equal(extractMass("wine", [], q("0.7", "fraction")).reason, "unsupported-beverage");
 });
 
-test("OG mass method: registered, reports unavailable with the missing dependency", () => {
-  const r = originalGravityMassMethod("beer");
-  assert.equal(r.status, "unavailable");
-  assert.equal(r.reason, "formula-unavailable");
-  assert.deepEqual(r.details, ["gravity.sg-plato"]);
-  assert.match(r.message, /SG ↔ °P/);
-  assert.equal(originalGravityMassMethod("cider").reason, "unsupported-beverage");
+test("OG mass method v2: extract and volume give °P and SG (Python decimal, independent)", () => {
+  const cases = [
+    // extract kg, volume L, °P (2 dp), SG (5 dp, from the unrounded °P)
+    ["2.88", "20", "13.67", "1.05543"],
+    ["3.03156", "23", "12.57", "1.05076"],
+    ["5", "20", "22.86", "1.09582"],
+    ["0.5", "25", "1.99", "1.00775"],
+  ];
+  for (const [e, v, p, sg] of cases) {
+    const r = originalGravityMassMethod("beer", q(e, "kg"), q(v, "L"));
+    assert.equal(r.status, "computed", `${e} kg in ${v} L`);
+    assert.equal(r.plato.toString(), p, `°P for ${e} kg in ${v} L`);
+    assert.equal(r.value.toString(), sg, `SG for ${e} kg in ${v} L`);
+    assert.deepEqual(r.formula, { id: "gravity.og.mass-method", version: 2 });
+  }
+  // Same wort in US units: 2.88 kg in 20 L expressed as lb and US gal.
+  const imperial = originalGravityMassMethod("beer", q("6.349313150924", "lb"), q("5.283441047163", "US gal"));
+  assert.equal(imperial.value.toString(), "1.05543");
+});
+
+test("OG mass method v2: missing, invalid, and out-of-range inputs are unavailable", () => {
+  assert.deepEqual(originalGravityMassMethod("beer", undefined, q("20", "L")).details, ["extract"]);
+  assert.equal(originalGravityMassMethod("beer", q("3", "kg"), q("0", "L")).reason, "invalid-input");
+  assert.equal(originalGravityMassMethod("beer", q("3", "L"), q("20", "L")).reason, "invalid-input");
+  assert.equal(originalGravityMassMethod("beer", q("10", "kg"), q("20", "L")).reason, "out-of-range"); // ~43 °P
+  assert.equal(originalGravityMassMethod("cider", q("3", "kg"), q("20", "L")).reason, "unsupported-beverage");
 });
 
 test("points method: parity with Lumina on Verdant Reverie (opt-in only)", () => {

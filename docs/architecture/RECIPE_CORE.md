@@ -135,7 +135,10 @@ not assumed.
 
 Status follows D-006: only `enabled` formulas produce values for users;
 `parity-reference` formulas run only when a caller opts in (`{ parity:
-true }`) to compare with Lumina or BeerXML-derived values. The current
+true }`) to compare with Lumina or BeerXML-derived values. Results may also be `out-of-range` when an input lies outside what the
+formula's source covers; nothing is extrapolated. Reference data a formula
+needs (such as Plato's sucrose table) is embedded from a verified fixture in
+`fixtures/reference-tables/`, never fitted ad hoc. The current
 entries and their sources are listed in
 [FORMULA_COVERAGE.md](FORMULA_COVERAGE.md#implemented-in-recipe-core-2026-10-13).
 
@@ -188,4 +191,4 @@ regression values are the ones brewconvert documents as its oracle.
 In order: the remaining validation (stage parameters, topology,
 beverage-specific rules, ingredient property table); scaling and its
 rounding policy; native serialization (Recipe Format); more formulas as
-their sources are read (SG ↔ °P first, which unblocks mass-method OG).
+their sources are read (Morey, Tinseth, ABV; mead nutrients and sulfite).
