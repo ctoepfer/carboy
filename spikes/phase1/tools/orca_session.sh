@@ -8,6 +8,12 @@ set -u
 exe=$1
 out=$2
 mkdir -p "$out"
+# Audio: no device on CI runners. A PulseAudio null sink gives
+# speech-dispatcher somewhere to play, so Orca's speech calls return (in the
+# first runs, speech.stop() blocked with no audio at all).
+pulseaudio --start --exit-idle-time=-1 >"$out/pulse.log" 2>&1 || true
+pactl load-module module-null-sink sink_name=ci_null >/dev/null 2>&1 || true
+pactl set-default-sink ci_null >/dev/null 2>&1 || true
 /usr/libexec/at-spi-bus-launcher --launch-immediately >"$out/atspi-bus.log" 2>&1 &
 sleep 2
 gsettings set org.gnome.desktop.interface toolkit-accessibility true 2>/dev/null || true

@@ -44,7 +44,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libsoup-3.0-dev libjavascriptcoregtk-4.1-dev libssl-dev build-essential xvfb
           # Scripted Orca run and AT-SPI tree check (isolated runner, no audio).
-          sudo apt-get install -y orca at-spi2-core dbus-x11 xdotool python3-gi gir1.2-atspi-2.0 speech-dispatcher espeak-ng
+          sudo apt-get install -y orca at-spi2-core dbus-x11 xdotool python3-gi gir1.2-atspi-2.0 speech-dispatcher espeak-ng pulseaudio pulseaudio-utils
       - run: rustup show && cargo --version
       - run: (cd recipe-core && npm ci) && (cd graph && npm ci)
       - run: ./shell-tauri/prepare.sh
@@ -108,6 +108,23 @@ jobs:
             printf '\n__carboyReport;\n' >> jxa-check.js
             osascript -l JavaScript jxa-check.js | tee spikes/phase1/report-jsc.json
           fi
+      - name: SQLite recovery after hard kill during writes, 3 rounds (ADR 0006; blocking)
+        timeout-minutes: 6
+        run: |
+          exe=$PWD/shell-tauri/src-tauri/target/debug/spike-shell
+          [ -f "$exe.exe" ] && exe="$exe.exe"
+          tools/kill_recovery.sh "$exe" 3 6 "$PWD/recovery-report"
+      - name: iOS Simulator build of the shell (exploratory; Tauri 2 mobile)
+        if: runner.os == 'macOS'
+        continue-on-error: true
+        timeout-minutes: 25
+        working-directory: spikes/phase1/shell-tauri
+        run: |
+          rustup target add aarch64-apple-ios-sim
+          xcodebuild -version || true
+          npx --yes @tauri-apps/cli@2.12.1 ios init --ci 2>&1 | tail -40
+          npx --yes @tauri-apps/cli@2.12.1 ios build --target aarch64-sim --debug --ci 2>&1 | tail -80
+          find src-tauri/gen/apple -name '*.app' -maxdepth 6 2>/dev/null | head -5
       - name: SQLite durability benchmark, FULL vs NORMAL under WAL, with and without fullfsync (ADR 0006)
         timeout-minutes: 4
         run: |
@@ -120,4 +137,5 @@ jobs:
           path: |
             spikes/phase1/report-*.json
             spikes/phase1/orca-report/
+            spikes/phase1/recovery-report/
           if-no-files-found: warn

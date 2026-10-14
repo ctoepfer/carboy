@@ -6,6 +6,11 @@ publish = false
 license = "Apache-2.0"
 description = "Phase 1 throwaway spike: Tauri 2 shell running the track A Recipe Core"
 
+[lib]
+# Mobile (iOS/Android) builds link the app as a library.
+name = "spike_shell_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
 [build-dependencies]
 tauri-build = { version = "=2.7.2", features = [] }
 
