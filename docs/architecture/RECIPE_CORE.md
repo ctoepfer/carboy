@@ -275,9 +275,14 @@ implementation. Expected values are exact products or were computed independentl
 (Python `decimal`, 80 digits, rounded half-even to 34); the three oz/lb
 regression values are the ones brewconvert documents as its oracle.
 
+**Parity fixtures in both languages (D-005):** the Lumina parity fixtures
+pass in TypeScript (`parity.test.mjs`) and are reproduced exactly by
+Lumina's own code through the Python runner
+([fixtures/parity/README.md](../../fixtures/parity/README.md)), run locally
+because Lumina is not public.
+
 ## 9. Next in Recipe Core
 
-In order: the Python-side
-fixture runner (D-005); more formulas as their sources are read (Morey,
+In order: more formulas as their sources are read (Morey,
 Tinseth, ABV; wine-condition pK₁, YAN requirements). Stage parameter rows
 come with the formulas that read them.
