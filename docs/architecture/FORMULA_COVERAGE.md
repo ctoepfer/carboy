@@ -53,6 +53,48 @@ against it and **not adopted**: the fit to the NBS table agrees within
 (−0.03 °P at 30 °P, −0.11 °P at 40 °P), which matters for strong worts and
 for wine and mead musts.
 
+**What a °P value means (2026-10-14).** Three distinctions the formulas
+and the interface keep, from NBS C440 itself where it speaks to them:
+
+- **Sucrose-equivalent, not composition.** °Brix (and °Plato) is the
+  percentage by weight of sucrose in a *pure* sucrose solution (C440,
+  p. 248). A wort or must at "12 °P" has the density of a 12 % sucrose
+  solution; its dissolved solids (maltose, dextrins, fructose, acids,
+  minerals) are not 12 % by mass, and C440 notes that for impure sugar
+  solutions density is a less reliable measure of total dissolved substance
+  than refractive index (p. 254). Carboy labels these values as
+  sucrose-equivalent and never presents them as composition.
+- **Temperature conventions.** The table is apparent SG at 20 °C/20 °C
+  (Table 114); Plato's densities are true densities at 20 °C (Table 113).
+  Brix hydrometers were originally calibrated at 17.5 °C and most at 20 °C
+  by 1942 (C440, p. 248); hydrometers sold to home brewers often state
+  another standard temperature on the instrument. A reading must be
+  referred to 20 °C/20 °C before conversion. C440's correction table for
+  Brix hydrometers (Table 110) is for approximate results only; no
+  temperature correction is enabled until a cited method is chosen.
+- **Precision is not accuracy.** The table resolves SG to ±0.00001
+  (about ±0.003 °P); results are rounded to that resolution. A measured
+  gravity is only as accurate as the instrument, its reading, and its
+  temperature correction, which are recorded with the measurement
+  (provenance), not implied by the formula's digits.
+- **Refractometers are a different measurement.** They read refractive
+  index (sucrose-equivalent by RI). C440 reports that different sugars at
+  equal concentration give approximately the same refractive index (p. 254,
+  citing Tolman and Smith), but a refractometer reading is not an SG, and
+  readings with alcohol present need a separate, cited correction (not yet
+  sourced, FORMULA_COVERAGE "Beer" list).
+
+**Mass-method OG, reviewed independently of Lumina (2026-10-14).** The
+relation extract = cool volume × density × °P/100 is Holle's (ch. 1) with
+Plato's true density in place of "water mass per volume × SG"; the two are
+the same quantity at 20 °C. Brewhouse efficiency must be defined against
+the same cool wort (Holle ch. 1, overall efficiency measured after the
+boil); Narziss's 0.96 hot-volume factor is not applied because the input is
+cool volume. Tests build extracts backwards from the definition for 8, 12,
+25, 35, and 40 °P and recover each exactly with Table 114's SG; beyond
+40 °P the result is unavailable. The formula is grain-mash only: wine,
+mead, cider, and sake report unsupported.
+
 ## Beer
 
 | Calculation | Candidate formula | Source status | Inputs | Property rows | Stage-kind rows |

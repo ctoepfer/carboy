@@ -143,10 +143,11 @@ export const OG_MASS_METHOD: FormulaDefinition = {
   },
   expression: "extract_kg = volume_L × density_20(°P) × °P / 100, solved for °P; SG from °P (gravity.sg-plato)",
   assumptions: [
-    "extract is the extract mass in the wort (extract.mass)",
-    "volume is the cool wort volume at 20 °C; a hot or differently tempered volume must be converted first",
-    "The wort's density is that of a sucrose solution of the same °P (Plato's Table 113), the convention of the °P scale",
+    "extract is the extract mass in the wort (extract.mass), with brewhouse efficiency defined against the same cool wort (Holle ch. 1: overall efficiency = extract in wort ÷ grain mass, measured after the boil)",
+    "volume is the cool wort volume at 20 °C; a hot volume must be converted first (Narziss's 0.96 factor in Holle ch. 1 applies to hot volume and is not applied here)",
+    "The wort's density is that of a sucrose solution of the same °P (Plato's true density, NBS C440 Table 113), so the result is sucrose-equivalent °P, the convention of the scale, not the wort's true dissolved-solids fraction",
     "Valid from 0 to 40 °P; stronger worts are unavailable, never extrapolated",
+    "The result is a prediction from recipe inputs; its accuracy depends on the extract, moisture, efficiency, and volume figures, not on the table's resolution",
   ],
   inputs: [
     { name: "extract", description: "Extract mass in the wort (result of extract.mass)", units: ["kg", "g", "lb", "oz"] },

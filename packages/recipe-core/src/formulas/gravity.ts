@@ -29,10 +29,11 @@ export const SG_PLATO: FormulaDefinition = {
   },
   expression: "Linear interpolation in the 0.1 °P table of apparent SG at 20/20 °C (Plato's densities via NBS C440)",
   assumptions: [
-    "°Plato and °Brix are both percent sucrose by mass; this table (Plato's densities) is used for both. Brewing (ASBC) tables are derived from the same data; small differences from rounding conventions are possible",
-    "Specific gravity is apparent SG at 20 °C/20 °C. Readings from hydrometers calibrated at another temperature (for example 60 °F/60 °F) must be corrected first; this formula does not do it",
-    "Wort, must, and juice are read as sucrose-equivalent extract, the convention of the °P and °Brix scales; other dissolved solids and alcohol change the true relationship",
-    "Values between table steps are linearly interpolated; the table is exact to ±1 in the fifth decimal of SG",
+    "°Plato and °Brix are both percent sucrose by mass in a pure sucrose solution (NBS C440, p. 248); this table (Plato's densities) is used for both. Brewing (ASBC) tables derive from the same data; small differences from rounding and air-buoyancy conventions are possible",
+    "For wort, must, or juice the result is sucrose-equivalent: the °P of a pure sucrose solution with the same density. It is not the true mass fraction of dissolved solids, which differ from sucrose in density (NBS C440, p. 254: for impure sugar solutions, density is a less reliable measure of total dissolved substance than refractive index)",
+    "SG is apparent SG at 20 °C/20 °C, the table's convention. A hydrometer standardized at another temperature, or a sample read away from its standard temperature, must be corrected first; this formula does not. NBS's own correction table for Brix hydrometers is for approximate results only (C440 Table 110)",
+    "This is a density relationship. A refractometer reading is a refractive-index measurement; it is not an SG and must not be converted here as if it were, and readings taken after fermentation starts (with alcohol present) are invalid without a separate, cited correction",
+    "Values between table steps are linearly interpolated. Results are rounded to the table's resolution (SG ±0.00001, about ±0.003 °P), which is the precision of the reference data, not the accuracy of a measurement: the result is only as accurate as the reading, the instrument, and the temperature correction behind it",
   ],
   inputs: [
     { name: "gravity", description: "A gravity in °P or °Brix (0 to 40), or an SG (1.00000 to 1.17874)", units: ["Plato", "Brix", "SG"] },
