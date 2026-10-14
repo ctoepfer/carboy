@@ -1,6 +1,6 @@
 # Ingredient Catalog v0 (draft): hierarchy, substitution, inventory
 
-- Status: **v0.2. IQ1–IQ4 decided (owner, 2026-10-13; §7); §2.2–§2.6 (cultures, evidence, conflicts, research imports) proposed the same day, YQ1–YQ5 open (§8).** Planning; implementation in Phase 3. Builds on RECIPE_SCHEMA §7.2
+- Status: **v0.2. IQ1–IQ4 and YQ1–YQ5 (D-030) decided (owner, 2026-10-13; §7, §8).** Planning; implementation in Phase 3. Builds on RECIPE_SCHEMA §7.2
   (ingredient snapshots, `catalog_ref`, property table) and the Ingredient
   Catalog module ([OVERVIEW.md §2](OVERVIEW.md#2-modules)).
 - Date: 2026-10-13
@@ -330,13 +330,30 @@ disruption later:
 | IQ3 | A **project-curated official catalog**, plus optional user-defined and community data packs. Source provenance, confidence, and pack identity are kept; unverified community data is never silently merged into the curated catalog |
 | IQ4 | Start with **cultures, hops, and malt/grain**; expand to honey, fruit, sugar sources, grape/juice, rice/koji, nutrients, and other kinds as supported formulas and import formats need them. **Not a beer-only design.** Biological taxonomy, functional groups, and substitution relations stay distinct |
 
-## 8. Open questions (proposed 2026-10-13)
+## 8. Culture catalog decisions (D-030, owner, 2026-10-13)
 
-| # | Question | Recommendation |
-|---|---|---|
-| YQ1 | Add **organism** and **strain** records for cultures (§2.2), separate from products and groups? | Yes; it is the only way to keep identity, lineage, and function apart, and it covers wine, cider, mead, sake, koji, and bacteria the same way |
-| YQ2 | Replace the single confidence scale with **evidence kind + certainty + stance** per evidence entry (§2.3)? | Yes |
-| YQ3 | Make `not_same_strain` and `not_substitutable_for` first-class and **equivalence non-transitive** (§2.4)? | Yes |
-| YQ4 | Research imports go to a **staging area** as unreviewed claims; promotion needs independent, citable evidence; reference-only sources never ship (§2.6)? | Yes |
-| YQ5 | Allow users to import research spreadsheets into **their own local packs** (unreviewed, never merged, never redistributed)? | Yes, after the pack format exists (Phase 4) |
+YQ1–YQ5 accepted as recommended, with these clarifications:
 
+| # | Decision |
+|---|---|
+| YQ1 | **Organism → strain → product** for cultures, with functional groups and lineage kept separate. **Unknown identities stay unknown**; a strain is never inferred from a marketing name |
+| YQ2 | Evidence **kind, certainty, and stance** per evidence entry. Sources, dates, disagreements, and superseded evidence are preserved |
+| YQ3 | `not_same_strain` and `not_substitutable_for` are first-class. Equivalence is not transitive. **Confirmed** negative relations prevent automatic equivalence grouping; **contested** relations are surfaced for review and never treated as settled. Recipe-context substitution stays a separate determination (§2.5) |
+| YQ4 | Research spreadsheets enter a staging area as unreviewed claims; promotion needs independent, citable evidence; reference-only material is never copied into distributed packs without permission |
+| YQ5 | Personal research-spreadsheet imports into local, unreviewed packs once the pack infrastructure exists (Phase 4). Never automatically redistributed, uploaded, or merged into official catalogs |
+
+Additional requirements:
+
+- **Catalog revisions keep historical evidence and record when and why a
+  relationship's status changed** (a status-change entry with date, the
+  evidence that caused it, and the curator's note).
+- **Recipe ingredient snapshots stay immutable** unless the user explicitly
+  edits them; a catalog change never rewrites a recipe (RECIPE_SCHEMA §7.2).
+- **Genetic identity is never inferred** from functional similarity or a
+  maker's product description: `same_strain` needs evidence of kind
+  `genomic` or an explicit maker statement, never `functional_peer` data.
+- **Biological and substitution warnings stay visible during substitution
+  review**, especially STA1/diastatic status, species, and phenolic (POF)
+  status (§4).
+- The design stays applicable to beer, wine, cider, mead, sake, koji, and
+  bacterial cultures.
