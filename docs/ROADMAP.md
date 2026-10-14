@@ -85,7 +85,7 @@ mobile, and the paid cloud connector. Their interfaces are anticipated early; no
 | 8 | AI tiers 1–2: in-app assistant and local AI connector | 4, 6 |
 | 9 | BrewIO host integration and monitoring | 1, 7 |
 | 10 | Verified equipment control | 9 |
-| 11 | Local homebrew shop connector; extended Lumina exchange | 6 |
+| 11 | Local homebrew shop connector ([Shop Bridge](architecture/SHOP_BRIDGE.md), open and retailer-neutral); extended Lumina exchange | 6 |
 | 12 | Mobile: Android, then iOS | 1, 6 |
 | 13 | Carboy AI Bridge (paid, optional; separate private service) | 8; D-011a |
 | 14 | Maintenance and extensions | 6 |

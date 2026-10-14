@@ -54,7 +54,7 @@ Shared fixture suite ⇄ Lumina (Python) and brewconvert (Python) parity
 | Equipment Profiles | Capacities, efficiency, losses, boil-off, calibration history | Usable without hardware; profile assumptions are snapshotted into revisions |
 | Brew Sessions | Batches from recipe snapshots, measurements, timers, deviations, improvement suggestions | Recipe edits never rewrite batches |
 | AI Assistance | Provider configuration, context building, proposals, provenance, local AI connector | No direct storage writes; no actuator path |
-| Shop Integration | Shop connector contract, product matching, shopping lists, orders | Optional; shop systems stay authoritative |
+| Shop Integration | Shop connector contract, product matching, shopping lists, orders; future design: [SHOP_BRIDGE.md](SHOP_BRIDGE.md) (capability levels, Purchase Resolver) | Optional; shop systems stay authoritative |
 | Hardware Integration | Configured devices, BrewIO host connection, telemetry mapping to batches | BrewIO owns transport and protocol details |
 | AI Bridge Client | Opt-in pairing, sync scope, pulling AI-created recipes and proposals | Optional; removable without affecting anything else |
 | App Shell | Composition root, navigation, settings, platform capability wiring | Explicit initialization; importing a module starts nothing |

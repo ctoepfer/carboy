@@ -359,6 +359,9 @@ Ingredient snapshot (RECIPE_SCHEMA §7.2; schema MINOR, with schema 1.0):
 
 ## 5. Shopping lists (requirements; implementation later)
 
+The protocol that carries these lists to shops is designed in
+[SHOP_BRIDGE.md](SHOP_BRIDGE.md) (future workstream, Phase 11).
+
 Owner clarification, 2026-10-13. A design requirement, not an
 implementation start: the shopping list comes with the shop connector
 (Phase 11) and batches (Phase 7).

@@ -89,6 +89,10 @@ and a risk for perceived neutrality. Therefore:
 - The user chooses a shop (or none). No default shop is preselected.
 - Shop systems remain authoritative for stock, prices, and orders. Carboy
   shows availability timestamps and never presents local data as live stock.
+- The ordering protocol (working name Shop Bridge) is open source,
+  independent of the paid AI Bridge, needs no Carboy account, and works for
+  shops with nothing more than an email inbox
+  ([SHOP_BRIDGE.md](../architecture/SHOP_BRIDGE.md)).
 
 ## Non-goals (unless separately approved)
 
