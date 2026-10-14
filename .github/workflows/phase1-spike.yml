@@ -43,6 +43,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libsoup-3.0-dev libjavascriptcoregtk-4.1-dev libssl-dev build-essential xvfb
+          # Scripted Orca run and AT-SPI tree check (isolated runner, no audio).
+          sudo apt-get install -y orca at-spi2-core dbus-x11 xdotool python3-gi gir1.2-atspi-2.0 speech-dispatcher espeak-ng
       - run: rustup show && cargo --version
       - run: (cd recipe-core && npm ci) && (cd graph && npm ci)
       - run: ./shell-tauri/prepare.sh
@@ -79,7 +81,25 @@ jobs:
             timeout 90 xvfb-run -a "$exe" >nav.log 2>&1 || true  # xvfb-run sends the app's stderr to stdout
           python3 tools/nav_summary.py nav.log report-nav.json > report-nav-summary.json
           cat report-nav-summary.json
-      - name: SQLite durability benchmark, FULL vs NORMAL under WAL (ADR 0006)
+      - name: Scripted Orca run (Linux; supplements, never replaces, a person listening)
+        if: runner.os == 'Linux'
+        continue-on-error: true
+        timeout-minutes: 4
+        run: |
+          exe=$PWD/shell-tauri/src-tauri/target/debug/spike-shell
+          xvfb-run -a dbus-run-session -- bash tools/orca_session.sh "$exe" "$PWD/orca-report" || true
+      - name: Recipe Core under JavaScriptCore (macOS jsc; iOS engine family, no app shell)
+        if: runner.os == 'macOS'
+        continue-on-error: true
+        timeout-minutes: 4
+        working-directory: .
+        run: |
+          npm ci && npm run build --workspaces
+          npx --yes esbuild@0.28.2 packages/recipe-core/dist/index.js --bundle --format=esm --outfile=spikes/phase1/jsc/core.mjs --log-level=warning
+          jsc=$(ls /System/Library/Frameworks/JavaScriptCore.framework/Versions/*/Helpers/jsc /System/Library/Frameworks/JavaScriptCore.framework/Resources/jsc 2>/dev/null | head -1)
+          echo "jsc: ${jsc:-not found}"; sw_vers || true
+          "$jsc" -m spikes/phase1/jsc/check.mjs | tee spikes/phase1/report-jsc.json
+      - name: SQLite durability benchmark, FULL vs NORMAL under WAL, with and without fullfsync (ADR 0006)
         timeout-minutes: 4
         run: |
           py=python3; command -v python3 >/dev/null || py=python
@@ -88,5 +108,7 @@ jobs:
         if: always()
         with:
           name: spike-reports-${{ matrix.os }}
-          path: spikes/phase1/report-*.json
+          path: |
+            spikes/phase1/report-*.json
+            spikes/phase1/orca-report/
           if-no-files-found: warn

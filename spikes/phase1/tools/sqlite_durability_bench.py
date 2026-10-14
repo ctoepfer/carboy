@@ -1,4 +1,5 @@
-"""SQLite durability cost under WAL: synchronous=FULL vs NORMAL (ADR 0006).
+"""SQLite durability cost under WAL: synchronous=FULL vs NORMAL, each with
+and without fullfsync (ADR 0006; fullfsync matters on macOS only).
 
 Spike tool (throwaway). Writes N revision-sized rows, one transaction each
 (the autosave pattern), and reports per-commit latency for each setting on
@@ -26,13 +27,18 @@ import tempfile
 import time
 
 
-def bench(directory: str, mode: str, n: int, size: int) -> dict:
-    path = os.path.join(directory, f"bench-{mode.lower()}-{os.getpid()}.db")
+def bench(directory: str, mode: str, n: int, size: int, fullfsync: bool = False) -> dict:
+    path = os.path.join(directory, f"bench-{mode.lower()}-{int(fullfsync)}-{os.getpid()}.db")
     con = sqlite3.connect(path, isolation_level=None)
     try:
         assert con.execute("PRAGMA journal_mode=WAL").fetchone()[0] == "wal"
         con.execute(f"PRAGMA synchronous={mode}")
+        # macOS: F_FULLFSYNC instead of fsync, for commits and checkpoints.
+        # Accepted but without effect on other platforms.
+        con.execute(f"PRAGMA fullfsync={'ON' if fullfsync else 'OFF'}")
+        con.execute(f"PRAGMA checkpoint_fullfsync={'ON' if fullfsync else 'OFF'}")
         actual = con.execute("PRAGMA synchronous").fetchone()[0]
+        ff = con.execute("PRAGMA fullfsync").fetchone()[0]
         con.execute("CREATE TABLE revision (revision_id TEXT PRIMARY KEY, content_hash TEXT, document TEXT)")
         doc = "x" * size
         times = []
@@ -46,6 +52,7 @@ def bench(directory: str, mode: str, n: int, size: int) -> dict:
         return {
             "synchronous": mode,
             "pragma_value": actual,
+            "fullfsync": ff,
             "commits": n,
             "median_ms": round(statistics.median(times), 3),
             "p95_ms": round(times[int(0.95 * (n - 1))], 3),
@@ -70,7 +77,8 @@ def main() -> None:
     a = ap.parse_args()
     d = os.path.expanduser(a.dir)
     os.makedirs(d, exist_ok=True)
-    runs = [bench(d, m, a.n, a.size) for m in ("FULL", "NORMAL", "FULL", "NORMAL")]
+    plan = [("FULL", False), ("FULL", True), ("NORMAL", False), ("NORMAL", True)] * 2
+    runs = [bench(d, m, a.n, a.size, ff) for m, ff in plan]
     report = {
         "platform": platform.platform(),
         "sqlite_version": sqlite3.sqlite_version,
