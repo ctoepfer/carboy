@@ -78,6 +78,14 @@ formulas, not unit factors; **pH is a scale, never a linearly convertible
 concentration**; canonical tokens internally, aliases mapped only at
 import and display boundaries.
 
+### RQ2: `mg` (proposed 2026-10-14)
+
+Nutrient and sulfite doses are usually stated in milligrams, and `mg` is
+not a token (Q2 and RQ1 have `kg`, `g`, `lb`, `oz`). Proposal: add `mg`
+(mass, 0.000001 kg exactly). **Owner confirmation needed**; until then
+inputs in milligrams are refused (`unknown-unit`), and callers convert to
+grams.
+
 ## 4. Quantities
 
 A quantity is `{ "value": "<decimal string>", "unit": "<token>" }`
