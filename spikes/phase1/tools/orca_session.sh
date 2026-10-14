@@ -17,22 +17,22 @@ sleep 8
 SPIKE_START=graph-react/index.html "$exe" >"$out/app.log" 2>&1 &
 app=$!
 sleep 15
-# Tree check (also moves focus to the first stage, which Orca announces).
-python3 tools/atspi_check.py spike-shell 4 >"$out/atspi.json" 2>"$out/atspi.err" || true
-sleep 3
 win=$(xdotool search --pid "$app" 2>/dev/null | tail -1)
 [ -n "$win" ] && xdotool windowactivate --sync "$win" 2>/dev/null
-# The GRAPH_REPORT steps: select the focused stage, Tab toward "Move stage
-# later", activate it, and listen for the live-region announcement.
-for k in Return Tab Tab Tab Return; do
+# Keyboard only, as a screen-reader user would move: Tab through the page
+# (navigation links, then the graph's stages), Enter on a stage, Tab on.
+# The AT-SPI tree check runs after Orca has quit, so the two don't compete.
+for k in Tab Tab Tab Tab Tab Tab Tab Tab Return Tab Tab Tab; do
   xdotool key "$k"
   sleep 2
 done
 sleep 6
-# Quit Orca gracefully so it flushes its debug log (a plain kill lost the
-# tail of the log in the first CI run), then stop the app.
+# Quit Orca gracefully, then stop the app. (In the first two CI runs Orca's
+# log stopped while it set up web key bindings right after the AT-SPI check
+# moved focus; the check now runs after Orca quits.)
 orca --quit >/dev/null 2>&1 || kill "$orca_pid" 2>/dev/null
 for _ in 1 2 3 4 5; do kill -0 "$orca_pid" 2>/dev/null || break; sleep 1; done
+python3 tools/atspi_check.py spike-shell 4 >"$out/atspi.json" 2>"$out/atspi.err" || true
 kill "$app" 2>/dev/null
 sleep 1
 grep -a "SPEECH OUTPUT" "$out/orca-debug.txt" >"$out/speech.txt" 2>/dev/null || true

@@ -88,7 +88,7 @@ jobs:
         run: |
           exe=$PWD/shell-tauri/src-tauri/target/debug/spike-shell
           xvfb-run -a dbus-run-session -- bash tools/orca_session.sh "$exe" "$PWD/orca-report" || true
-      - name: Recipe Core under JavaScriptCore (macOS jsc; iOS engine family, no app shell)
+      - name: Recipe Core under JavaScriptCore (macOS jsc or osascript; iOS engine family, no app shell)
         if: runner.os == 'macOS'
         continue-on-error: true
         timeout-minutes: 4
@@ -99,8 +99,15 @@ jobs:
           # find, not ls: a missing candidate path must not abort the step (pipefail).
           jsc=$(find /System/Library/Frameworks/JavaScriptCore.framework -name jsc -type f 2>/dev/null | head -1)
           echo "jsc: ${jsc:-not found}"; sw_vers || true
-          if [ -z "$jsc" ]; then echo '{"error":"jsc not found on this runner"}' > spikes/phase1/report-jsc.json; exit 0; fi
-          "$jsc" -m spikes/phase1/jsc/check.mjs | tee spikes/phase1/report-jsc.json
+          if [ -n "$jsc" ]; then
+            "$jsc" -m spikes/phase1/jsc/check.mjs | tee spikes/phase1/report-jsc.json
+          else
+            # No jsc shell (removed in recent macOS): run the same checks on the
+            # system JavaScriptCore through JavaScript for Automation.
+            npx --yes esbuild@0.28.2 spikes/phase1/jsc/check-jxa.mjs --bundle --format=iife --outfile=jxa-check.js --log-level=warning
+            printf '\n__carboyReport;\n' >> jxa-check.js
+            osascript -l JavaScript jxa-check.js | tee spikes/phase1/report-jsc.json
+          fi
       - name: SQLite durability benchmark, FULL vs NORMAL under WAL, with and without fullfsync (ADR 0006)
         timeout-minutes: 4
         run: |
