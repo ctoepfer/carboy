@@ -43,6 +43,7 @@ account or subscription.
 | B8 | **Versioned, idempotent, authenticated.** Versioned contracts with capability negotiation; an idempotency key on every request that creates something; authentication where a customer is involved | SYNC_PROTOCOL conventions |
 | B9 | **Realistic for small shops.** The lowest level needs no software at all; each level above it adds one capability a shop can adopt when it wants | Owner, 2026-10-14 |
 | B10 | **Untrusted input.** Catalog feeds, quotes, and order updates from shops are validated like any import; nothing a shop sends can change a recipe | Threat model (planned) |
+| B11 | **Services come from the retailer's advertised capabilities.** Preparation, packaging, handling, and fulfilment options (milling, splitting, cold-pack, pickup, delivery, …) are offered only when the selected shop declares them, for the product, order contents, fulfilment method, and current availability in question. Carboy assumes no service is universally available. The app presents only supported options, obtains a retailer-validated quote for the chosen configuration, and requires confirmation before checkout. The capability model is extensible: a shop can introduce a new service without any change to Recipe Core (§6.1) | Owner, 2026-10-14 |
 
 ## 3. Capability levels
 
@@ -69,11 +70,15 @@ both sides support and falls back gracefully.
 4. **Review:** the brewer sees per line the preferred product, the shop's
    offer, alternatives with their differences and warnings (diastatic
    status, species, colour or alpha-acid changes, "why related"), surplus
-   from package rounding, and prices with their source and time.
+   from package rounding, and prices with their source and time. Service
+   options (§6.1) appear only as the shop declares them for each line and
+   for the chosen fulfilment method; changing one asks for a new quote.
 5. **Approve:** explicit choices per line; if a choice changes calculated
    outcomes, the batch or recipe preview shows the change (INGREDIENT_CATALOG
    §4); applying to the recipe is the reviewed `substitute_ingredient` edit.
-6. **Checkout** (L3): the shop's checkout page, opened in the system
+6. **Checkout** (L3): only after the brewer confirms a retailer-validated
+   quote for the exact configuration (lines, options, fulfilment); then the
+   shop's checkout page, opened in the system
    browser; payment, address, and account (if any) stay with the shop.
 7. **Order** (L4): status updates; on confirmation the purchased products
    can be recorded on the batch as the actual products, with the user's
@@ -94,9 +99,12 @@ relations. It **proposes**; the user decides.
   brewer's approved alternatives; then catalog suggestions from the same
   functional group with their evidence. Strain identity raises a suggestion
   within its group; it never admits one on its own (INGREDIENT_CATALOG §4).
-- **Shop options** declared per product in the shop's catalog, such as
-  grain milling (whole, crushed), hop form, or split packaging. A line
-  can't be sent with an option the shop didn't declare.
+- **Shop options** come only from the selected shop's declared services
+  (B11, §6.1), such as grain milling, hop form, or split packaging. The
+  Resolver offers an option only where the declaration says it applies
+  (this product, this quantity, this fulfilment method, available now);
+  a line can't be sent with an option the shop didn't declare, and the
+  absence of a declaration means "not offered", never a default.
 - **Never** treats catalog membership as availability, never selects a
   substitution silently, and never changes a recipe.
 
@@ -107,12 +115,42 @@ conformance suite. Field lists here are indicative, not final.
 
 | Contract | Level | Purpose | Key members (indicative) |
 |---|---|---|---|
-| **Shop descriptor** | All | What a shop supports and where | protocol versions, highest level, contact for L0, endpoints, currency, locale, authentication methods, links to the shop's terms and privacy policy |
+| **Shop descriptor** | All | What a shop supports and where | protocol versions, highest level, contact for L0, endpoints, currency, locale, authentication methods, fulfilment methods offered, order-level service declarations (§6.1), links to the shop's terms and privacy policy |
 | **Shopping request** | L0+ | The lines a brewer wants | request ID (UUIDv7, also the idempotency key), lines: requirement (functional group name and code), preferred product (maker, name, code), approved alternatives, quantity with unit, options; optional free-text note from the user. No recipe content |
-| **Catalog feed** | L1+ | The shop's purchasable items | SKU, name, maker and maker's product code, package quantity and unit, declared options, optional catalog references (group, product), optional price with currency and "as of" time, last-updated time |
-| **Quote** | L2+ | Current offer for given lines | quote ID, expiry, per line: offered SKU(s), package count, unit price, availability with time, substitution offered (marked as such, with reason), line notes; totals as estimates; tax "at checkout" where not computed |
+| **Catalog feed** | L1+ | The shop's purchasable items | SKU, name, maker and maker's product code, package quantity and unit, product-level service declarations (§6.1), optional catalog references (group, product), optional price with currency and "as of" time, last-updated time |
+| **Quote** | L2+ | Current offer for a given configuration | quote ID, expiry, fulfilment method, per line: offered SKU(s), package count, unit price, availability with time, selected services as accepted, rejected, or changed by the shop (with reason and any charge), substitution offered (marked as such, with reason), line notes; order-level services; totals as estimates; tax "at checkout" where not computed |
 | **Cart handoff** | L3+ | Turn an accepted quote into a cart | quote ID, accepted lines, idempotency key; returns the shop's cart reference and checkout URL |
 | **Order status** | L4 | Track the order | order reference, status (received, confirmed, ready for pickup, shipped, completed, cancelled), lines as fulfilled, any shop-side substitution (always reported), timestamps |
+
+### 6.1 Service declarations (extensible)
+
+A shop describes each service it offers as data; Carboy renders and sends
+what the shop declared and knows nothing else about it.
+
+- **Declaration** (indicative): a service identifier namespaced by the
+  shop (for example `example-shop:milling`), the shop's own label and
+  description in its locale, scope (order, line, or product), the
+  parameters the brewer chooses from (enumerated choices, or a bounded
+  quantity), and **applicability**: which products or catalog groups,
+  quantity limits, fulfilment methods, and whether it is available now or
+  from when.
+- **Discovery is per context.** A service applies only where its
+  declaration says so; the app evaluates applicability for the current
+  lines and fulfilment method and hides everything else. Applicability in
+  a catalog feed is advisory; the quote is authoritative and may accept,
+  reject, or change a selection, always reported per line.
+- **Unknown services work.** A service type Carboy has never seen is shown
+  with the shop's label and choices and passed through unchanged, so a
+  shop adds a service by declaring it. No change to Recipe Core, the
+  recipe schema, or the app's code is needed; nothing a service declares
+  can change a recipe or a calculation.
+- **Optional shared vocabulary.** The protocol may later publish a short
+  list of well-known service identifiers (for example milling) so the
+  Purchase Resolver can match a brewer's stated preference across shops.
+  A well-known identifier is never assumed available: a shop that doesn't
+  declare it doesn't offer it.
+- **Validation:** declarations are untrusted input (B10): length limits,
+  plain text only, bounded choices, and a schema version per declaration.
 
 Conventions shared with the sync protocol: diagnostics with stable codes,
 RFC 3339 timestamps, decimal strings for quantities and money, Recipe
@@ -162,7 +200,7 @@ here starts before those.
 
 | Step | Content | Exit evidence |
 |---|---|---|
-| SB0 Contracts | Draft the six schemas, fixtures, conformance suite, and a sandbox shop | Schemas reviewed; sandbox passes its own suite |
+| SB0 Contracts | Draft the six schemas and the service-declaration model (§6.1), fixtures, conformance suite, and a sandbox shop | Schemas reviewed; sandbox passes its own suite, including a service the client has never seen |
 | SB1 L0 + Resolver | Shopping list with requirement, preferred, alternatives; Purchase Resolver; email/file export | A shop with no software receives a usable order request |
 | SB2 L1 | Catalog feed import (JSON, CSV) with validation; matching and package rounding; reference catalog from Pacific Brewing Supplies | Matching on two unrelated catalogs, one from a small shop's CSV |
 | SB3 L2–L3 | Quote and cart handoff; Drupal Commerce adapter; one second platform adapter to prove neutrality | Quote → shop checkout on two platforms; substitutions always explicit |
