@@ -112,7 +112,25 @@ everywhere, and on Apple platforms (macOS, iOS) also `fullfsync=ON` and
 `checkpoint_fullfsync=ON`, set in the connection options of every pooled
 connection.
 
+**Hard-kill recovery on all desktops (2026-10-14, CI run 38639846127).**
+`spikes/phase1/tools/kill_recovery.sh`: write revisions continuously,
+kill the process (`kill -9`; `taskkill /F` on Windows), reopen, and require
+integrity `ok` with every committed revision verifying. Three rounds per
+OS, WAL, `synchronous=2`:
+
+| OS | Revisions after each round (all verified, integrity ok) |
+|---|---|
+| Windows (WebView2) | 588 · 1,417 · 2,259 |
+| macOS (WKWebView) | 2,616 · 5,557 · 7,215 |
+| Linux (WebKitGTK) | 7,117 · 14,518 · 21,844 |
+
+No partial or unverifiable revision appeared after any kill. (Process kill,
+not power loss: power-loss durability rests on the `synchronous`/`fullfsync`
+settings above.)
+
 **Acceptance status.** The durability setting is supported by evidence. The
 ADR as a whole is **not yet acceptable**: evidence item 1 needs a mobile
-save/reopen (Android, iOS), and item 2 needs the Phase 3 interrupted-write
-and migration-rollback tests. It stays Proposed.
+save/reopen (Android, iOS; the shell now builds for the iOS Simulator but
+hasn't run there), and item 2 still needs the Phase 3 migration-rollback
+tests (interrupted writes are now covered on all three desktops). It stays
+Proposed.

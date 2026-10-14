@@ -68,6 +68,13 @@ JavaScriptCore** (macOS 26 runner, through `osascript -l JavaScript`;
 recent macOS ships no `jsc` shell), CI run 38517172487. Engine-level
 evidence for iOS only; the iOS app shell is untested.
 
+**Option 2 started (2026-10-14):** the shell (moved into a library with a
+mobile entry point) **builds for the iOS Simulator** with Xcode 26.6 and
+Tauri CLI 2.12.1 (`BUILD SUCCEEDED`, `spike-shell.app` for arm64-sim; CI
+run 38639846127). Not yet installed or run in a simulator; the next step is
+`xcrun simctl` install and launch with the auto-mode variables, then reading
+the report from the app's container.
+
 **Options, cheapest first:**
 
 1. **Engine check without the shell:** run Recipe Core's vectors under
