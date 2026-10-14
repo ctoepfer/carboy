@@ -2,11 +2,26 @@
 
 ## Current state
 
-No language, framework, or build tool has been selected for the product
-(ADRs 0003–0007 are Proposed), so there is no product to build yet. The
-throwaway Phase 1 spike can be run: see [spikes/phase1/README.md](../../spikes/phase1/README.md)
-(`spikes/phase1/spike.sh start | test`). This page grows when the spike
-selects the toolchain. Phases and the current focus: [ROADMAP.md](../ROADMAP.md).
+Product code is TypeScript in npm workspaces under `packages/`
+(ADR 0004). Only Recipe Core exists so far. The application shell is not
+chosen yet (ADR 0003 Proposed); the throwaway Phase 1 spike can be run: see
+[spikes/phase1/README.md](../../spikes/phase1/README.md)
+(`spikes/phase1/spike.sh start | test`). Phases and the current focus:
+[ROADMAP.md](../ROADMAP.md).
+
+## Build and test
+
+Needs Node.js 20 or later (CI uses 22 and 24; Node 20 is past end of life,
+so prefer a current LTS) and npm.
+
+```bash
+npm install     # once, at the repository root
+npm test        # builds and tests every package
+```
+
+Recipe Core compiles without DOM or Node types, so a browser or Node API
+in `packages/recipe-core/src` is a compile error
+([RECIPE_CORE.md §1](../architecture/RECIPE_CORE.md#1-boundary)).
 
 ## Checkouts
 

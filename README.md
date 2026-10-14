@@ -8,11 +8,12 @@ designing recipes, improving them batch by batch, and brewing them.
 > decided yet and is configured in [`identity/identity.json`](identity/identity.json)
 > ([naming policy](docs/architecture/NAMING.md)).
 
-**Status: Phase 1 (platform proof).** There is no application yet. This
-repository holds the plan, architecture, contracts, and decisions, plus
-throwaway spike code under [`spikes/phase1/`](spikes/phase1/README.md) that
-tests candidate technologies; none of it is product code, and no language
-or framework is selected yet. Phases and current focus:
+**Status: Phase 2 (Recipe Core) has started; Phase 1 (platform proof)
+continues alongside it.** There is no application yet. Recipe Core is being
+built in TypeScript under [`packages/recipe-core/`](packages/recipe-core/)
+(ADR 0004, accepted). Throwaway spike code under
+[`spikes/phase1/`](spikes/phase1/README.md) still tests the shell, storage,
+and graph candidates. Phases and current focus:
 [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## What it will do
@@ -54,12 +55,13 @@ carboy/
     architecture/  Overview, invariants, boundary, naming, ADRs, reuse baseline
     development/   Developer setup
     references/    Bibliography of cited works
+  packages/        Product code (npm workspaces): recipe-core
   spikes/phase1/   Throwaway Phase 1 spike code (not product code)
-  .github/         Manual-only spike CI workflow
+  .github/         CI: core tests on every push; manual spike workflow
 ```
 
-Source directories are added when their technology is selected (ADRs
-0003/0004, Phase 1) and they receive real code. The intended module structure
+Source directories are added when they receive real code; packages live
+under `packages/` as npm workspaces. The intended module structure
 is in [`docs/architecture/OVERVIEW.md`](docs/architecture/OVERVIEW.md).
 
 ## Documentation
@@ -72,6 +74,7 @@ is in [`docs/architecture/OVERVIEW.md`](docs/architecture/OVERVIEW.md).
 | [PUBLIC_PRIVATE_BOUNDARY.md](docs/architecture/PUBLIC_PRIVATE_BOUNDARY.md) | What lives where; the dependency rule |
 | [NAMING.md](docs/architecture/NAMING.md) | Codename vs. brand vs. data identifiers |
 | [BIBLIOGRAPHY.md](docs/references/BIBLIOGRAPHY.md) | Sources for formulas and brewing data |
+| [RECIPE_CORE.md](docs/architecture/RECIPE_CORE.md) | Recipe Core: numbers, units, quantities, precision policy |
 | [USABILITY.md](docs/architecture/USABILITY.md) | Accessibility, localization, and GUI feature plan |
 | [ADRs](docs/architecture/adr/README.md) | Architecture decision records |
 | [SETUP.md](docs/development/SETUP.md) | Developer setup |

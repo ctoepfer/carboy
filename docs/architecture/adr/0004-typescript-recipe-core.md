@@ -1,6 +1,6 @@
 # ADR 0004: Pure TypeScript Recipe Core with cross-language fixture parity
 
-- Status: Proposed
+- Status: Accepted (2026-10-13, owner)
 - Date: 2026-10-09
 - Decision owner: Charles Toepfer
 
@@ -12,7 +12,7 @@ including ~260 lines of beer formulas in `stats_hooks.py`) and brewconvert
 Python sidecar, and embedding Python in-process on mobile would need custom
 native plugins per platform (port sizing from the maintainers' reuse review).
 
-## Decision (proposed)
+## Decision
 
 - Write Recipe Core and Recipe Format in **pure TypeScript** with no DOM,
   Node, or shell dependencies, so they run unchanged inside the webview on all
@@ -49,3 +49,22 @@ native plugins per platform (port sizing from the maintainers' reuse review).
    Android, and iOS.
 3. A first parity fixture passes against both Lumina/brewconvert and the
    TypeScript core.
+
+## Acceptance (2026-10-13)
+
+Accepted by the owner to start Phase 2, with evidence as follows:
+
+1. **Met:** brewconvert and Lumina formula ports sized (maintainers' reuse
+   review, 2026-10-11).
+2. **Partly met:** the same core build runs unchanged in Node and in the
+   WebKitGTK webview (Linux), and in CI (2026-10-13, run 38491921666) in
+   **macOS WKWebView** and WebKitGTK: core checks 5/5 including the RFC 8785
+   vectors and the Lumina parity fixture. **Android and iOS are not yet verified**;
+   that check stays open in Phase 1. The risk is low for the core itself
+   (pure ES2022 with BigInt, no platform APIs) and sits mainly with the
+   shell (ADR 0003).
+3. **Met:** a Lumina parity fixture (Verdant Reverie OG) passes against
+   Lumina's own code and the TypeScript core.
+
+If a mobile webview cannot run the core, this ADR is revisited before
+Phase 12.

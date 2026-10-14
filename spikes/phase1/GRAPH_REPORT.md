@@ -37,6 +37,15 @@ stage (RECIPE_SCHEMA Q5).
 
 Both hold about 60 fps on WebKitGTK at the provisional large size.
 
+## CI results (2026-10-13)
+
+Run [38491921666](https://github.com/ctoepfer/carboy/actions/runs/38491921666),
+`SPIKE_AUTO=1`, visible window: React Flow 12.12.0 / React 19.3.0 and Svelte
+Flow 1.7.0 both **7/7 on macOS WKWebView** (`macos-latest`) and **7/7 on
+WebKitGTK under xvfb** (`ubuntu-24.04`). Windows (WebView2) did not build
+(missing `icon.ico`, since added). iOS WKWebView still needs a simulator or
+device run.
+
 ## Findings
 
 1. **Selection semantics differ.** After one node was selected, pressing

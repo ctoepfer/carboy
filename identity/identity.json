@@ -13,7 +13,7 @@
   },
   "technicalIdentifiers": {
     "$comment": "Brand-neutral and permanent once released. Pending items are decided in the phase noted, then recorded in docs/architecture/NAMING.md.",
-    "packageNamespace": "pending (codename-based; chosen with the toolchain, ADR 0004 / Phase 1)",
+    "packageNamespace": "@carboy/* (npm workspace packages, private; publication scope decided before Phase 13)",
     "recipeFormat": {
       "fileExtension": "pending (D-016, brand-neutral)",
       "mediaType": "pending (D-016, brand-neutral)",

@@ -44,15 +44,16 @@ The Ingredient Catalog module owns three kinds of record:
 
 | Record | What it is | Example |
 |---|---|---|
-| **Group** | A node in a per-kind tree: a name, a parent, a description, and optional **typical property ranges** for display only | "American Ale (Chico lineage)" under "Ale yeast" |
+| **Group** | A node in a per-kind tree: a name, a parent, a **level** (§2.1), a description, optional **substitution notes**, and optional **typical property ranges** for display only | "Clean American ale" under *S. cerevisiae* › "Ale" |
 | **Product** | A specific purchasable item: maker, product name, product code, aliases, per-product properties (from the maker's data sheet), and one primary group | White Labs WLP001 "California Ale", aliases `WLP001`, `California Ale` |
 | **Relation** | A typed, sourced link between products or groups | WLP001 *reported same origin as* Wyeast 1056 |
 
 Rules:
 
 1. **One primary tree per kind.** A product has exactly one primary group, so
-   display and browsing are unambiguous. Other classifications (genetic
-   clade vs. brewing use) are relations or tags, not a second tree.
+   display and browsing are unambiguous. The tree's upper levels organize
+   (§2.1); its leaf groups are functional. A placement elsewhere (a second
+   origin, a lineage) is a relation, not a second parent.
 2. **Calculations read product properties only.** Group ranges are
    descriptive ("typical attenuation 73–80 %") and are never used in a
    calculation, because a group range is not a measurement of what was used.
@@ -72,6 +73,48 @@ Rules:
 5. **Aliases drive import matching.** BeerXML and other imports carry only a
    name or code; the importer proposes a catalog product from aliases, and
    the user confirms during import review. No silent match.
+
+6. **Lot values belong to inventory, not products.** Malt colour, hop alpha
+   acid and crop year, and yeast production date vary by lot; the product
+   carries the maker's stated range, the inventory item the lot's actual
+   value (§5).
+7. **Safety- and diet-relevant properties are explicit**: for example
+   `diastatic` (STA1-positive yeast, which can over-attenuate and
+   over-carbonate if substituted for a non-diastatic strain) and allergens
+   (gluten source grains). Substitution previews warn when they change.
+
+### 2.1 Levels: organizational above, functional at the leaves
+
+Each group has a level kind:
+
+- **Organizational** levels make the catalog browsable: taxonomy, origin,
+  process role. They are facts that need a source like any other (current
+  taxonomy for organisms; maker or breeder for origin), and they are **not**
+  evidence that two items substitute for each other: two *Brettanomyces*
+  species share a genus and still differ in practice.
+- **Functional** levels (the leaves, and optionally one level above them)
+  group items that do the same job in a recipe. Substitution ranks
+  candidates by these levels only (§4).
+
+Proposed levels per kind (owner's first grouping draft, 2026-10-13, kept
+privately until sourced):
+
+| Kind | Organizational levels | Functional leaf | Product |
+|---|---|---|---|
+| Culture | Organism type (yeast, bacteria) → genus → species → genetic group or clade where published (ale heritage groups; lager Saaz / Frohberg types) | Fermentation behaviour ("Clean American ale", "Dry, attenuative British", "Kettle-souring lactic") | Maker's strain |
+| Hop | Origin region (Continental Europe, UK, US Pacific Northwest, Southern Hemisphere) → aroma family (oil profile) | **Variety** (Cascade, Saaz); variety-to-variety substitutes are functional relations | Supplier, form (pellet, cryo, whole), crop year at lot level |
+| Malt and grain | Process role (base, kilned/toasted, caramel/crystal, roasted, adjunct) | Malt type, with colour band where it defines the type ("Light crystal 10–40 °L", "Pilsner base") | Maltster's product |
+| Honey | Floral source family | Varietal (orange blossom, clover, buckwheat) | Producer or lot |
+| Fruit and juice | Botanical type (pome, stone, berry, citrus, grape) → for grapes: species and colour | Variety; for cider apples, the class (sweet, sharp, bittersweet, bittersharp) | Supplier or lot |
+| Rice and koji (sake) | Rice type (sake rice, table rice); koji organism | Rice variety and polishing ratio band; koji use (ginjo, general) | Supplier |
+
+Names follow current taxonomy, with former names kept as aliases (for
+example lactic bacteria renamed in the 2020 *Lactobacillus* genus split).
+
+**Display.** Lists show the leaf and the product ("Clean American ale /
+WLP001"); a breadcrumb or tree view shows the organizational path
+(*S. cerevisiae* › Ale › Clean American ale). The accessible name always
+includes the leaf (USABILITY U6).
 
 ## 3. Recipes
 
@@ -103,8 +146,10 @@ MINOR, decided with schema 1.0):
   product in an ingredient snapshot, keep its additions), previewed with a
   diff and recalculated statistics like every other edit. Nothing substitutes
   automatically.
-- Candidates are ranked: same group first, then sibling groups, then
-  `functional` relations; each candidate shows the property differences
+- Candidates are ranked by **functional** distance only: same leaf group
+  first, then sibling leaves under the same functional parent, then
+  `functional` relations. Organizational closeness (same genus, same region)
+  never ranks a candidate by itself; each candidate shows the property differences
   (attenuation, flocculation, temperature range, alpha acid) and the
   relation's confidence and source.
 - Hops need quantity adjustment on substitution (alpha acid differs); the

@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Boundary rule (OVERVIEW §2, invariant 11): ES2022 only. No DOM lib and
+    // no @types, so any browser or Node API fails to compile.
+    "lib": ["ES2022"],
+    "types": [],
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src"]
+}

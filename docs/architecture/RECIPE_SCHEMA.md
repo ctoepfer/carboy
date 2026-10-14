@@ -191,6 +191,8 @@ BeerXML port and its factors are exact. That means `kg`, `g`, `lb`, `oz`
   them as volume, and a mass-based calculation that needs density reports
   "cannot compute" unless the ingredient snapshot provides one.
 
+Implementation and the tokens Q2 did not list (RQ1, proposed): [RECIPE_CORE.md §3](RECIPE_CORE.md#3-units).
+
 The rejected alternative was UCUM (`Cel`, `[degF]`, `[gal_us]`, ...): a
 formal standard, but less readable, and it would not match the BeerXML
 oracle.

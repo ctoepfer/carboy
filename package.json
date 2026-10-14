@@ -1,0 +1,16 @@
+{
+  "name": "carboy-workspace",
+  "private": true,
+  "description": "Carboy monorepo root (npm workspaces). Not a package.",
+  "license": "Apache-2.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces"
+  }
+}

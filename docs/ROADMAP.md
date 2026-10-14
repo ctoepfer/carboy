@@ -7,11 +7,15 @@ kept by the maintainer. Contracts and architecture decisions are public in
 
 ## Current focus
 
-**Phase 1, platform proof** (since 2026-10-12): throwaway spikes under
-[`spikes/phase1/`](../spikes/phase1/README.md) test the candidate shell,
-Recipe Core language, persistence, and process-graph libraries
-([SPIKE_PLAN.md](../spikes/phase1/SPIKE_PLAN.md)). No product toolchain is
-selected until the spike reports decide ADRs 0003, 0004, and 0006.
+**Phase 2, Recipe Core** (since 2026-10-13), started after ADR 0004
+(pure TypeScript core) was accepted: [`packages/recipe-core/`](../packages/recipe-core/),
+documented in [RECIPE_CORE.md](architecture/RECIPE_CORE.md).
+
+**Phase 1, platform proof** continues alongside it: the throwaway spikes
+under [`spikes/phase1/`](../spikes/phase1/README.md)
+([SPIKE_PLAN.md](../spikes/phase1/SPIKE_PLAN.md)) still have to settle the
+shell (ADR 0003), persistence (ADR 0006), the graph library, and the
+mobile checks.
 
 ## Goal
 
@@ -96,6 +100,7 @@ Architecture decisions with lasting consequences also have an
 | D-004 | This public repository holds the application; the hosted connector is a separate private repository that depends on this one, never the reverse | [Boundary](architecture/PUBLIC_PRIVATE_BOUNDARY.md) |
 | D-006 | Beverage launch staging per BEVERAGE_SCOPE, gated per statistic: a statistic is enabled only when its formula has an accepted source and its fixtures pass | [BEVERAGE_SCOPE](product/BEVERAGE_SCOPE.md), [FORMULA_COVERAGE](architecture/FORMULA_COVERAGE.md#decisions) |
 | D-008 | macOS and iOS builds use hosted macOS CI runners | — |
+| ADR 0004 | Recipe Core and Recipe Format in pure TypeScript, kept in agreement with the Python implementations by a shared fixture suite (accepted 2026-10-13) | [ADR 0004](architecture/adr/0004-typescript-recipe-core.md) |
 | D-013 | "Carboy" is a permanent codename; the user-facing brand is configurable | [NAMING.md](architecture/NAMING.md) |
 | D-021 | The hosted connector is a separate lightweight service that runs the public Recipe Core in-process | [ADR 0002](architecture/adr/0002-open-core-boundary.md) |
 | D-022 | Schema version negotiation between devices and services | [RECIPE_SCHEMA §4](architecture/RECIPE_SCHEMA.md#4-schema-versioning) |
