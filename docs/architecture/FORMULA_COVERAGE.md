@@ -155,6 +155,19 @@ leads, not citations.
 | Molecular SO₂ targets (≈0.8 mg/L white, ≈0.5 mg/L red) | Guidance values | Secondary (attributed to Jackson, *Wine Science*) | Read the cited text. Targets are **user-chosen**, shown with their source, never a silent default. Red wines: pigment-bound SO₂ makes molecular SO₂ unreliable from free SO₂ alone (reported); limit or flag |
 | Cider: SO₂ by juice pH bands | Tabulated total SO₂ per pH band (Long Ashton tradition) | **Community** (cider.org.uk); primary (Beech & Carr; Lea) not read | Read Lea, *Craft Cider Making*, or Lea & Drilleau (2003); otherwise cider uses the molecular-SO₂ rows above |
 
+**pK₁ in water, primary source found (2026-10-14).** Goldberg and Parker
+(1985), *J. Res. Natl. Bur. Stand.* 90(5):341, a critical evaluation, select
+K_A = 0.0139 ± 0.0004 mol kg⁻¹ at 25 °C for SO₂(aq) + H₂O ⇌ H⁺ + HSO₃⁻
+(Huss and Eckert's data), with ΔH° = −17.80 ± 0.40 kJ mol⁻¹ and
+ΔC_p = −272 ± 10 J mol⁻¹ K⁻¹. Their temperature equation gives pK₁ = 1.71
+(10 °C), 1.76 (15 °C), **1.81 (20 °C)**, 1.86 (25 °C). The widely used "1.81"
+is therefore the aqueous constant at 20 °C, for water at infinite
+dilution. Wine's ethanol and ionic strength shift the effective constant
+(reported, via secondary sources, as nearer 2.0; Usseglio-Tomasset and Bosia
+1984, not read). **Molecular SO₂ stays unavailable** until a source for the
+wine-condition constant is read; using the aqueous value for wine would be
+an unsourced approximation (open question FQ5).
+
 Rules that hold regardless: measured free SO₂ (with date and method) is
 kept apart from estimates and targets and is never replaced by either;
 pH and free SO₂ must be measured values for a molecular SO₂ result, or the
@@ -236,6 +249,7 @@ Decided 2026-10-12 (owner accepted the recommendations):
 | FQ1 | Is a reviewed secondary source enough to ship a formula? | Yes, when it is published and reviewed (such as Holle, MBAA 2003), the formula is labeled with both citations, and the primary is listed "to verify". Web-only sources never are |
 | FQ2 | OG method | Both, as named formulas: the mass method is the default for recipes created in Carboy; the points method for Lumina and BeerXML parity |
 | FQ3 | Tinseth gravity | Follow the published model once a citable copy is read; Lumina's OG-based variant is kept only as a parity variant |
+| FQ5 (open, 2026-10-14) | May molecular SO₂ be offered with the aqueous pK₁ (Goldberg & Parker 1985, temperature-dependent), clearly labelled as an approximation that ignores ethanol and ionic strength, before a wine-condition source is read? | Recommendation: **no**; keep it unavailable until the wine-condition source is read, because the approximation's error in wine is unquantified |
 | FQ4 | ABV formula | Choose one with a citable source before Phase 2; 131.25 only as a Lumina parity variant |
 
 **D-006, decided 2026-10-12:** BEVERAGE_SCOPE's staging, gated per statistic as in [Proposed D-006 staging](#proposed-d-006-staging): a statistic is enabled only when its source meets FQ1 and its fixtures pass.

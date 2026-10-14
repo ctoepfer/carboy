@@ -87,7 +87,18 @@ peer-reviewed version before citing.
 - White Labs (2023). Identifying lager vs ale strains. Manufacturer
   publication.
 
-## Wine, cider, and mead chemistry (to be read)
+## Wine, cider, and mead chemistry
+
+Read:
+
+- Goldberg, R. N. and Parker, V. B. (1985). Thermodynamics of solution of
+  SO₂(g) in water and of aqueous sulfur dioxide solutions. *J. Res. Natl.
+  Bur. Stand.* 90(5):341–358.
+  <https://nvlpubs.nist.gov/nistpubs/jres/090/jresv90n5p341_A1b.pdf>.
+  **Read 2026-10-14** (pK₁ of SO₂ in water and its temperature
+  dependence). US Government work.
+
+To be read:
 
 Leads from the CQ3/CQ4 source review (FORMULA_COVERAGE.md); none read yet.
 
