@@ -41,6 +41,28 @@ read; the original is still to be read and checked).
 - Hough, J. S. (1994). *The Biotechnology of Malting and Brewing.* p. 115.
   (CO₂ yield from extract.)
 
+## Culture genetics (to be read)
+
+Primary studies for strain identity, lineage, and species of brewing
+cultures (INGREDIENT_CATALOG §2.2–§2.3). Not yet read; check each for its
+peer-reviewed version before citing.
+
+- Gallone, B. et al. (2016). Domestication and divergence of
+  *Saccharomyces cerevisiae* beer yeasts. *Cell* 166(6). Open access:
+  <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5018251/>.
+- Fay, J. C. et al. (2018). A polyploid admixed origin of beer yeasts
+  derived from European and Asian wine populations. bioRxiv 466276.
+- Langdon, Q. K. et al. (2019). Genomic diversity and global distribution
+  of *Saccharomyces eubayanus*, the wild ancestor of hybrid lager-brewing
+  yeasts. bioRxiv 709535.
+- Dunham, M. J. et al. (2020). Genomic stability and adaptation of beer
+  brewing yeasts during serial repitching in the brewery. bioRxiv
+  2020.06.26.166157.
+- Kerruish, D. W. M. et al. (2024). The origins of the Guinness stout yeast.
+  *Communications Biology*. <https://www.nature.com/articles/s42003-023-05587-3>.
+- White Labs (2023). Identifying lager vs ale strains. Manufacturer
+  publication.
+
 ## Standards and specifications
 
 - BeerXML 1.0 specification. <https://www.beerxml.com/beerxml.htm>. **Read.**
