@@ -1,5 +1,8 @@
+import { Decimal } from "./decimal.js";
 import { isObject, validateProvenance } from "./provenance.js";
 import { isUuid } from "./revision.js";
+import { propertyRow } from "./properties.js";
+import { validateQuantity } from "./quantity.js";
 import { POINT_BASIS, stageKind } from "./stage-kinds.js";
 import { validateStatistics } from "./statistics.js";
 import { unitDefinition } from "./units.js";
@@ -55,11 +58,20 @@ export function validateContent(content: unknown, base = "/content"): ContentIss
     if (!(INGREDIENT_KINDS as readonly unknown[]).includes(ing["kind"])) add("unknown-ingredient-kind", `${p}/kind`, `kind must be one of ${INGREDIENT_KINDS.join(", ")}`);
     validateCatalogRefs(ing, p, add);
     const props = ing["properties"];
-    if (props !== undefined && isObject(props)) {
+    if (props !== undefined && !isObject(props)) add("invalid-ingredient", `${p}/properties`, "properties must be an object");
+    if (isObject(props) && (INGREDIENT_KINDS as readonly unknown[]).includes(ing["kind"])) {
       for (const [k, v] of Object.entries(props)) {
-        if (isObject(v) && v["provenance"] !== undefined) out.push(...validateProvenance(v["provenance"], `${p}/properties/${k}/provenance`));
+        const pp = `${p}/properties/${k}`;
+        const row = propertyRow(ing["kind"] as string, k);
+        if (!row) {
+          add("unknown-property", pp, `${k} is not in the property table for ${String(ing["kind"])}; imported fields belong in unmapped`);
+          continue;
+        }
+        if (checkQuantity(v, pp, add) && !row.units.includes((v as { unit: string }).unit)) add("property-unit-not-allowed", `${pp}/unit`, `${k} takes ${row.units.join(", ")}`);
+        if (isObject(v) && v["provenance"] !== undefined) out.push(...validateProvenance(v["provenance"], `${pp}/provenance`));
       }
     }
+    if (ing["unmapped"] !== undefined && !isObject(ing["unmapped"])) add("invalid-unmapped", `${p}/unmapped`, "unmapped holds imported fields as an object");
   });
 
   const process = content["process"];
@@ -74,8 +86,18 @@ export function validateContent(content: unknown, base = "/content"): ContentIss
       registerId(st["id"], `${p}/id`);
       if (typeof st["kind"] !== "string" || !stageKind(st["kind"])) add("unknown-stage-kind", `${p}/kind`, "stage kind is not in the stage-kind table");
       if (typeof st["id"] === "string" && typeof st["kind"] === "string") stageKinds.set(st["id"], st["kind"]);
+      checkParameters(st["parameters"], `${p}/parameters`, add);
       const steps = st["steps"];
-      if (Array.isArray(steps)) steps.forEach((s, j) => isObject(s) && registerId(s["id"], `${p}/steps/${j}/id`));
+      if (steps !== undefined && !Array.isArray(steps)) add("invalid-stage", `${p}/steps`, "steps must be an array");
+      if (Array.isArray(steps)) {
+        steps.forEach((s, j) => {
+          const sp = `${p}/steps/${j}`;
+          if (!isObject(s)) return add("invalid-stage", sp, "a step must be an object");
+          registerId(s["id"], `${sp}/id`);
+          if (s["name"] !== undefined && typeof s["name"] !== "string") add("invalid-stage", `${sp}/name`, "name must be a string");
+          checkParameters(s["parameters"], `${sp}/parameters`, add);
+        });
+      }
     });
     const flows = arrayAt(process, "flows", `${base}/process`, add);
     flows.forEach((fl, i) => {
@@ -86,6 +108,17 @@ export function validateContent(content: unknown, base = "/content"): ContentIss
       for (const end of ["from", "to"] as const) {
         if (!stageKinds.has(fl[end] as string)) add("unknown-reference", `${p}/${end}`, `flow ${end} names no stage`);
       }
+    });
+    // Topology: branches and merges are valid (calculations may call them
+    // unsupported); a flow that leads back to where it came from is not.
+    const next = new Map<string, string[]>();
+    const reaches = (from: string, to: string, seen = new Set<string>()): boolean =>
+      from === to || (!seen.has(from) && (seen.add(from), (next.get(from) ?? []).some((n) => reaches(n, to, seen))));
+    flows.forEach((fl, i) => {
+      if (!isObject(fl) || !stageKinds.has(fl["from"] as string) || !stageKinds.has(fl["to"] as string)) return;
+      const [a, b] = [fl["from"] as string, fl["to"] as string];
+      if (reaches(b, a)) return add("process-cycle", `${base}/process/flows/${i}`, "this flow leads back to a stage it comes from");
+      next.set(a, [...(next.get(a) ?? []), b]);
     });
   }
 
@@ -98,6 +131,7 @@ export function validateContent(content: unknown, base = "/content"): ContentIss
     const kind = stageKinds.get(ad["stage"] as string);
     if (kind === undefined) add("unknown-reference", `${p}/stage`, "addition names no stage");
     if (!isObject(ad["amount"])) add("missing-amount", `${p}/amount`, "an addition needs an amount");
+    else checkQuantity(ad["amount"], `${p}/amount`, add);
     const t = ad["timing"];
     if (t !== undefined) {
       if (!isObject(t) || !(TIMING_BASES as readonly unknown[]).includes(t["basis"])) {
@@ -125,6 +159,17 @@ export function validateContent(content: unknown, base = "/content"): ContentIss
 
   const notes = arrayAt(content, "notes", base, add);
   notes.forEach((n, i) => isObject(n) && registerId(n["id"], `${base}/notes/${i}/id`));
+
+  const targets = content["targets"];
+  if (targets !== undefined && !isObject(targets)) add("invalid-content", `${base}/targets`, "targets must be an object");
+  if (isObject(targets)) {
+    for (const [k, v] of Object.entries(targets)) {
+      const tp = `${base}/targets/${k}`;
+      if (!checkQuantity(v, tp, add)) continue;
+      const rule = TARGET_RULES[k];
+      if (rule && !rule.check(v as { value: string; unit: string })) add("invalid-target", tp, rule.message);
+    }
+  }
 
   out.push(...validateStatistics(content["statistics"], `${base}/statistics`));
   return out;
@@ -184,6 +229,33 @@ function checkRef(ref: unknown, path: string, add: (c: string, p: string, m: str
 /** Product identity for comparing references: catalog and item, not version. */
 function refKey(ref: unknown): string | undefined {
   return isObject(ref) && typeof ref["catalog"] === "string" && typeof ref["item"] === "string" ? JSON.stringify([ref["catalog"], ref["item"]]) : undefined;
+}
+
+/** Targets the calculator reads. The full target list is fixed with the formula coverage table (D-006). */
+const TARGET_RULES: Readonly<Record<string, { check: (q: { value: string; unit: string }) => boolean; message: string }>> = {
+  batch_volume: { check: (q) => unitDefinition(q.unit)?.dimension === "volume" && Decimal.parse(q.value).sign() > 0, message: "batch volume is a volume greater than zero" },
+  efficiency: { check: (q) => unitDefinition(q.unit)?.dimension === "fraction", message: "efficiency is a fraction (fraction or %)" },
+};
+
+/** A quantity as stored: { value, unit } strings that pass validateQuantity. Reports and returns false otherwise. */
+function checkQuantity(v: unknown, path: string, add: (c: string, p: string, m: string) => void): boolean {
+  if (!isObject(v) || typeof v["value"] !== "string" || typeof v["unit"] !== "string") {
+    add("invalid-quantity", path, "a quantity is { value, unit } with a decimal string value");
+    return false;
+  }
+  const issues = validateQuantity({ value: v["value"], unit: v["unit"] });
+  for (const i of issues) add(i.code, `${path}/${i.code === "unknown-unit" ? "unit" : "value"}`, i.message);
+  return issues.length === 0;
+}
+
+/** Stage and step parameters: an object of quantities (names are not tabled yet; rows come with the formulas that read them). */
+function checkParameters(params: unknown, path: string, add: (c: string, p: string, m: string) => void): void {
+  if (params === undefined) return;
+  if (!isObject(params)) return add("invalid-stage", path, "parameters must be an object of quantities");
+  for (const [k, v] of Object.entries(params)) {
+    checkQuantity(v, `${path}/${k}`, add);
+    if (isObject(v) && v["provenance"] !== undefined) for (const i of validateProvenance(v["provenance"], `${path}/${k}/provenance`)) add(i.code, i.path, i.message);
+  }
 }
 
 function arrayAt(obj: { [key: string]: unknown }, key: string, base: string, add: (c: string, p: string, m: string) => void): unknown[] {

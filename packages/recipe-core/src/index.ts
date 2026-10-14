@@ -19,5 +19,9 @@ export { BEVERAGES, FLOW_KINDS, INGREDIENT_KINDS, TIMING_BASES, validateContent 
 export type { ContentIssue } from "./content.js";
 export { SCHEMA_VERSION, checkSchemaVersion, requiredSchemaVersion } from "./schema.js";
 export type { SchemaIssue, SchemaUse } from "./schema.js";
+export { INGREDIENT_PROPERTIES, propertyRow } from "./properties.js";
+export type { PropertyRow } from "./properties.js";
+export { beverageAdvisories } from "./advisories.js";
+export type { Advisory } from "./advisories.js";
 export { calculateStatistics } from "./calculate.js";
 export type { CalculatedStatistics, CalculationDiagnostic } from "./calculate.js";

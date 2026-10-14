@@ -201,9 +201,27 @@ JSON Pointer; nothing is repaired or filled in.
   another alternative (same catalog and item, any version). Per-member
   MINOR bookkeeping: `requiredSchemaVersion`, `checkSchemaVersion`. The
   recipe `language` member waits for UQ5.
-- Not yet:
-  stage parameters and topology (linear chain), beverage-specific rules,
-  the ingredient property table.
+- **Remaining validation** (2026-10-14): every quantity is checked where
+  it appears (addition amounts, stage and step parameters, targets,
+  ingredient properties), with the issue on `/value` or `/unit`; stage
+  `parameters` are an object of quantities and `steps` an array of
+  `{ id, name?, parameters }` (parameter names are not tabled until a
+  formula reads them); flows may branch and merge but a flow leading back
+  to a stage it comes from is `process-cycle`; known targets:
+  `batch_volume` a positive volume, `efficiency` a fraction.
+- **Ingredient property table v0** (`properties.ts`, Q9 closed table):
+  `color` (degL, SRM, EBC), `extract_yield` and `moisture` (fraction, %)
+  for fermentable and sugar, read by `color.mcu` and `extract.mass`;
+  `alpha_acid` (fraction, %) for hops, because BeerXML 1.0 requires HOP
+  ALPHA (no IBU formula yet). Anything else is `unknown-property`;
+  imported fields without a row belong in `unmapped` (an object, kept
+  verbatim, never calculated from).
+- **Beverage advisories** (`advisories.ts`): completeness hints ported from
+  Lumina's `validation.py` (beer without fermentable or hops; mead without
+  honey; cider without fruit; wine without fruit or sugar; no culture for
+  beer, wine, mead, cider). Reported separately; they never make content
+  invalid, so an unfinished recipe stays editable. Sake has none (no
+  source).
 
 ## 8. Verification
 
@@ -216,7 +234,7 @@ regression values are the ones brewconvert documents as its oracle.
 
 ## 9. Next in Recipe Core
 
-In order: the remaining validation (stage parameters, topology,
-beverage-specific rules, ingredient property table); scaling and its
-rounding policy; native serialization (Recipe Format); more formulas as
-their sources are read (Morey, Tinseth, ABV; mead nutrients and sulfite).
+In order: scaling and its rounding policy; migrations; the Python-side
+fixture runner (D-005); more formulas as their sources are read (Morey,
+Tinseth, ABV; wine-condition pK₁, YAN requirements). Stage parameter rows
+come with the formulas that read them.
