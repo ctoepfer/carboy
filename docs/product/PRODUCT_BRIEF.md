@@ -80,7 +80,7 @@ Rules for the paid piece (see [ADR 0002](../architecture/adr/0002-open-core-boun
 
 ## Shop integration principles
 
-The project is started by the owner of a local homebrew shop
+The project is started by a co-owner of a local homebrew shop
 (Pacific Brewing Supplies). That is an advantage for realistic requirements
 and a risk for perceived neutrality. Therefore:
 

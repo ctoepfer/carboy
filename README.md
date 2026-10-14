@@ -37,6 +37,12 @@ vendor-neutral. Full list: [invariants](docs/architecture/INVARIANTS.md).
 
 ## Open source and the optional hosted service
 
+Carboy is open source under the Apache License 2.0. It is designed to be
+offline-first and independently functional: recipe design, calculations,
+validation, storage, and import/export run on your own device, with no
+account, internet connection, or paid cloud service required
+([invariants](docs/architecture/INVARIANTS.md) 1–5 and 9).
+
 This repository is the complete application and its reusable foundations
 (Recipe Core and public contracts), licensed under Apache-2.0. An optional,
 separately hosted, proprietary service (the AI Bridge: online library, sync,
