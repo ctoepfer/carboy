@@ -55,7 +55,7 @@ carboy/
     architecture/  Overview, invariants, boundary, naming, ADRs, reuse baseline
     development/   Developer setup
     references/    Bibliography of cited works
-  packages/        Product code (npm workspaces): recipe-core
+  packages/        Product code (npm workspaces): recipe-core, recipe-format
   spikes/phase1/   Throwaway Phase 1 spike code (not product code)
   .github/         CI: core tests on every push; manual spike workflow
 ```
@@ -74,7 +74,8 @@ is in [`docs/architecture/OVERVIEW.md`](docs/architecture/OVERVIEW.md).
 | [PUBLIC_PRIVATE_BOUNDARY.md](docs/architecture/PUBLIC_PRIVATE_BOUNDARY.md) | What lives where; the dependency rule |
 | [NAMING.md](docs/architecture/NAMING.md) | Codename vs. brand vs. data identifiers |
 | [BIBLIOGRAPHY.md](docs/references/BIBLIOGRAPHY.md) | Sources for formulas and brewing data |
-| [RECIPE_CORE.md](docs/architecture/RECIPE_CORE.md) | Recipe Core: numbers, units, quantities, precision policy |
+| [RECIPE_CORE.md](docs/architecture/RECIPE_CORE.md) | Recipe Core: numbers, units, quantities, precision policy, formulas, validation |
+| [RECIPE_FORMAT.md](docs/architecture/RECIPE_FORMAT.md) | The native file: canonical writing, verified reading, integration milestone |
 | [USABILITY.md](docs/architecture/USABILITY.md) | Accessibility, localization, and GUI feature plan |
 | [ADRs](docs/architecture/adr/README.md) | Architecture decision records |
 | [SETUP.md](docs/development/SETUP.md) | Developer setup |

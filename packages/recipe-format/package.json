@@ -1,0 +1,29 @@
+{
+  "name": "@carboy/recipe-format",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Recipe Format: the native file format (canonical JSON revision documents), version checks, and verification on open. Depends only on Recipe Core; no DOM, Node, storage, network, or shell dependency.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@carboy/recipe-core": "0.0.0"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

@@ -9,7 +9,12 @@ kept by the maintainer. Contracts and architecture decisions are public in
 
 **Phase 2, Recipe Core** (since 2026-10-13), started after ADR 0004
 (pure TypeScript core) was accepted: [`packages/recipe-core/`](../packages/recipe-core/),
-documented in [RECIPE_CORE.md](architecture/RECIPE_CORE.md).
+documented in [RECIPE_CORE.md](architecture/RECIPE_CORE.md), and the native
+file in [`packages/recipe-format/`](../packages/recipe-format/)
+([RECIPE_FORMAT.md](architecture/RECIPE_FORMAT.md)). **Integration
+milestone reached (2026-10-14):** a complete recipe is created, validated,
+calculated, canonically serialized, hashed, saved, reopened, and verified
+with its identity and numbers unchanged.
 
 **Phase 1, platform proof** continues alongside it: the throwaway spikes
 under [`spikes/phase1/`](../spikes/phase1/README.md)

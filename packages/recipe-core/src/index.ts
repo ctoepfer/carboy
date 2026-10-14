@@ -17,3 +17,5 @@ export { POINT_BASIS, STAGE_KINDS, stageKind } from "./stage-kinds.js";
 export type { StageKind } from "./stage-kinds.js";
 export { BEVERAGES, FLOW_KINDS, INGREDIENT_KINDS, TIMING_BASES, validateContent } from "./content.js";
 export type { ContentIssue } from "./content.js";
+export { calculateStatistics } from "./calculate.js";
+export type { CalculatedStatistics, CalculationDiagnostic } from "./calculate.js";

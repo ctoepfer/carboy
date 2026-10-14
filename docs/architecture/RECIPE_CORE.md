@@ -173,7 +173,19 @@ JSON Pointer; nothing is repaired or filled in.
   ingredient and stage and have an amount; flows name existing stages;
   ingredient, stage, and flow kinds from their tables; timing basis,
   offsets, contact durations, and named points allowed by the stage kind
-  with their implied basis; statistics and provenance throughout. Not yet:
+  with their implied basis; statistics and provenance throughout.
+- **Statistics calculator** (`calculate.ts`, 2026-10-14):
+  `calculateStatistics(content)` returns the calculated layer for `derived`
+  (`extract`, `og`, `og_plato`, `mcu`) and diagnostics; it never writes
+  content. Extract sources are `fermentable` and `sugar` additions in
+  hot-side stages (mash, sparge, boil, whirlpool, chilling); later
+  additions are excluded with `addition-after-og-point`. Fruit or honey on
+  the hot side of a beer makes extract and OG `formula-unavailable`.
+  Missing properties or targets are reported by JSON Pointer. Assumption:
+  `targets.batch_volume` is the cool wort volume at 20 °C, and brewhouse
+  efficiency applies to every extract source, boil sugars included (as
+  Holle's single overall efficiency).
+- Not yet:
   stage parameters and topology (linear chain), beverage-specific rules,
   the ingredient property table.
 
