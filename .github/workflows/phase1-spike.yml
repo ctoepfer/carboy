@@ -122,8 +122,9 @@ jobs:
         run: |
           rustup target add aarch64-apple-ios-sim
           xcodebuild -version || true
-          npx --yes @tauri-apps/cli@2.12.1 ios init --ci 2>&1 | tail -40
-          npx --yes @tauri-apps/cli@2.12.1 ios build --target aarch64-sim --debug --ci 2>&1 | tail -80
+          npm ci --no-audit --no-fund
+          npm run tauri -- ios init --ci 2>&1 | tail -40
+          npm run tauri -- ios build --target aarch64-sim --debug --ci 2>&1 | grep -vE '^\s+export ' | tail -80
           find src-tauri/gen/apple -name '*.app' -maxdepth 6 2>/dev/null | head -5
       - name: SQLite durability benchmark, FULL vs NORMAL under WAL, with and without fullfsync (ADR 0006)
         timeout-minutes: 4

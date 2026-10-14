@@ -4,3 +4,6 @@ ui/fixtures/
 ui/shared/
 ui/graph-react/
 ui/graph-svelte/
+node_modules/
+src-tauri/gen/apple/
+src-tauri/gen/android/

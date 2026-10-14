@@ -137,6 +137,26 @@ inside a private session bus and virtual display on the Ubuntu runner
   so it answers normally. Even then, this remains a supplement: **Orca
   still needs a person listening** on a real desktop.
 
+**With a null audio sink (2026-10-14, run 38638224892), Orca speaks.**
+Keyboard only (Tab, Return), React Flow page:
+
+- Spoken: "Recipe link.", "Library link.", "Core checks link.", the two
+  graph links, "Platform probe link.", "leaving list.", "Recipe Sample (8
+  stages) combo box.", the key names.
+- **Finding (needs a person to confirm):** Tab then moved focus through
+  the stages: Orca received focus events for "Stage 1 of 8: Mash, 5
+  additions", "Stage 2 of 8: Sparge, 1 addition", "Stage 3 of 8: Boil 60
+  min, 3 additions", and "Stage 4 of 8: Whirlpool, 2 additions", but its
+  WebKitGTK script **kept its locus of focus on the combo box and spoke
+  nothing for any stage**. The stages are exposed as focusable `div`s with
+  role `group` (computed role group, role description "node"). A focusable
+  element exposed as a group may not be presented as a focus target by
+  Orca, or Orca may have a defect here; the log can't tell which. If a
+  person listening confirms it on a desktop, the graph needs a role meant
+  for focusable items (for example a list of stages with option or
+  listitem semantics, or buttons), which feeds D-017 and the Phase 5
+  design. NVDA and VoiceOver behaviour is unknown.
+
 ## Not yet checked
 
 - **Orca speech, by ear.** The tree is right, but how Orca phrases it (and

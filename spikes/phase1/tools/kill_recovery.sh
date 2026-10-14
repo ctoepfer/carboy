@@ -12,6 +12,9 @@ status=0
 for r in $(seq 1 "$rounds"); do
   SPIKE_HIDDEN=1 SPIKE_START=library.html SPIKE_STRESS=1000000 run "$exe" >"$out/stress-$r.log" 2>&1 &
   pid=$!
+  # Start the kill timer only once writing is under way (start-up under a
+  # virtual display can take longer than the timer itself).
+  for _ in $(seq 1 90); do grep -q "stress: 100 written" "$out/stress-$r.log" 2>/dev/null && break; sleep 1; done
   sleep "$secs"
   # -x matches the process name only; -f would also match this script's own arguments.
   if [ "${RUNNER_OS:-}" = Windows ]; then taskkill //F //IM spike-shell.exe >/dev/null 2>&1; else pkill -9 -x spike-shell 2>/dev/null; fi
