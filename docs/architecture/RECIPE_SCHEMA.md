@@ -21,7 +21,7 @@ Related: [OVERVIEW.md §5](OVERVIEW.md#5-authoritative-data-model),
 [PUBLIC_PRIVATE_BOUNDARY.md](PUBLIC_PRIVATE_BOUNDARY.md),
 [ADR 0006](adr/0006-local-persistence.md),
 [ADR 0007](adr/0007-ai-integration-tiers.md),
-[REUSE_BASELINE.md](REUSE_BASELINE.md#lumina-port-map-2026-10-11).
+and the maintainers' Lumina port map.
 
 ## Requirements this draft answers
 
@@ -281,7 +281,9 @@ catalog changes:
 `kind` v0: `fermentable`, `hop`, `culture`, `water_agent`, `fruit`,
 `honey`, `sugar`, `adjunct`, `nutrient`, `acid`, `fining`, `other`.
 `catalog_ref` is optional; refreshing from the catalog is an explicit,
-reviewed edit.
+reviewed edit. **Proposed (2026-10-13):** an optional `group_ref` naming the
+catalog group the recipe needs ("Chico-lineage ale yeast") beside the
+product used ([INGREDIENT_CATALOG.md](INGREDIENT_CATALOG.md) §3, IQ1).
 
 **Ingredient property table.** Which properties each `kind` may carry is
 defined in **one place**: a per-kind property table, published with the

@@ -2,50 +2,40 @@
 
 ## Current state
 
-What has to happen before there is anything to build: [GETTING_STARTED.md](../project/GETTING_STARTED.md).
-
-No language, framework, or build tool has been selected (ADRs 0003–0007 are
-Proposed), so there is nothing to install, build, or test yet. This page
-grows when the Phase 1 spike selects the toolchain.
+No language, framework, or build tool has been selected for the product
+(ADRs 0003–0007 are Proposed), so there is no product to build yet. The
+throwaway Phase 1 spike can be run: see [spikes/phase1/README.md](../../spikes/phase1/README.md)
+(`spikes/phase1/spike.sh start | test`). This page grows when the spike
+selects the toolchain. Phases and the current focus: [ROADMAP.md](../ROADMAP.md).
 
 ## Checkouts
 
-The public and private repositories are independent Git repositories, side
-by side (not submodules; the parent folder is not a repository):
-
 ```bash
-mkdir -p /mnt/lumina_share/carboy && cd /mnt/lumina_share/carboy
-git clone git@github.com:ctoepfer/carboy.git carboy                 # public
-git clone git@github.com:ctoepfer/carboy-bridge.git carboy-bridge   # private, if you have access
+git clone git@github.com:ctoepfer/carboy.git
 ```
 
-Contributors without access to the private repository need only `carboy`.
-Nothing in it requires `carboy-bridge`.
+Default branch: `main`. This repository builds and tests on its own.
+Maintainers also keep private repositories (the optional hosted service and
+planning notes) checked out beside it as independent repositories, not
+submodules; nothing here depends on them
+([PUBLIC_PRIVATE_BOUNDARY.md](../architecture/PUBLIC_PRIVATE_BOUNDARY.md)).
 
-Default branch: `main`.
+## Editor
 
-## VS Code
-
-The owner's multi-root workspace is
-`~/Documents/Workspaces/carboy.code-workspace`, outside both repositories. It
-opens both checkouts as separate root folders ("Carboy — App & Core",
-"Carboy — Bridge"), each with its own Source Control entry. Workspace files
-are personal and not committed. The owner's session helpers
-(`~/scripts/projects/carboy/start-carboy.sh` and `refresh-carboy.sh`) live
-outside both repositories too. Recommended extensions will be added to
-`.vscode/extensions.json` once the toolchain is chosen.
+Workspace files and personal helper scripts are not committed.
+Recommended extensions will be added to `.vscode/extensions.json` once the
+toolchain is chosen.
 
 ## Source projects (read-only)
 
-Recipe Core will port deterministic logic from existing projects. Read them;
-never modify them from here:
+Recipe Core ports deterministic logic from the maintainer's earlier
+projects. Read them; never modify them from here:
 
-| Project | Location |
+| Project | Where |
 |---|---|
-| brewconvert, brewpanel | [ctoepfer/codesamples](https://github.com/ctoepfer/codesamples); local working copy `/mnt/lumina_share/lumina/runtime/coding/repositories/codesamples` |
-| Lumina recipes brain | Private Lumina repository; local `/mnt/lumina_share/lumina/brains/recipes/` |
+| brewconvert, brewpanel | [ctoepfer/codesamples](https://github.com/ctoepfer/codesamples) |
+| Lumina recipes | Private repository (maintainer access only) |
 
-Test results and port sizing: [REUSE_BASELINE.md](../architecture/REUSE_BASELINE.md).
 To rerun brewpanel's tests, use an isolated virtual environment with its
 `dev` extra (it needs `pytest-asyncio`).
 

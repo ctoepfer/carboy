@@ -12,8 +12,8 @@ designing recipes, improving them batch by batch, and brewing them.
 repository holds the plan, architecture, contracts, and decisions, plus
 throwaway spike code under [`spikes/phase1/`](spikes/phase1/README.md) that
 tests candidate technologies; none of it is product code, and no language
-or framework is selected yet. Current state:
-[`docs/project/STATUS.md`](docs/project/STATUS.md).
+or framework is selected yet. Phases and current focus:
+[`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## What it will do
 
@@ -49,11 +49,11 @@ See [public/private boundary](docs/architecture/PUBLIC_PRIVATE_BOUNDARY.md).
 carboy/
   identity/        Central user-facing identity (display name, assets)
   docs/
-    project/       Plan, status, decisions, next actions
+    ROADMAP.md     Phases, principles, accepted decisions
     product/       Product brief, beverage scope
     architecture/  Overview, invariants, boundary, naming, ADRs, reuse baseline
     development/   Developer setup
-    references/    Notes on cited reference works
+    references/    Bibliography of cited works
   spikes/phase1/   Throwaway Phase 1 spike code (not product code)
   .github/         Manual-only spike CI workflow
 ```
@@ -66,15 +66,12 @@ is in [`docs/architecture/OVERVIEW.md`](docs/architecture/OVERVIEW.md).
 
 | Document | Purpose |
 |---|---|
-| [STATUS.md](docs/project/STATUS.md) | Where the project stands; next task |
-| [GETTING_STARTED.md](docs/project/GETTING_STARTED.md) | Path from plan to first code; what the owner and contributors need |
-| [PROJECT_PLAN.md](docs/project/PROJECT_PLAN.md) | Phased plan (authoritative) |
-| [DECISIONS.md](docs/project/DECISIONS.md) | Decision register |
-| [NEXT_ACTIONS.md](docs/project/NEXT_ACTIONS.md) | Concrete next tasks |
+| [ROADMAP.md](docs/ROADMAP.md) | Goal, principles, release boundaries, phases, accepted decisions |
 | [OVERVIEW.md](docs/architecture/OVERVIEW.md) | Modules, dependency rules, data model |
 | [INVARIANTS.md](docs/architecture/INVARIANTS.md) | Properties every change preserves |
 | [PUBLIC_PRIVATE_BOUNDARY.md](docs/architecture/PUBLIC_PRIVATE_BOUNDARY.md) | What lives where; the dependency rule |
 | [NAMING.md](docs/architecture/NAMING.md) | Codename vs. brand vs. data identifiers |
+| [BIBLIOGRAPHY.md](docs/references/BIBLIOGRAPHY.md) | Sources for formulas and brewing data |
 | [USABILITY.md](docs/architecture/USABILITY.md) | Accessibility, localization, and GUI feature plan |
 | [ADRs](docs/architecture/adr/README.md) | Architecture decision records |
 | [SETUP.md](docs/development/SETUP.md) | Developer setup |

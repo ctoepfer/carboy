@@ -6,12 +6,14 @@ public, Apache-2.0). The private service lives in a separate repository,
 
 ## Before you change anything
 
-1. Read [`docs/project/STATUS.md`](docs/project/STATUS.md). It is the source of
-   truth for the current phase, active milestone, and next task — not chat
-   history and not this file.
-2. Read the phase section for the active phase in
-   [`docs/project/PROJECT_PLAN.md`](docs/project/PROJECT_PLAN.md) and the
-   relevant ADRs in [`docs/architecture/adr/`](docs/architecture/adr/).
+1. Read [`docs/ROADMAP.md`](docs/ROADMAP.md) for the current phase and the
+   accepted decisions, and the relevant ADRs in
+   [`docs/architecture/adr/`](docs/architecture/adr/).
+2. **Maintainers and their agents:** the working status (active milestone,
+   next task, open decisions) lives in the private planning repository,
+   checked out beside this one as `../carboy-planning/`. If it is present,
+   read its `project/STATUS.md` first; it is the source of truth for the
+   next task — not chat history and not this file.
 3. Inspect before changing. Link findings to real paths, symbols, and tests.
 
 ## While working
@@ -51,11 +53,21 @@ docs. Rules: [`docs/architecture/NAMING.md`](docs/architecture/NAMING.md).
   must be completable by keyboard.
 - Reuse shared design tokens and components before adding page-specific CSS.
 
+## What stays out of this repository
+
+Planning notes and status, local machine paths, reading notes or any text,
+tables, or worked examples from books (cite works in
+[`docs/references/BIBLIOGRAPHY.md`](docs/references/BIBLIOGRAPHY.md) and
+record formulas in our own words), and comparisons with other brewing
+software. Naming file formats Carboy imports or exports is fine.
+
 ## After meaningful work
 
-Update `docs/project/STATUS.md` (completed work with verification, blockers,
-next concrete task), `docs/project/NEXT_ACTIONS.md`, and
-`docs/project/DECISIONS.md` / ADRs when a decision changes. Write resumable
+Maintainers: update the planning repository's `project/STATUS.md`
+(completed work with verification, blockers, next concrete task),
+`project/NEXT_ACTIONS.md`, and `project/DECISIONS.md`. In this repository,
+update ADRs when a decision changes, and [`docs/ROADMAP.md`](docs/ROADMAP.md)
+when the phase changes or a decision is accepted. Write resumable
 notes ("wire X into Y in `path`"), not vague TODOs. If you are unsure whether
 something is done, write "Needs confirmation."
 

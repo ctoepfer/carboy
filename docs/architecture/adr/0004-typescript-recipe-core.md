@@ -10,7 +10,7 @@ Existing recipe logic is Python: Lumina's recipes brain (~9.8k lines,
 including ~260 lines of beer formulas in `stats_hooks.py`) and brewconvert
 (MIT, ~3k+ lines, BeerXML and conversion diagnostics). iOS cannot run a
 Python sidecar, and embedding Python in-process on mobile would need custom
-native plugins per platform. See [`../REUSE_BASELINE.md`](../REUSE_BASELINE.md).
+native plugins per platform (port sizing from the maintainers' reuse review).
 
 ## Decision (proposed)
 

@@ -18,7 +18,7 @@ This page plans three things that cut across every phase:
 3. **The GUI feature set** that both depend on, mapped to phases.
 
 It builds on the existing commitments: principle 7 of the
-[project plan](../project/PROJECT_PLAN.md) (WCAG 2.1 AA minimum, 2.2 AA
+[roadmap](../ROADMAP.md) (WCAG 2.1 AA minimum, 2.2 AA
 target), AGENTS.md front-end rules, editor-command rule C8 (every drag has a
 command), and the Phase 1 accessibility findings in
 [GRAPH_REPORT.md](../../spikes/phase1/GRAPH_REPORT.md).
@@ -121,7 +121,7 @@ Consequences:
   undo, focus returns to what was undone.
 
 **Visual**
-- Design tokens (starting from Lumina's `tokens.css`, REUSE_BASELINE) define
+- Design tokens (starting from Lumina's `tokens.css`) define
   light, dark, and increased-contrast themes; contrast is checked on the
   tokens, so components inherit it. User-installed themes are data-only
   token packs that cannot go below AA contrast or remove focus indicators
@@ -308,7 +308,7 @@ not carried over.
 | Autosave and recovery | 3 | Planned | Recovery offered in a dialog, never automatic overwrite |
 | Brew-day mode (timers, large targets, high contrast, screen awake) | 7 | Planned | Multi-modal alarms; situational accessibility |
 | Charts (fermentation curves, measurements) | 7, 9 | Planned | Data table alternative; no colour-only series |
-| Mobile layouts | 12 | Planned | Adapted interactions, not a shrunken desktop (PROJECT_PLAN Phase 12) |
+| Mobile layouts | 12 | Planned | Adapted interactions, not a shrunken desktop (roadmap, Phase 12) |
 
 ## 4. Phase placement
 

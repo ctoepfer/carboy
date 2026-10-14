@@ -12,6 +12,15 @@ their recipes. Most recipe tools are beer-centric, import/export loses meaning,
 and calculated numbers are presented with more confidence than their inputs
 justify.
 
+## Positioning
+
+Carboy treats fermented beverages as a family: beer, wine, mead, cider, and
+sake each get their own process model and calculations (a mead's staggered
+nutrient schedule, a wine's acid and sulfite management, sake's multi-stage
+additions), rather than being handled as variations of beer. It aims to be
+easy to learn, with guided creation for new brewers, while staying precise
+for experienced ones.
+
 ## Product
 
 An offline-first, open-source recipe application that:

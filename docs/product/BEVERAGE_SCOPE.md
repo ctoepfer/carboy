@@ -1,7 +1,7 @@
 # Carboy — Beverage Scope
 
 Status: Planning baseline, 2026-10-09. Launch staging below is **proposed**
-(decision D-006 in [`../project/DECISIONS.md`](../project/DECISIONS.md)).
+(decision D-006, [ROADMAP.md](../ROADMAP.md#accepted-decisions)).
 Every formula listed here must be sourced, implemented in Recipe Core, and
 verified against independently checked fixtures before it is shown to users.
 
@@ -64,5 +64,4 @@ Lumina's recipes brain calculates only beer-like and gruit statistics
 OG, FG, ABV, Tinseth IBU, plus water-ion consistency checks in
 `water_chemistry.py`. It recognizes `wine`, `mead`, `cider`, `soda`, `gruit`,
 and `wash` types but has no non-beer calculations and no sake type. Wine, mead,
-cider, and sake calculations in Carboy are new work. See
-[`../architecture/REUSE_BASELINE.md`](../architecture/REUSE_BASELINE.md).
+cider, and sake calculations in Carboy are new work.

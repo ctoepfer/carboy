@@ -1,4 +1,4 @@
-# Phase 1 throwaway spike (docs/project/PHASE1_SPIKE_PLAN.md, step 5).
+# Phase 1 throwaway spike (spikes/phase1/SPIKE_PLAN.md, step 5).
 # Manual trigger only: nothing runs, and no runner minutes are used (macOS
 # minutes may cost money), until the owner starts it from the Actions tab.
 name: phase1-spike

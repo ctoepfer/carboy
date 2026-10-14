@@ -8,7 +8,7 @@ dependencies and rebuild, e.g. after pulling), `spike.sh test` (core tests
 plus automated runs of every page; graph pages open a window briefly), and
 `spike.sh reset-data`. The script never runs git. Each Recipe test run saves
 revisions, so the Library count grows; `reset-data` clears it. Plan and status:
-[docs/project/PHASE1_SPIKE_PLAN.md](../../docs/project/PHASE1_SPIKE_PLAN.md).
+[SPIKE_PLAN.md](SPIKE_PLAN.md).
 Nothing here is a package or a decided layout. It is deleted or archived
 once those ADRs are decided.
 

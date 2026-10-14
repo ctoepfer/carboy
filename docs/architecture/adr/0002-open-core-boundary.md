@@ -45,7 +45,7 @@ current connector requirements when Phase 13 starts.
 6. **Opt-in and scoped.** Users choose what the connector may access, can
    revoke access, and can delete hosted data.
 
-## Open questions (tracked in DECISIONS.md)
+## Open questions
 
 - **D-001** Decided 2026-10-11: Apache-2.0.
 - **D-003** Decided 2026-10-11: the Bridge is a separate service
