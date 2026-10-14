@@ -289,7 +289,11 @@ catalog changes:
 `kind` v0: `fermentable`, `hop`, `culture`, `water_agent`, `fruit`,
 `honey`, `sugar`, `adjunct`, `nutrient`, `acid`, `fining`, `other`.
 `catalog_ref` is optional; refreshing from the catalog is an explicit,
-reviewed edit. **Approved (IQ1, 2026-10-13):** an optional `group_ref` naming the
+reviewed edit. `catalog_ref` names the brewer's **preferred** product, and
+an optional `alternatives[]` lists products the brewer has approved as
+stand-ins; neither changes calculations (owner clarification to D-030,
+2026-10-13; [INGREDIENT_CATALOG.md §3](INGREDIENT_CATALOG.md#3-recipes-requirement-preferred-product-alternatives)).
+**Approved (IQ1, 2026-10-13):** an optional `group_ref` naming the
 catalog group the recipe needs ("Chico-lineage ale yeast") beside the
 product used ([INGREDIENT_CATALOG.md](INGREDIENT_CATALOG.md) §3, IQ1).
 
@@ -470,7 +474,9 @@ rebuild it. Formula IDs shown are illustrative; the registry is Phase 2.
 A batch (Phase 7) records `{ recipe_id, revision_id, content_hash }` and
 embeds the full revision `content` it was brewed from, so later edits never
 rewrite batch history. Measurements, actual timings, device identities, and
-deviations belong to the batch, not the recipe. The batch schema is
+deviations belong to the batch, not the recipe, and so does the **actual
+product** used for each recipe ingredient (with its own property snapshot
+and lot details), whether it was the preferred product or an alternative. The batch schema is
 designed in Phase 7; v0 only reserves this linkage.
 
 ## 11. Identity across Lumina, BeerXML, and services

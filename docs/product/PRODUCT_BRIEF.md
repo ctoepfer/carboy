@@ -36,7 +36,10 @@ An offline-first, open-source recipe application that:
    local AI tools via a local connector, and — optionally, paid — cloud AI
    assistants through a hosted connector.
 5. **Connects to local homebrew shops**: shopping lists and optional orders
-   through a generic, shop-neutral connector.
+   through a generic, shop-neutral connector. Each list line shows the
+   recipe's requirement, the preferred product, and suitable alternatives
+   with their differences, so the brewer can buy what the shop actually has;
+   stock and prices come only from the shop ([INGREDIENT_CATALOG.md §5](../architecture/INGREDIENT_CATALOG.md#5-shopping-lists-requirements-implementation-later)).
 6. **Monitors brewing hardware** through BrewIO (from `codesamples/brewpanel/`), with
    physically verified device support only.
 

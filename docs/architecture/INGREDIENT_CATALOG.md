@@ -45,8 +45,44 @@ ingredient kind:
 
 ## 2. Model
 
+**Primary purpose (owner, 2026-10-13):** practical brewing decisions,
+above all **giving the brewer several suitable purchasing options** when
+the preferred product isn't available at the shop. A brewer who prefers
+WLP001 should see which other products would do the job, why, and how they
+differ.
+
+### 2.0 Three connected views
+
+| View | What it holds | Drives |
+|---|---|---|
+| **Functional hierarchy** | Groups by practical purpose: what an ingredient does in a recipe and what could stand in for it (§2.1) | Browsing, shopping lists, substitution suggestions. **The default view** |
+| **Scientific classification** | Descriptive, evidence-based facts: organism, species, strain, and genetic lineage for cultures (§2.2); botanical species, cultivar, and pedigree for hops, fruit, grapes, and the floral sources of honey; cereal species and malting or processing class, and relevant chemistry, for malt, sugars, and other materials | Ingredient information panels; a future Scientific View |
+| **Evidence relationships** | Supported, contested, or refuted claims about identity, lineage, similarity, and suitability, with sources and history (§2.3–§2.4) | Explanations, review, the curated catalog |
+
+The views are connected but independent:
+
+- **Neither implies the other.** Biological identity doesn't establish
+  functional equivalence (the same strain can suit a recipe differently in
+  another format or lot), and functional similarity doesn't establish
+  biological identity (two strains can do the same job).
+- A product can have several scientific relationships while belonging to
+  one functional group.
+- **Ask in practical terms, dig in when wanted.** A brewer can say "I need
+  this kind of ingredient" without knowing any classification, and can
+  always ask **"Why are these two considered related?"**: the catalog
+  answers with the relations and evidence that connect them (functional
+  group, shared strain or cultivar claims, lineage), each with its source
+  and status. Every suggestion can explain itself this way.
+- The default interface emphasizes functional selection and purchasing
+  flexibility. Scientific detail lives in ingredient information panels;
+  a dedicated Scientific View and an interactive relationship graph are
+  later-phase features, not part of this design's scope.
+
+### Records
+
 The Ingredient Catalog module owns these kinds of record (cultures add the
-organism and strain records of §2.2):
+organism and strain records of §2.2; other kinds add their scientific
+classification the same way, for example species and cultivar for hops):
 
 | Record | What it is | Example |
 |---|---|---|
@@ -242,8 +278,25 @@ redistribution.
 
 
 
-Proposed addition to the ingredient snapshot (RECIPE_SCHEMA §7.2; schema
-MINOR, decided with schema 1.0):
+## 3. Recipes: requirement, preferred product, alternatives
+
+A recipe ingredient carries **three** of the four things a brewer needs to
+keep apart; the fourth belongs to the batch (owner clarification,
+2026-10-13):
+
+| # | Concept | Where it lives | Member |
+|---|---|---|---|
+| 1 | **Recipe requirement:** the kind of ingredient or functional characteristics the recipe needs | Recipe ingredient (hashed content) | `group_ref` |
+| 2 | **Preferred product:** what the brewer would ideally buy | Recipe ingredient | `catalog_ref`; the snapshot's `properties` are this product's, so the recipe's calculations use it |
+| 3 | **Acceptable alternatives:** products the brewer has approved | Recipe ingredient | `alternatives[]` (new, optional). Catalog *suggestions* with evidence are computed when needed and never stored in the recipe |
+| 4 | **Selected / actual product:** what was bought or used | Shopping list and batch (Phase 7), never the recipe | Batch ingredient record (RECIPE_SCHEMA §10) |
+
+This is the smallest change to the existing model: `group_ref` and
+`catalog_ref` keep their places, `catalog_ref` is defined as the
+**preferred** product, and one optional list is added. There is no
+separate shopping format for recipes.
+
+Ingredient snapshot (RECIPE_SCHEMA §7.2; schema MINOR, with schema 1.0):
 
 ```json
 {
@@ -251,18 +304,29 @@ MINOR, decided with schema 1.0):
   "kind": "culture",
   "name": "California Ale",
   "properties": { "attenuation": { "value": "0.78", "unit": "fraction" } },
-  "catalog_ref": { "catalog": "…", "item": "<product>", "version": "…" },
-  "group_ref":   { "catalog": "…", "item": "<group>",   "version": "…" }
+  "catalog_ref": { "catalog": "…", "item": "<preferred product>", "version": "…" },
+  "group_ref":   { "catalog": "…", "item": "<group>",   "version": "…" },
+  "alternatives": [
+    { "catalog_ref": { "catalog": "…", "item": "<product>", "version": "…" },
+      "note": "approved after a split batch",
+      "provenance": { "origin": "manually_entered" } }
+  ]
 }
 ```
 
-- `group_ref` (optional) records the level the recipe **needs**;
-  `catalog_ref` the product **used**. A recipe may have a group and no
-  product ("any clean American ale yeast"), which then has no product
-  properties; calculations that need them report a missing input rather than
-  using the group's range.
-- Both are references for display and matching; the snapshot's `properties`
-  stay what calculations read (invariant 6).
+- `group_ref` (optional) records what the recipe **needs**; `catalog_ref`
+  the **preferred** product. A recipe may have a group and no preferred
+  product ("any clean American ale yeast"); calculations that need product
+  properties then report a missing input rather than using the group's range.
+- `alternatives[]` (optional) lists products the brewer has **approved** as
+  stand-ins, in order of preference, each with an optional note and
+  provenance (`manually_entered`, or `ai_proposed` if an assistant suggested
+  it and the user accepted). An approved alternative is not a claim that
+  the products are identical, and it changes no calculation: the recipe's
+  numbers stay those of the preferred product.
+- All are references for display and matching; the snapshot's `properties`
+  stay what calculations read (invariant 6), and the snapshot changes only
+  by an explicit edit.
 
 ## 4. Substitution
 
@@ -284,8 +348,37 @@ MINOR, decided with schema 1.0):
 - Hops need quantity adjustment on substitution (alpha acid differs); the
   preview shows the amount that keeps the calculated IBU, as a proposal the
   user accepts.
+- **Two places to apply a choice:** *to this batch* records the actual
+  product on the batch (the recipe is unchanged, and the batch's own
+  calculations use the actual product's properties, previewed first); *to
+  the recipe* is `substitute_ingredient`, a reviewed edit that creates a new
+  revision, optionally keeping the old preferred product as an alternative.
 
-## 5. Inventory (CQ1: deferred)
+## 5. Shopping lists (requirements; implementation later)
+
+Owner clarification, 2026-10-13. A design requirement, not an
+implementation start: the shopping list comes with the shop connector
+(Phase 11) and batches (Phase 7).
+
+- **Each line shows** the recipe requirement (functional group and the
+  characteristics that matter), the **preferred product**, the brewer's
+  **approved alternatives**, and, separately marked, **catalog suggestions**
+  with their evidence and the differences that matter (§4).
+- **Availability and price come only from the connected retailer** (shop
+  connector contract). Catalog membership never implies stock, and the app
+  never shows a product as in stock without the shop saying so.
+- **Choosing an alternative** opens its differences (properties, warnings
+  such as diastatic status or a species change, and "why related" with
+  evidence). The user then applies it **to the batch** or **to the recipe**
+  (§4); where the choice changes calculated outcomes (gravity, attenuation,
+  bitterness), the preview shows the change before acceptance.
+- **Four things stay distinct** throughout: the recipe's intent
+  (`group_ref`), the preferred product (`catalog_ref`), the product chosen at
+  the shop, and the ingredient actually used in the batch.
+- **Every beverage and every kind**: yeasts, hops, malts, honeys, juices,
+  fruit, nutrients, rice and koji, not only yeast.
+
+## 5a. Inventory (CQ1: deferred)
 
 **Owner, 2026-10-13:** a complete personal inventory module is deferred
 beyond the initial release. In this phase: **no stock balances, no
@@ -357,3 +450,28 @@ Additional requirements:
   status (§4).
 - The design stays applicable to beer, wine, cider, mead, sake, koji, and
   bacterial cultures.
+
+**Owner clarifications to D-030 (2026-10-13, later the same day):**
+
+- **Purpose:** the hierarchy primarily supports practical brewing
+  decisions, especially finding acceptable alternatives when a preferred
+  product is unavailable at a shop (§2, §5).
+- **Four distinctions:** recipe requirement, preferred product, acceptable
+  alternatives, selected/actual product (§3). A functional group is not a
+  claim of genetic identity; it holds several suitable products without
+  treating them as identical. Smallest schema refinement: `catalog_ref`
+  means the preferred product, plus optional `alternatives[]`; the actual
+  product belongs to the batch.
+- **Shopping workflow:** preferred product and alternatives shown together;
+  differences reviewed and the choice applied explicitly to the batch or the
+  recipe, with calculated changes previewed; retailer data authoritative for
+  stock and price (§5).
+- **Three connected views:** functional hierarchy, scientific
+  classification, and evidence relationships, separate but linked, for
+  every ingredient kind, not only cultures (§2.0). Neither identity nor
+  similarity implies the other. Functional selection is the default;
+  scientific detail sits in information panels, with a Scientific View and
+  relationship graph left to a later phase.
+- **Explainability:** a brewer can ask for "this kind of ingredient"
+  without knowing its classification, and can always ask why two
+  ingredients are considered related (§2.0).
