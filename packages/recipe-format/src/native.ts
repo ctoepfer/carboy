@@ -1,4 +1,5 @@
-import { FORMAT, canonicalize, validateContent, verifyRevision, type Content, type Envelope, type Json, type Revision } from "@carboy/recipe-core";
+import { duplicateMembers } from "./duplicates.js";
+import { FORMAT, SCHEMA_VERSION, canonicalize, checkSchemaVersion, validateContent, verifyRevision, type Content, type Envelope, type Json, type Revision } from "@carboy/recipe-core";
 
 // The native file format (RECIPE_SCHEMA §1–§4, §9): one revision document,
 // written as RFC 8785 canonical JSON so the same revision always has the same
@@ -6,7 +7,7 @@ import { FORMAT, canonicalize, validateContent, verifyRevision, type Content, ty
 // `derived` is stored for convenience, never trusted on open.
 
 /** The schema version this build writes and reads fully. */
-export const SUPPORTED_SCHEMA = { major: 0, minor: 1 } as const;
+export const SUPPORTED_SCHEMA = SCHEMA_VERSION;
 
 export interface NativeIssue {
   readonly code: string;
@@ -68,6 +69,15 @@ export function readNative(text: string): ReadResult {
     };
   }
 
+  const duplicates = duplicateMembers(text);
+  if (duplicates.length > 0) {
+    return {
+      status: "rejected",
+      reason: "invalid",
+      issues: duplicates.map((path) => ({ code: "duplicate-member", path, message: "member name appears more than once in one object (not I-JSON); readers could disagree on its value" })),
+    };
+  }
+
   const verified = verifyRevision(doc);
   if (verified.status === "invalid") return { status: "rejected", reason: "invalid", issues: verified.issues };
 
@@ -84,7 +94,9 @@ export function readNative(text: string): ReadResult {
       issues: [{ code: "newer-minor", path: "/envelope/schema_version", message: `schema ${version[0]} has members this version doesn't know; opened read-only` }],
     };
   }
-  const contentIssues = validateContent(revision.content);
+  // A member newer than the declared version means the writer stamped it wrongly.
+  const versionIssues = checkSchemaVersion(revision.content, revision.envelope.schema_version).filter((i) => i.code === "member-newer-than-schema");
+  const contentIssues = [...validateContent(revision.content), ...versionIssues];
   if (contentIssues.length > 0) return { status: "read-only", reason: "invalid-content", ...base, issues: contentIssues };
   return { status: "editable", ...base, issues: [] };
 }

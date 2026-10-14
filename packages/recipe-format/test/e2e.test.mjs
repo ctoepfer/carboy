@@ -12,7 +12,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { calculateStatistics, createRevision, validateContent } from "@carboy/recipe-core";
-import { readNative, writeNative } from "../dist/index.js";
+import { SUPPORTED_SCHEMA, readNative, writeNative } from "../dist/index.js";
 
 const q = (value, unit) => ({ value, unit });
 const U = (n) => `0192f3a0-0000-7000-8000-${String(n).padStart(12, "0")}`;
@@ -115,7 +115,7 @@ test("tampering, versions, and malformed files", () => {
   const tampered = JSON.parse(text);
   tampered.content.additions[0].amount.value = "4";
   assert.deepEqual([readNative(JSON.stringify(tampered)).status, readNative(JSON.stringify(tampered)).reason], ["read-only", "hash-mismatch"]);
-  const newerMinor = createRevision({ ...meta, schema_version: "0.2" }, schwarzbier());
+  const newerMinor = createRevision({ ...meta, schema_version: `0.${SUPPORTED_SCHEMA.minor + 1}` }, schwarzbier());
   assert.deepEqual([readNative(writeNative(newerMinor)).status, readNative(writeNative(newerMinor)).reason], ["read-only", "newer-minor"]);
   const newerMajor = createRevision({ ...meta, schema_version: "1.0" }, schwarzbier());
   assert.deepEqual([readNative(writeNative(newerMajor)).status, readNative(writeNative(newerMajor)).reason], ["rejected", "newer-major"]);

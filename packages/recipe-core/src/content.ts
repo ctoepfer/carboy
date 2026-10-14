@@ -53,6 +53,7 @@ export function validateContent(content: unknown, base = "/content"): ContentIss
     registerId(ing["id"], `${p}/id`);
     if (typeof ing["id"] === "string") ingredientIds.add(ing["id"]);
     if (!(INGREDIENT_KINDS as readonly unknown[]).includes(ing["kind"])) add("unknown-ingredient-kind", `${p}/kind`, `kind must be one of ${INGREDIENT_KINDS.join(", ")}`);
+    validateCatalogRefs(ing, p, add);
     const props = ing["properties"];
     if (props !== undefined && isObject(props)) {
       for (const [k, v] of Object.entries(props)) {
@@ -127,6 +128,62 @@ export function validateContent(content: unknown, base = "/content"): ContentIss
 
   out.push(...validateStatistics(content["statistics"], `${base}/statistics`));
   return out;
+}
+
+/** Origins an approved alternative may have: the brewer's own, or an accepted AI suggestion (INGREDIENT_CATALOG §3). */
+const ALTERNATIVE_ORIGINS = ["manually_entered", "ai_proposed"];
+const ALTERNATIVE_MEMBERS = new Set(["catalog_ref", "note", "provenance"]);
+
+// catalog_ref = preferred product, group_ref = requirement, alternatives[] =
+// approved stand-ins (schema 0.2). References only: none of them changes a
+// calculation, which reads the snapshot's properties.
+function validateCatalogRefs(ing: { [key: string]: unknown }, p: string, add: (c: string, p: string, m: string) => void): void {
+  for (const member of ["catalog_ref", "group_ref"]) if (ing[member] !== undefined) checkRef(ing[member], `${p}/${member}`, add);
+  const alts = ing["alternatives"];
+  if (alts === undefined) return;
+  if (!Array.isArray(alts)) return add("invalid-alternatives", `${p}/alternatives`, "alternatives must be an array");
+  const preferred = refKey(ing["catalog_ref"]);
+  const seen = new Set<string>();
+  alts.forEach((alt, j) => {
+    const ap = `${p}/alternatives/${j}`;
+    if (!isObject(alt)) return add("invalid-alternatives", ap, "an alternative must be an object");
+    for (const k of Object.keys(alt)) if (!ALTERNATIVE_MEMBERS.has(k)) add("unknown-member", `${ap}/${k}`, "alternatives hold catalog_ref, note, and provenance only");
+    if (!checkRef(alt["catalog_ref"], `${ap}/catalog_ref`, add)) return;
+    const key = refKey(alt["catalog_ref"])!;
+    if (key === preferred) add("alternative-is-preferred", `${ap}/catalog_ref`, "the preferred product is not its own alternative");
+    else if (seen.has(key)) add("duplicate-alternative", `${ap}/catalog_ref`, "product already listed as an alternative");
+    seen.add(key);
+    if (alt["note"] !== undefined && typeof alt["note"] !== "string") add("invalid-alternatives", `${ap}/note`, "note must be a string");
+    const prov = alt["provenance"];
+    if (prov !== undefined) {
+      if (isObject(prov) && !ALTERNATIVE_ORIGINS.includes(prov["origin"] as string)) {
+        add("alternative-origin-not-allowed", `${ap}/provenance/origin`, `an alternative is approved by the brewer: origin ${ALTERNATIVE_ORIGINS.join(" or ")}`);
+      } else {
+        for (const issue of validateProvenance(prov, `${ap}/provenance`)) add(issue.code, issue.path, issue.message);
+      }
+    }
+  });
+}
+
+/** A catalog reference: non-empty `catalog`, `item`, and `version` strings. */
+function checkRef(ref: unknown, path: string, add: (c: string, p: string, m: string) => void): boolean {
+  if (!isObject(ref)) {
+    add("invalid-catalog-ref", path, "a catalog reference is an object { catalog, item, version }");
+    return false;
+  }
+  let ok = true;
+  for (const k of ["catalog", "item", "version"]) {
+    if (typeof ref[k] !== "string" || ref[k] === "") {
+      add("invalid-catalog-ref", `${path}/${k}`, `${k} must be a non-empty string`);
+      ok = false;
+    }
+  }
+  return ok;
+}
+
+/** Product identity for comparing references: catalog and item, not version. */
+function refKey(ref: unknown): string | undefined {
+  return isObject(ref) && typeof ref["catalog"] === "string" && typeof ref["item"] === "string" ? JSON.stringify([ref["catalog"], ref["item"]]) : undefined;
 }
 
 function arrayAt(obj: { [key: string]: unknown }, key: string, base: string, add: (c: string, p: string, m: string) => void): unknown[] {

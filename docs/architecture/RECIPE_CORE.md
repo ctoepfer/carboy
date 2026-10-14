@@ -193,6 +193,14 @@ JSON Pointer; nothing is repaired or filled in.
   `targets.batch_volume` is the cool wort volume at 20 °C, and brewhouse
   efficiency applies to every extract source, boil sugars included (as
   Holle's single overall efficiency).
+- **Schema 0.2 members** (`schema.ts`, `content.ts`, 2026-10-14): optional
+  ingredient `group_ref` (requirement) and `alternatives[]` (approved
+  stand-ins: `catalog_ref`, optional `note`, provenance `manually_entered`
+  or `ai_proposed`); catalog references need non-empty `catalog`, `item`,
+  `version`; an alternative may not repeat the preferred product or
+  another alternative (same catalog and item, any version). Per-member
+  MINOR bookkeeping: `requiredSchemaVersion`, `checkSchemaVersion`. The
+  recipe `language` member waits for UQ5.
 - Not yet:
   stage parameters and topology (linear chain), beverage-specific rules,
   the ingredient property table.

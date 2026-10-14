@@ -166,6 +166,11 @@ the MINOR that introduced it, and "write at X" means checking the content
 uses nothing newer than X and stamping `schema_version` X. No content is
 converted.
 
+| Version | Adds |
+|---|---|
+| 0.1 | First implemented draft (Phase 2) |
+| 0.2 | Ingredient `group_ref` and `alternatives[]` (§7.2; INGREDIENT_CATALOG §3) |
+
 ## 5. Typed quantities
 
 Every physical value is an object, not a bare number:

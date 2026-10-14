@@ -26,10 +26,11 @@ compare cleanly. The content hash is computed by Recipe Core
 | Not JSON | Rejected (`not-json`) |
 | Not a `recipe-revision` document | Rejected (`not-a-revision`) |
 | Schema MAJOR newer than supported (0) | Rejected (`newer-major`) |
+| A member name repeated within one object (not I-JSON) | Rejected (`invalid`, issue `duplicate-member` with its JSON Pointer) |
 | Envelope or hashing rules broken | Rejected (`invalid`), with coded issues |
 | Hash doesn't match | **Read-only** (`hash-mismatch`) |
-| Schema MINOR newer than supported (0.1) | **Read-only** (`newer-minor`) |
-| Content invalid (references, kinds, a calculated value in content, …) | **Read-only** (`invalid-content`) |
+| Schema MINOR newer than supported (0.2) | **Read-only** (`newer-minor`) |
+| Content invalid (references, kinds, a calculated value in content, …), or using a member newer than its declared `schema_version` (`member-newer-than-schema`) | **Read-only** (`invalid-content`) |
 | Otherwise | Editable |
 
 The stored `derived` block is returned as `storedDerived` with
@@ -37,9 +38,20 @@ The stored `derived` block is returned as `storedDerived` with
 (`calculateStatistics`) and may compare, never use the stored values as
 truth.
 
-Known gap: `JSON.parse` keeps the last of duplicate member names, which
-I-JSON forbids; detecting duplicates needs a stricter parser (Phase 2,
-later).
+Duplicate member names: `JSON.parse` silently keeps the last one, so two
+readers could see different recipes in one file. `duplicateMembers(text)`
+scans the accepted text and reports every repeated name (compared after
+escape processing, by code point, as I-JSON specifies); such a file is
+rejected rather than opened, since no reading of it is authoritative.
+
+## Schema versions
+
+This build writes and reads schema **0.1 and 0.2**. 0.2 adds the optional
+ingredient members `group_ref` and `alternatives[]` ([RECIPE_CORE §7](RECIPE_CORE.md#7-provenance-statistics-layers-and-validation)). Recipe Core
+records which MINOR introduced each member, so `requiredSchemaVersion`
+gives the lowest version that can express a recipe and
+`checkSchemaVersion(content, "0.1")` lists what prevents writing it at 0.1
+(D-022 "write at X"; nothing is converted).
 
 ## Integration milestone (2026-10-14)
 
