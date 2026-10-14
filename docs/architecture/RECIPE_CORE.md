@@ -247,6 +247,25 @@ example 1 g, or 0.01 kg) is open question **SQ1** for the owner; display
 rounding is a UI matter either way. Statistics of the scaled recipe are
 recalculated, never carried over.
 
+## 7b. Migrations (2026-10-14)
+
+`migrateRevision(original, { revision_id, created_at })` (`migrate.ts`)
+moves a revision with an older schema MAJOR forward through the ordered
+`MIGRATIONS`, one step per MAJOR, into a **new** revision: same
+`recipe_id`, `parents: [original revision_id]`, `origin: "migration"`,
+the last step's `schema_version`. The original must verify (a tampered or
+miswritten revision is not migrated), is never changed, and stays in
+history. Each step receives a copy of the content, so it can't alter the
+original. Refusals: `not-needed`, `newer-major`, `no-migration-path`,
+`unverified-original`, `migration-failed` (with the step), and
+`invalid-result` (the migrated content fails validation). MINOR changes
+are additive and need no migration (§4, D-022).
+
+`MIGRATIONS` is empty: the schema has only MAJOR 0. The mechanism is
+tested with test-only steps toward hypothetical 1.0 and 2.0 schemas. When
+MAJOR 1 exists, `readNative` reports an older MAJOR and the caller runs
+`migrateRevision`.
+
 ## 8. Verification
 
 `npm test` at the repository root builds and runs every package's tests;
@@ -258,7 +277,7 @@ regression values are the ones brewconvert documents as its oracle.
 
 ## 9. Next in Recipe Core
 
-In order: migrations; the Python-side
+In order: the Python-side
 fixture runner (D-005); more formulas as their sources are read (Morey,
 Tinseth, ABV; wine-condition pK₁, YAN requirements). Stage parameter rows
 come with the formulas that read them.

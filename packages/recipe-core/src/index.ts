@@ -25,5 +25,7 @@ export { beverageAdvisories } from "./advisories.js";
 export type { Advisory } from "./advisories.js";
 export { scaleRecipe } from "./scaling.js";
 export type { NotScaled, ScaleCommand, ScaleResult } from "./scaling.js";
+export { MIGRATIONS, migrateRevision } from "./migrate.js";
+export type { MigrateOptions, MigrateResult, Migration, MigrationIssue } from "./migrate.js";
 export { calculateStatistics } from "./calculate.js";
 export type { CalculatedStatistics, CalculationDiagnostic } from "./calculate.js";
