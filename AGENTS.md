@@ -52,6 +52,10 @@ docs. Rules: [`docs/architecture/NAMING.md`](docs/architecture/NAMING.md).
   needs a non-drag alternative (WCAG 2.2 SC 2.5.7). Every essential workflow
   must be completable by keyboard.
 - Reuse shared design tokens and components before adding page-specific CSS.
+- Rules U1–U12 in [`docs/architecture/USABILITY.md`](docs/architecture/USABILITY.md)
+  are product requirements (accepted 2026-10-13): commands before gestures,
+  native semantics, no colour-only meaning, no string literals in UI code,
+  and display that never changes data.
 
 ## What stays out of this repository
 

@@ -50,13 +50,17 @@ piece — a hosted connector for cloud AI assistants.
 ingredients, equipment profiles, list and graph process editing, undo/redo,
 autosave and recovery, revisions, native import/export, BeerXML with loss
 reports, Lumina exchange via files, preview and printable summary. Beverage
-calculations per [BEVERAGE_SCOPE.md](product/BEVERAGE_SCOPE.md) (D-006).
-If the graph slips, 1.0 may ship with the list editor and the graph follows
+calculations per [BEVERAGE_SCOPE.md](product/BEVERAGE_SCOPE.md) (D-006),
+including the foundational mead nutrient model and basic wine/cider sulfite
+management. Guided recipe creation, plain-text/Markdown export, and light,
+dark, and high-contrast themes; English only, with localization built in
+([USABILITY.md](architecture/USABILITY.md)). BeerJSON is a target, not a
+blocker (may move to 1.1). If the graph slips, 1.0 may ship with the list editor and the graph follows
 in 1.1 (D-015).
 
 **Later releases.** Batches and recipe improvement, AI tiers 1–2, hardware
-monitoring and control, shop connections, mobile, and the paid cloud
-connector. Their interfaces are anticipated early; none delays 1.0.
+monitoring and control, shop connections, a personal ingredient inventory,
+mobile, and the paid cloud connector. Their interfaces are anticipated early; none delays 1.0.
 
 **Deferred unless separately approved.** See non-goals in the
 [product brief](product/PRODUCT_BRIEF.md#non-goals-unless-separately-approved).
@@ -100,6 +104,13 @@ Architecture decisions with lasting consequences also have an
 | D-004 | This public repository holds the application; the hosted connector is a separate private repository that depends on this one, never the reverse | [Boundary](architecture/PUBLIC_PRIVATE_BOUNDARY.md) |
 | D-006 | Beverage launch staging per BEVERAGE_SCOPE, gated per statistic: a statistic is enabled only when its formula has an accepted source and its fixtures pass | [BEVERAGE_SCOPE](product/BEVERAGE_SCOPE.md), [FORMULA_COVERAGE](architecture/FORMULA_COVERAGE.md#decisions) |
 | D-008 | macOS and iOS builds use hosted macOS CI runners | — |
+| ADR 0008 | Extension model: data-only packs, external integrations through published contracts, build-time modules later, no runtime code plugins; themes are data-only design tokens (light, dark, high contrast) | [ADR 0008](architecture/adr/0008-extension-model.md) |
+| D-023 | Usability rules U1–U12 are product requirements; UQ1–UQ11 decided (English first with localization built in; unit preferences independent of language; guided creation in 1.0; plain-text export; assistive-technology testers before 1.0) | [USABILITY.md §6](architecture/USABILITY.md#6-decisions-owner-2026-10-13) |
+| D-028 | CQ1 personal inventory deferred past the first release (contracts leave room); CQ2 BeerJSON a 1.0 target, not a blocker; CQ3 mead nutrients and CQ4 wine/cider sulfite in 1.0 | [BEVERAGE_SCOPE](product/BEVERAGE_SCOPE.md#launch-staging-d-006-cq3cq4-decided-2026-10-13), [INGREDIENT_CATALOG §5](architecture/INGREDIENT_CATALOG.md#5-inventory-cq1-deferred) |
+| D-029 | RQ1: additional unit tokens `fraction`, `%`, `tbsp`, `tsp`, `Brix`, `degL`, `SRM`, `EBC`, `IBU`, `pH`; empirical scale conversions are formulas | [RECIPE_CORE §3](architecture/RECIPE_CORE.md#3-units) |
+| IQ1–IQ4 | Ingredient catalog: group/product hierarchy with `group_ref`; display; curated catalog plus data packs; start with cultures, hops, malt | [INGREDIENT_CATALOG §7](architecture/INGREDIENT_CATALOG.md#7-decisions-owner-2026-10-13) |
+| — | SHA-256 from `@noble/hashes` (vetted dependency), never implemented in-house; the content hash is integrity, not authentication | [RECIPE_CORE §5](architecture/RECIPE_CORE.md#5-canonical-json-and-the-content-hash) |
+| — | SQLite durability default: WAL with `synchronous=FULL`, pending measurement | [ADR 0006](architecture/adr/0006-local-persistence.md) |
 | ADR 0004 | Recipe Core and Recipe Format in pure TypeScript, kept in agreement with the Python implementations by a shared fixture suite (accepted 2026-10-13) | [ADR 0004](architecture/adr/0004-typescript-recipe-core.md) |
 | D-013 | "Carboy" is a permanent codename; the user-facing brand is configurable | [NAMING.md](architecture/NAMING.md) |
 | D-021 | The hosted connector is a separate lightweight service that runs the public Recipe Core in-process | [ADR 0002](architecture/adr/0002-open-core-boundary.md) |

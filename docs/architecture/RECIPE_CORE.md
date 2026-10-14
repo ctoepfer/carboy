@@ -65,14 +65,18 @@ unit, so every conversion is one exact product and at most one division.
    (Lumina), or `gallon` are mapped by importers (Recipe Format), which
    record the original spelling; Recipe Core accepts canonical tokens only.
 
-### RQ1: tokens beyond the Q2 list (proposed)
+### RQ1: tokens beyond the Q2 list (approved 2026-10-13)
 
 RECIPE_SCHEMA Q2 listed mass, volume, duration, temperature, gravity,
 pressure, concentration, and count tokens. The schema's own examples and
 the formula coverage table also need: `fraction`, `%`, `tbsp`, `tsp`,
 `Brix` (wine, mead, cider: BEVERAGE_SCOPE), `degL`, `SRM`, `EBC`, `IBU`,
-and `pH`. Recipe Core includes them as above. **Owner confirmation needed**
-before schema 1.0; until then they are provisional tokens.
+and `pH`. **Approved by the owner on 2026-10-13**, with these conditions,
+which the table above already meets: dimensional correctness; gravity and
+colour-scale conversions that need empirical relationships are versioned
+formulas, not unit factors; **pH is a scale, never a linearly convertible
+concentration**; canonical tokens internally, aliases mapped only at
+import and display boundaries.
 
 ## 4. Quantities
 

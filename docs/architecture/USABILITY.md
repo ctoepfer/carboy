@@ -1,6 +1,6 @@
 # Usability, Accessibility, and Localization v0 (draft)
 
-- Status: **Draft v0 (Phase 1). Planning only. Nothing here is frozen.**
+- Status: **v0. U1–U12 accepted as product requirements and UQ1–UQ11 decided (owner, 2026-10-13; §6).** Implementation from Phase 4; Phase 1 measurements (§5) authorized.
 - Date: 2026-10-13
 - Decision owner: Charles Toepfer
 - Freezes: rules U1–U12 before the first real UI string (Phase 4); the
@@ -324,10 +324,13 @@ not carried over.
 | 8 | Locale passed to AI; local connector as an automation channel |
 | 12 | TalkBack and VoiceOver iOS; mobile text scaling and switch access |
 
-## 5. Phase 1 additions (proposed, needs the owner's go-ahead)
+## 5. Phase 1 additions (authorized 2026-10-13)
 
 Small measurements that fit the current spike and affect ADR 0003 and
 D-010. Each is a check on the existing Tauri shell, not new product code.
+The owner's authorization also lists keyboard-only operation, screen
+readers (Orca), graph navigation, focus management, magnification,
+contrast, and reduced motion.
 
 1. **Media-query support** in WebKitGTK now, other webviews in the CI run:
    `prefers-color-scheme`, `prefers-reduced-motion`, `prefers-contrast`,
@@ -346,28 +349,32 @@ D-010. Each is a check on the existing Tauri shell, not new product code.
    scaling on the Recipe page; does Tauri pass OS text scaling to the
    webview?
 
-## 6. Open questions
+## 6. Decisions (owner, 2026-10-13)
 
-| # | Question | Recommendation | Decide by |
-|---|---|---|---|
-| UQ1 | Which languages ship with desktop 1.0? | **English at 1.0, with every string externalized and pseudo-locales passing**; other languages ship when a pack is complete and reviewed by a brewer who speaks it. German and Japanese are natural first candidates (brewing tradition; sake), not commitments | Phase 6 |
-| UQ2 | Message format: Fluent or ICU MessageFormat (or MF2)? | Decide from the Phase 1 trial (§5 item 3), together with D-010 | End of Phase 1 |
-| UQ3 | Allow user-loaded language packs, or bundled only? | Bundled for shipped languages; allow user-loaded packs in a translator/developer setting with the validation rules in §2.3 | Phase 4 |
-| UQ4 | Unit preferences independent of language, per dimension, with regional defaults? | Yes (U9) | Phase 3 |
-| UQ5 | Add an optional BCP 47 `language` member to the recipe (for names and notes), and allow it per note? | Yes, optional, schema MINOR; lets screen readers switch voice (WCAG 3.1.2) and tells translators/AI what language the user wrote in | Phase 2, with RECIPE_SCHEMA |
-| UQ6 | In RTL languages, does the process graph flow right to left? | Mirror it (flow follows reading direction); confirm with an RTL-speaking tester | Phase 5 |
-| UQ7 | Recruit testers who use assistive technology daily before 1.0? | Yes; at least one screen-reader user and one keyboard/switch or voice-control user | Before Phase 6 |
-| UQ8 | Offer a plain-text (or Markdown) recipe export for reading in any tool? | Yes, as an export only (not an import format) | Phase 4 |
-| UQ9 | Translation platform | Decide before Phase 6; must commit standard files back to this repository | Phase 6 |
-| UQ10 | Guided creation for new brewers in 1.0 (Phase 4) or after (Phase 7)? | Owner's product call; it is the largest cognitive-accessibility gain | Phase 4 |
-| UQ11 | Does the European Accessibility Act or another accessibility law apply to any part of the product (for example the paid Bridge, Phase 13)? | **Legal question for the owner; not answered here.** The app targets WCAG 2.2 AA regardless | Before Phase 13 |
+Rules U1–U12 are accepted as foundational product requirements. The
+recommendations for UQ1–UQ11 are approved, with these clarifications:
+
+| # | Decision |
+|---|---|
+| UQ1 | **English** is the initial release language; the localization architecture (externalized strings, pseudo-locales) begins now. Other languages ship when a pack is complete and reviewed |
+| UQ2 | Message format decided from the Phase 1 trial (§5 item 3), with D-010 |
+| UQ3 | Language packs are **data-only and validated**; bundled for shipped languages, user-loaded only in a translator/developer setting (§2.3) |
+| UQ4 | Unit preferences are **independent of language**, per dimension, with regional defaults |
+| UQ5 | Optional BCP 47 `language` member for recipe text (schema MINOR). User-written recipe names and notes are never changed by localization |
+| UQ6 | The process graph follows reading direction in RTL languages, **subject to testing with RTL readers** |
+| UQ7 | Recruit people who regularly use assistive technologies **before 1.0** |
+| UQ8 | Plain-text or Markdown recipe export is supported (export only) |
+| UQ9 | Translation platform stays open until its decision gate (before Phase 6) |
+| UQ10 | **Guided recipe creation is in the first desktop release**, built on the existing editor command system |
+| UQ11 | Whether specific accessibility laws apply to the hosted commercial service needs separate review; no legal conclusion is recorded here or in any ADR. The app targets WCAG 2.2 AA regardless |
 
 ## Evidence required to accept
 
 - Phase 1 measurements (§5) recorded in the spike reports, with the webview
   and OS versions.
-- UQ1–UQ6 decided or deferred with a target phase.
-- Rules U1–U12 accepted, and AGENTS.md's front-end section pointing here.
+- ~~UQ1–UQ6 decided~~ Done 2026-10-13 (§6).
+- ~~Rules U1–U12 accepted~~ Done 2026-10-13; AGENTS.md's front-end section
+  points here.
 
 ## Sources
 

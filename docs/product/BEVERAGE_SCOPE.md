@@ -49,13 +49,30 @@ Notes:
 - Sulfite and acid dosing affect drinkability and sensitive consumers; treat
   these as high-verification calculations with explicit units and bounds.
 
-## Proposed launch staging (D-006)
+## Launch staging (D-006; CQ3/CQ4 decided 2026-10-13)
 
 | Release | Beer | Wine | Mead | Cider | Sake |
 |---|---|---|---|---|---|
-| Desktop 1.0 | Full validated set | Shared fermentation math: Brix/SG, sugar sources, OG, ABV from measurements | Same, with honey/fruit | Same, with juice | Recipe and schedule recording; ratios; no predicted gravity/ABV |
-| 1.x | Mash pH estimate, branch/blend | Acid, sulfite, nutrients, stabilization | Nutrient schedules, stabilization | Acid, sulfite, nutrients | Ratio/schedule helpers validated with brewers |
+| Desktop 1.0 | Full validated set | Shared fermentation math: Brix/SG, sugar sources, OG, ABV from measurements; **basic sulfite management** | Same, with honey/fruit; **foundational nutrient model with staggered additions** | Same, with juice; **basic sulfite management** | Recipe and schedule recording; ratios; no predicted gravity/ABV |
+| 1.x | Mash pH estimate, branch/blend | Acid, nutrients, stabilization | Stabilization | Acid, nutrients | Ratio/schedule helpers validated with brewers |
 | Later | — | Blending tools | Blending | Keeving and advanced methods | Further only with domain review |
+
+**Owner decisions, 2026-10-13** (each statistic still gated per D-006 on a
+cited source and passing fixtures):
+
+- **CQ3, mead nutrients in 1.0:** the foundational nutrient model and its
+  supported calculations, with staggered additions and measured versus
+  estimated inputs. Cited methods only; must composition and yeast
+  nutrient requirements are never assumed silently, and unsupported
+  calculations say so.
+- **CQ4, wine and cider sulfite in 1.0:** additions, measurements, and the
+  relevant pH-dependent calculations, with provenance. Measured free SO₂ is
+  kept distinct from estimates and targets and is never substituted for
+  them (or they for it). Calculations and safety-related guidance are
+  evidence-based and clearly limited.
+- **CQ2, BeerJSON:** a 1.0 target if it passes independently tested import,
+  export, and preservation requirements; not a release blocker (falls back
+  to 1.1). Native format stability and BeerXML come first.
 
 ## Existing Lumina coverage (for reference)
 

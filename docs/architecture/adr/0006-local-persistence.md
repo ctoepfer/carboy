@@ -23,6 +23,11 @@ format with migrations.
   telemetry) uses ordinary tables.
 - Database schema version and document schema version are tracked separately.
 - WAL mode, transactional autosave, pre-migration backups.
+- **Durability default (owner, 2026-10-13):** WAL with
+  `synchronous=FULL`, subject to validating the actual storage
+  configuration on each platform. Saved recipes, revisions, and batch
+  records come first. `NORMAL` is considered only after the latency cost
+  of `FULL` is measured and the durability trade-off is written down.
 
 ## Alternatives considered
 
@@ -36,4 +41,8 @@ format with migrations.
 ## Evidence required to accept
 
 1. Phase 1: save/reopen round trip on desktop and mobile.
-2. Phase 3: interrupted-write and migration-rollback tests pass.
+2. Phase 3: interrupted-write and migration-rollback tests pass, including
+   transaction boundaries and preservation of the last valid committed
+   revision.
+3. Latency of `synchronous=FULL` vs `NORMAL` under WAL measured on the
+   target platforms (Phase 1 spike first).

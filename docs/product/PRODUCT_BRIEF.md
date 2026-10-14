@@ -96,7 +96,9 @@ and a risk for perceived neutrality. Therefore:
 - AI agents controlling brewing equipment.
 - Downloadable executable plugins on mobile.
 - Replacing every manufacturer app or supporting every device/firmware.
-- Bookkeeping or inventory ownership.
+- Bookkeeping, and shop inventory ownership. A personal ingredient inventory
+  is deferred beyond the first release; catalog and shopping-list contracts
+  leave room for it (CQ1, 2026-10-13).
 - Spirits distillation workflows (home distillation of spirits is illegal
   without federal permits in the United States; Lumina's `wash` type is not
   carried over).

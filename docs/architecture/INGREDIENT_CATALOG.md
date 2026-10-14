@@ -1,6 +1,6 @@
 # Ingredient Catalog v0 (draft): hierarchy, substitution, inventory
 
-- Status: **Draft v0. Planning only.** Builds on RECIPE_SCHEMA §7.2
+- Status: **v0. IQ1–IQ4 decided (owner, 2026-10-13; §7).** Planning; implementation in Phase 3. Builds on RECIPE_SCHEMA §7.2
   (ingredient snapshots, `catalog_ref`, property table) and the Ingredient
   Catalog module ([OVERVIEW.md §2](OVERVIEW.md#2-modules)).
 - Date: 2026-10-13
@@ -156,18 +156,23 @@ MINOR, decided with schema 1.0):
   preview shows the amount that keeps the calculated IBU, as a proposal the
   user accepts.
 
-## 5. Inventory (CQ1)
+## 5. Inventory (CQ1: deferred)
 
-If the personal inventory (D-028 CQ1) is accepted, the hierarchy is what
-makes it useful:
+**Owner, 2026-10-13:** a complete personal inventory module is deferred
+beyond the initial release. In this phase: **no stock balances, no
+automatic deductions, no lot accounting.**
 
-- Inventory items are products with amounts on hand (and lot data where it
-  matters: hop crop year, yeast production date).
-- A recipe's ingredient matches inventory **at the product level first,
-  then the group level**: "Recipe needs a Chico-lineage ale yeast; you have
-  SafAle US-05 (same group)".
-- Brewing a batch deducts what was used; the shopping list lists only what
-  is missing at the level the recipe needs.
+What this phase does instead is keep the door open without schema
+disruption later:
+
+- Catalog products have stable identities and the hierarchy above, so a
+  future inventory item can reference a product and match a recipe at the
+  product level first, then the group level ("Recipe needs a Chico-lineage
+  ale yeast; you have SafAle US-05").
+- The shopping-list contract (Phase 11 shop connector) lists needs by
+  product or group with quantities, so an inventory can later subtract
+  what is on hand before the list is built.
+- Lot-level values (rule 6) have a defined home for when inventory arrives.
 
 ## 6. Data sources and rights
 
@@ -184,11 +189,11 @@ makes it useful:
 - Maker and product names are used only to identify products (nominative
   use); the catalog doesn't use makers' logos or marketing text.
 
-## 7. Open questions
+## 7. Decisions (owner, 2026-10-13)
 
-| # | Question | Recommendation |
-|---|---|---|
-| IQ1 | Adopt group → product hierarchy with `group_ref` in recipes? | Yes; schema MINOR with 1.0 |
-| IQ2 | Display format: "Group / Product" everywhere, or product first with the group as secondary text? | "Group / Product" in lists and the ingredient table; product alone where space is short, with the group in its accessible name |
-| IQ3 | Who curates the shared tree: the project only, or contributed packs too? | Project curates the shipped tree; user and pack groups are marked as such |
-| IQ4 | Start with which kinds? | Cultures and hops (substitution matters most), then malt, then non-beer kinds with the formulas that need them |
+| # | Decision |
+|---|---|
+| IQ1 | **Approved:** group/product hierarchy and optional `group_ref` in recipes (schema MINOR). Recipe snapshots stay authoritative for historical calculations |
+| IQ2 | "Group / Product" in detailed ingredient lists and tables. Compact controls may show the product first if the functional group stays available through a secondary label, tooltip, or accessible name |
+| IQ3 | A **project-curated official catalog**, plus optional user-defined and community data packs. Source provenance, confidence, and pack identity are kept; unverified community data is never silently merged into the curated catalog |
+| IQ4 | Start with **cultures, hops, and malt/grain**; expand to honey, fruit, sugar sources, grape/juice, rice/koji, nutrients, and other kinds as supported formulas and import formats need them. **Not a beer-only design.** Biological taxonomy, functional groups, and substitution relations stay distinct |

@@ -197,7 +197,7 @@ BeerXML port and its factors are exact. That means `kg`, `g`, `lb`, `oz`
   them as volume, and a mass-based calculation that needs density reports
   "cannot compute" unless the ingredient snapshot provides one.
 
-Implementation and the tokens Q2 did not list (RQ1, proposed): [RECIPE_CORE.md §3](RECIPE_CORE.md#3-units).
+**Also approved (RQ1, 2026-10-13):** `fraction`, `%`, `tbsp`, `tsp`, `Brix`, `degL`, `SRM`, `EBC`, `IBU`, `pH`. Implementation: [RECIPE_CORE.md §3](RECIPE_CORE.md#3-units).
 
 The rejected alternative was UCUM (`Cel`, `[degF]`, `[gal_us]`, ...): a
 formal standard, but less readable, and it would not match the BeerXML
@@ -289,7 +289,7 @@ catalog changes:
 `kind` v0: `fermentable`, `hop`, `culture`, `water_agent`, `fruit`,
 `honey`, `sugar`, `adjunct`, `nutrient`, `acid`, `fining`, `other`.
 `catalog_ref` is optional; refreshing from the catalog is an explicit,
-reviewed edit. **Proposed (2026-10-13):** an optional `group_ref` naming the
+reviewed edit. **Approved (IQ1, 2026-10-13):** an optional `group_ref` naming the
 catalog group the recipe needs ("Chico-lineage ale yeast") beside the
 product used ([INGREDIENT_CATALOG.md](INGREDIENT_CATALOG.md) §3, IQ1).
 

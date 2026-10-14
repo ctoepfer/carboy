@@ -1,6 +1,6 @@
 # ADR 0008: Extension model: data packs, external integrations, build-time modules
 
-- Status: Proposed
+- Status: Accepted (2026-10-13, owner)
 - Date: 2026-10-13
 - Decision owner: Charles Toepfer
 
@@ -63,10 +63,17 @@ future external module would.
   only open-source modules is an owner decision when tier C is offered.
 - The registration point is part of Phase 2–4 code reviews.
 
-## Evidence required to accept
+## Acceptance (2026-10-13)
 
-- Owner agreement on the tiers and the control rules.
-- Theme format: tokens only (recommended) or tokens plus sanitized CSS,
-  decided by Phase 4.
-- A first pack format (language pack or theme) implemented and validated in
-  Phase 4 without special cases in the app shell.
+Accepted by the owner as proposed: tiers A–D and the control rules.
+
+- **Themes:** data-only design tokens. Light, dark, and high-contrast
+  themes are supported. No arbitrary CSS and no executable themes at this
+  stage. Every theme must keep the accessibility requirements (contrast
+  floor, focus indicators; USABILITY.md).
+- Built-in modules use the common registration mechanism with clear
+  boundaries. Extensions can't change canonical recipe semantics or bypass
+  validation.
+
+Still to show (Phase 4): a first pack format (language pack or theme)
+implemented and validated without special cases in the app shell.
