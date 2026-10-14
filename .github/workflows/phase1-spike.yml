@@ -96,8 +96,10 @@ jobs:
         run: |
           npm ci && npm run build --workspaces
           npx --yes esbuild@0.28.2 packages/recipe-core/dist/index.js --bundle --format=esm --outfile=spikes/phase1/jsc/core.mjs --log-level=warning
-          jsc=$(ls /System/Library/Frameworks/JavaScriptCore.framework/Versions/*/Helpers/jsc /System/Library/Frameworks/JavaScriptCore.framework/Resources/jsc 2>/dev/null | head -1)
+          # find, not ls: a missing candidate path must not abort the step (pipefail).
+          jsc=$(find /System/Library/Frameworks/JavaScriptCore.framework -name jsc -type f 2>/dev/null | head -1)
           echo "jsc: ${jsc:-not found}"; sw_vers || true
+          if [ -z "$jsc" ]; then echo '{"error":"jsc not found on this runner"}' > spikes/phase1/report-jsc.json; exit 0; fi
           "$jsc" -m spikes/phase1/jsc/check.mjs | tee spikes/phase1/report-jsc.json
       - name: SQLite durability benchmark, FULL vs NORMAL under WAL, with and without fullfsync (ADR 0006)
         timeout-minutes: 4

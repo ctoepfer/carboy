@@ -28,9 +28,12 @@ for k in Return Tab Tab Tab Return; do
   xdotool key "$k"
   sleep 2
 done
-sleep 4
+sleep 6
+# Quit Orca gracefully so it flushes its debug log (a plain kill lost the
+# tail of the log in the first CI run), then stop the app.
+orca --quit >/dev/null 2>&1 || kill "$orca_pid" 2>/dev/null
+for _ in 1 2 3 4 5; do kill -0 "$orca_pid" 2>/dev/null || break; sleep 1; done
 kill "$app" 2>/dev/null
-kill "$orca_pid" 2>/dev/null
 sleep 1
 grep -a "SPEECH OUTPUT" "$out/orca-debug.txt" >"$out/speech.txt" 2>/dev/null || true
 echo "orca debug lines: $(wc -l <"$out/orca-debug.txt" 2>/dev/null || echo 0); speech lines: $(wc -l <"$out/speech.txt")"
