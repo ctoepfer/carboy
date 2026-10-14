@@ -1,0 +1,91 @@
+{
+ "fixture": "lumina-parity-ultimate-coffee-schwarzbier",
+ "purpose": "Parity: Carboy's color.mcu (enabled) and gravity.og.points-lumina (parity reference) against Lumina's own results for a real recipe. Tests parity, not correctness.",
+ "provenance": {
+  "recipe": "Real Grainfather export of the owner's recipe; cleared for publication as a fixture (owner, 2026-10-11)",
+  "source_file": "Lumina tests/fixtures/recipe-formats/Grainfather_Ultimate_Coffee_Schwarzbier_Final.xml",
+  "source_sha256": "f906dc504a6a515d4f4f53aaaa347263f5bd29fcf7f555d2e6434f20d9daebff",
+  "producer": "Lumina brains/recipes beerxml_import.parse_beerxml + stats_hooks.calculate_recipe_stats, run read-only on 2026-10-13 with Lumina's runtime venv (no bytecode written)",
+  "lumina_revision": "632da60dd963ba006d0f0cd22433ef5898490622 (working tree has uncommitted changes in some recipes modules, including beerxml_import.py; stats_hooks.py unmodified)",
+  "notes": "Masses, colours, and batch volume are the BeerXML values (kg, degrees Lovibond, L). ppg and efficiency are what Lumina's importer derived. Lumina treats a missing colour or weight as 0 in MCU; Carboy reports them missing instead, so this fixture has none missing."
+ },
+ "input": {
+  "batch_volume": {
+   "value": "23.015",
+   "unit": "L"
+  },
+  "fermentables": [
+   {
+    "name": "German Pilsner Malt",
+    "mass": {
+     "value": "3.034533",
+     "unit": "kg"
+    },
+    "color": {
+     "value": "1.8",
+     "unit": "degL"
+    },
+    "ppg": "37.26",
+    "efficiency": "0.8"
+   },
+   {
+    "name": "Weyermann Munich I",
+    "mass": {
+     "value": "1.254",
+     "unit": "kg"
+    },
+    "color": {
+     "value": "7",
+     "unit": "degL"
+    },
+    "ppg": "36.8",
+    "efficiency": "0.8"
+   },
+   {
+    "name": "Vienna Malt",
+    "mass": {
+     "value": "0.376",
+     "unit": "kg"
+    },
+    "color": {
+     "value": "3.5",
+     "unit": "degL"
+    },
+    "ppg": "36.8",
+    "efficiency": "0.8"
+   },
+   {
+    "name": "Weyermann Carafa Special II",
+    "mass": {
+     "value": "0.294835",
+     "unit": "kg"
+    },
+    "color": {
+     "value": "425",
+     "unit": "degL"
+    },
+    "ppg": "32.2",
+    "efficiency": "0.8"
+   },
+   {
+    "name": "Weyermann Caramunich I",
+    "mass": {
+     "value": "0.125",
+     "unit": "kg"
+    },
+    "color": {
+     "value": "38",
+     "unit": "degL"
+    },
+    "ppg": "34.04",
+    "efficiency": "0.8"
+   }
+  ]
+ },
+ "expected_lumina": {
+  "color.mcu": 52.799607853352164,
+  "gravity.points": 329.4577227213941,
+  "gravity.og": 1.054,
+  "note": "Python floats; gravity.og rounded to 3 places by Lumina"
+ }
+}

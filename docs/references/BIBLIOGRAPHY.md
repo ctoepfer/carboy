@@ -61,8 +61,13 @@ cultures (INGREDIENT_CATALOG §2.2–§2.3). Not yet read; check each for its
 peer-reviewed version before citing.
 
 - Gallone, B. et al. (2016). Domestication and divergence of
-  *Saccharomyces cerevisiae* beer yeasts. *Cell* 166(6). Open access:
-  <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5018251/>.
+  *Saccharomyces cerevisiae* beer yeasts. *Cell* 166(6). Open access
+  (CC BY-NC-ND 4.0): <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5018251/>.
+  **Read 2026-10-13** (full text and Table S1). Supports lineage-level
+  structure (Wine, Beer 1 with Belgium/Germany, Britain and US
+  subpopulations, Beer 2, Asia, Mixed) and trait findings (maltotriose use,
+  loss of 4-VG production); strains are identified only by anonymous codes,
+  so it supports **no product-level identity claims** by itself.
 - Fay, J. C. et al. (2018). A polyploid admixed origin of beer yeasts
   derived from European and Asian wine populations. bioRxiv 466276.
 - Langdon, Q. K. et al. (2019). Genomic diversity and global distribution

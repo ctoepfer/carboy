@@ -61,7 +61,10 @@ differ.
 
 The views are connected but independent:
 
-- **Neither implies the other.** Biological identity doesn't establish
+- **Neither implies the other.** (Genomic data agree: in the first study
+  reviewed, Gallone et al. 2016, strains used for the same beer style, such
+  as Trappist or lager, fall in several unrelated lineages.) Biological
+  identity doesn't establish
   functional equivalence (the same strain can suit a recipe differently in
   another format or lot), and functional similarity doesn't establish
   biological identity (two strains can do the same job).
