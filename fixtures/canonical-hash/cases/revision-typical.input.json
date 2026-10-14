@@ -1,0 +1,144 @@
+{
+  "envelope": {
+    "format": "recipe-revision",
+    "schema_version": "0.1",
+    "recipe_id": "0192f3a0-0000-7000-8000-000000000001",
+    "revision_id": "0192f3a0-0000-7000-8000-000000000003",
+    "parents": [
+      "0192f3a0-0000-7000-8000-000000000002"
+    ],
+    "created_at": "2026-10-13T12:00:00.000Z",
+    "origin": "user_edit"
+  },
+  "content": {
+    "name": "M\u00e4rzen \u2013 Fest",
+    "beverage": {
+      "type": "beer",
+      "style": {
+        "system": "bjcp-2021",
+        "code": "6A",
+        "name": "M\u00e4rzen"
+      }
+    },
+    "targets": {
+      "batch_volume": {
+        "value": "20",
+        "unit": "L"
+      },
+      "efficiency": {
+        "value": "0.72",
+        "unit": "fraction"
+      }
+    },
+    "ingredients": [
+      {
+        "id": "0192f3a0-0000-7000-8000-000000000010",
+        "kind": "fermentable",
+        "name": "Munich malt",
+        "properties": {
+          "color": {
+            "value": "9",
+            "unit": "degL"
+          },
+          "extract_yield": {
+            "value": "0.8",
+            "unit": "fraction"
+          }
+        }
+      },
+      {
+        "id": "0192f3a0-0000-7000-8000-000000000011",
+        "kind": "hop",
+        "name": "Hallertauer Mittelfr\u00fch",
+        "properties": {
+          "alpha_acid": {
+            "value": "0.04",
+            "unit": "fraction"
+          }
+        }
+      },
+      {
+        "id": "0192f3a0-0000-7000-8000-000000000012",
+        "kind": "culture",
+        "name": "Lager yeast \ud83c\udf7a",
+        "properties": {}
+      }
+    ],
+    "process": {
+      "stages": [
+        {
+          "id": "0192f3a0-0000-7000-8000-000000000020",
+          "kind": "mash",
+          "parameters": {
+            "temperature": {
+              "value": "67",
+              "unit": "C"
+            }
+          },
+          "steps": []
+        },
+        {
+          "id": "0192f3a0-0000-7000-8000-000000000021",
+          "kind": "boil",
+          "parameters": {
+            "duration": {
+              "value": "75",
+              "unit": "min"
+            }
+          },
+          "steps": []
+        }
+      ],
+      "flows": [
+        {
+          "from": "0192f3a0-0000-7000-8000-000000000020",
+          "to": "0192f3a0-0000-7000-8000-000000000021"
+        }
+      ]
+    },
+    "additions": [
+      {
+        "id": "0192f3a0-0000-7000-8000-000000000030",
+        "ingredient": "0192f3a0-0000-7000-8000-000000000010",
+        "stage": "0192f3a0-0000-7000-8000-000000000020",
+        "quantity": {
+          "value": "4.5",
+          "unit": "kg"
+        }
+      },
+      {
+        "id": "0192f3a0-0000-7000-8000-000000000031",
+        "ingredient": "0192f3a0-0000-7000-8000-000000000011",
+        "stage": "0192f3a0-0000-7000-8000-000000000021",
+        "timing": {
+          "minutes_before_end": {
+            "value": "60",
+            "unit": "min"
+          }
+        },
+        "quantity": {
+          "value": "28",
+          "unit": "g"
+        }
+      }
+    ],
+    "statistics": {},
+    "calculation_settings": {
+      "ibu_model": "tinseth"
+    },
+    "notes": [
+      {
+        "id": "0192f3a0-0000-7000-8000-000000000040",
+        "text": "Decoction optional; 2 steps."
+      }
+    ]
+  },
+  "derived": {
+    "statistics": {
+      "og": {
+        "value": "1.056",
+        "unit": "SG"
+      }
+    }
+  }
+}

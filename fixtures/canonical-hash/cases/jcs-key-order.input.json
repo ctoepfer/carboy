@@ -1,0 +1,11 @@
+{
+  "\ud83d\ude00": "astral (U+1F600 grinning face): UTF-16 D83D sorts before U+FF21",
+  "\uff21": "fullwidth A (U+FF21)",
+  "\u00e9": "e acute",
+  "a": 1,
+  "B": 2,
+  "aa": 3,
+  "": "empty key",
+  "10": "digit key",
+  "9": "digit key 9"
+}

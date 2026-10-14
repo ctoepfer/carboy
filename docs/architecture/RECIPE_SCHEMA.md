@@ -116,9 +116,15 @@ of those bytes, written `sha256:<hex>`.
 the document was altered or written incorrectly; the reader reports it and
 opens the revision read-only. It never "repairs" the hash silently.
 
-**Test vectors.** Phase 2 publishes vectors (input document, JCS bytes,
-hash) and runs them in every implementation's CI, including the Bridge's.
-The draft carries none, because a hand-written vector is not evidence.
+**Test vectors.** Published in [`fixtures/canonical-hash/`](../../fixtures/canonical-hash/README.md)
+(input document, exact canonical UTF-8 bytes, SHA-256), produced by an
+independent implementation (Trail of Bits `rfc8785` + Python `hashlib`) and
+reproduced by Recipe Core; CI checks both. Every implementation runs them,
+including the hosted service's.
+
+**Integrity, not authentication.** The content hash detects accidental or
+unreported changes; anyone can recompute it, so it proves nothing about who
+wrote a revision. Signatures are not part of this schema version.
 
 ## 4. Schema versioning
 

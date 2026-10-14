@@ -26,8 +26,11 @@ export class QuantityError extends Error {
   }
 }
 
+/** Codes validateQuantity can report (a subset of QuantityErrorCode). */
+export type QuantityValidationCode = "invalid-decimal" | "non-normalized-decimal" | "unknown-unit" | "negative-quantity";
+
 export interface QuantityIssue {
-  readonly code: QuantityErrorCode;
+  readonly code: QuantityValidationCode;
   readonly message: string;
 }
 

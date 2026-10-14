@@ -1,0 +1,27 @@
+{
+  "envelope": {
+    "format": "recipe-revision",
+    "schema_version": "0.1",
+    "recipe_id": "0192f3a0-0000-7000-8000-000000000001",
+    "revision_id": "0192f3a0-0000-7000-8000-000000000002",
+    "parents": [],
+    "created_at": "2026-10-13T12:00:00.000Z",
+    "origin": "user_edit"
+  },
+  "content": {
+    "name": "Untitled",
+    "beverage": {
+      "type": "beer"
+    },
+    "targets": {},
+    "ingredients": [],
+    "process": {
+      "stages": [],
+      "flows": []
+    },
+    "additions": [],
+    "statistics": {},
+    "calculation_settings": {},
+    "notes": []
+  }
+}

@@ -26,3 +26,13 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+
+  vectors:
+    # Independent Python implementation (rfc8785 + hashlib) checks the same
+    # published vectors the TypeScript tests use.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - run: python3 -m venv .venv && .venv/bin/pip install -r tools/canonical-hash/requirements.txt
+      - run: .venv/bin/python -I tools/canonical-hash/vectors.py check

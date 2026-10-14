@@ -89,17 +89,45 @@ A quantity is `{ "value": "<decimal string>", "unit": "<token>" }`
   quantity: a recipe keeps the value and unit the user entered (USABILITY
   U10).
 
-## 5. Verification
+## 5. Canonical JSON and the content hash
+
+Implements RECIPE_SCHEMA §2–§3 (`canonical.ts`, `hash.ts`, `revision.ts`).
+
+- **Canonical JSON:** RFC 8785. Primitives serialize exactly as ECMAScript
+  `JSON.stringify` (the RFC's reference); members sort by UTF-16 code units;
+  NaN, Infinity, lone surrogates, and non-JSON values are refused with a
+  code. UTF-8 encoding is done in Recipe Core (no `TextEncoder`).
+- **SHA-256:** [`@noble/hashes`](https://github.com/paulmillr/noble-hashes)
+  2.4.0, pinned exactly (MIT, zero dependencies, independently audited
+  including SHA-256, runs on every target engine; owner decision
+  2026-10-13). Never implemented in Recipe Core.
+- **Writer** (`createRevision`): copies only known envelope members, sorts
+  `parents`, NFC-normalizes every string and key (two keys that become equal
+  are reported, never merged), checks every rule, then hashes.
+- **Reader** (`verifyRevision`): checks the same rules, hashes every
+  envelope member except `content_hash` (so members a newer MINOR adds are
+  protected), and never repairs. Results: `valid`, `invalid` (rule
+  violations, each with a code and JSON Pointer), or `hash-mismatch` (open
+  read-only).
+- **Rules checked:** no `null`; numbers only as integers below 2⁵³; strings
+  and keys NFC and well-formed; every `{value, unit}` object is a valid
+  quantity (§4); lowercase RFC 9562 UUIDs; `parents` sorted and unique;
+  RFC 3339 UTC timestamps with milliseconds; known `origin`.
+- **Vectors:** [`fixtures/canonical-hash/`](../../fixtures/canonical-hash/README.md).
+
+The hash is an integrity check, not authentication or a signature.
+
+## 6. Verification
 
 `npm test` at the repository root builds and runs every package's tests;
 the `core` workflow runs them on Node 22 and 24 for every push and pull
-request. Expected values are exact products or were computed independently
+request, and checks the hash vectors with the independent Python
+implementation. Expected values are exact products or were computed independently
 (Python `decimal`, 80 digits, rounded half-even to 34); the three oz/lb
 regression values are the ones brewconvert documents as its oracle.
 
-## 6. Next in Recipe Core
+## 7. Next in Recipe Core
 
-In order: canonical JSON (RFC 8785) and the revision hash with published
-test vectors (RECIPE_SCHEMA §3); the formula registry with versioned,
-cited formulas (FORMULA_COVERAGE, D-006), starting with MCU and the mass
-extract method; provenance and statistics layers; validation.
+In order: the formula registry with versioned, cited formulas
+(FORMULA_COVERAGE, D-006), starting with MCU and the mass extract method;
+provenance and statistics layers; validation.

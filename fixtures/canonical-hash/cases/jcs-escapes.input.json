@@ -1,0 +1,8 @@
+{
+  "controls": "\u0000\u0001\b\t\n\f\r\u001f",
+  "quote_backslash": "\"\\",
+  "slash": "/",
+  "line_separators": "\u2028\u2029",
+  "del_and_latin1": "\u007f\u00a0\u00ff",
+  "cjk_and_emoji": "\u7d14\u7c73 \ud83c\udf7a"
+}

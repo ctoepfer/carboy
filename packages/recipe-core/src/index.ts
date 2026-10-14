@@ -2,4 +2,9 @@ export { Decimal, DecimalError, DIVISION_SIGNIFICANT_DIGITS } from "./decimal.js
 export { UNIT_TOKENS, isUnitToken, unitDefinition } from "./units.js";
 export type { Dimension, UnitDefinition } from "./units.js";
 export { QuantityError, convert, validateQuantity } from "./quantity.js";
-export type { Quantity, QuantityErrorCode, QuantityIssue } from "./quantity.js";
+export type { Quantity, QuantityErrorCode, QuantityIssue, QuantityValidationCode } from "./quantity.js";
+export { CanonicalError, canonicalBytes, canonicalize } from "./canonical.js";
+export type { Json } from "./canonical.js";
+export { canonicalSha256, sha256Hex } from "./hash.js";
+export { FORMAT, ORIGINS, RevisionError, contentHash, createRevision, isUuid, verifyRevision } from "./revision.js";
+export type { Content, Envelope, NewRevision, Origin, Revision, RevisionIssue, RevisionIssueCode, VerifyResult } from "./revision.js";

@@ -1,0 +1,3 @@
+# Independent RFC 8785 implementation (Trail of Bits, Apache-2.0), used only
+# to produce and check the published canonical-hash vectors.
+rfc8785==0.1.4

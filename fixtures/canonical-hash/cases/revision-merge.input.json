@@ -1,0 +1,51 @@
+{
+  "envelope": {
+    "format": "recipe-revision",
+    "schema_version": "0.1",
+    "recipe_id": "0192f3a0-0000-7000-8000-000000000001",
+    "revision_id": "0192f3a0-0000-7000-8000-000000000004",
+    "parents": [
+      "0192f3a0-0000-7000-8000-000000000002",
+      "0192f3a0-0000-7000-8000-000000000003"
+    ],
+    "created_at": "2026-10-13T12:30:00.123Z",
+    "origin": "merge"
+  },
+  "content": {
+    "name": "Merged",
+    "beverage": {
+      "type": "mead"
+    },
+    "targets": {
+      "batch_volume": {
+        "value": "5",
+        "unit": "US gal"
+      }
+    },
+    "ingredients": [
+      {
+        "id": "0192f3a0-0000-7000-8000-000000000050",
+        "kind": "honey",
+        "name": "Orange blossom honey",
+        "properties": {}
+      }
+    ],
+    "process": {
+      "stages": [],
+      "flows": []
+    },
+    "additions": [
+      {
+        "id": "0192f3a0-0000-7000-8000-000000000051",
+        "ingredient": "0192f3a0-0000-7000-8000-000000000050",
+        "quantity": {
+          "value": "6.8",
+          "unit": "kg"
+        }
+      }
+    ],
+    "statistics": {},
+    "calculation_settings": {},
+    "notes": []
+  }
+}
