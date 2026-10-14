@@ -93,6 +93,46 @@ for wine and mead musts.
 | Stabilizing and backsweetening | Sorbate by ABV; sugar by target gravity | **Needs source** | ABV; volume | — | stabilization |
 | Blending and dilution | Mass balance A·a + B·b = C·c | **Secondary checked**: Holle ch. 4 (by mass for gravity) | volumes; property | — | `blend`/`dilution` flows |
 
+### Source review: mead nutrients (CQ3) and wine/cider sulfite (CQ4), 2026-10-13
+
+Owner decisions CQ3 and CQ4 put a foundational nutrient model and basic
+sulfite management into 1.0, with cited methods only. **Nothing below is
+enabled yet**: each item states what is citable now and what must be read.
+Web sources found during the search are listed at the end of this page as
+leads, not citations.
+
+**Sulfite (CQ4)**
+
+| Calculation | Candidate | Source status | Needed before enabling |
+|---|---|---|---|
+| Molecular SO₂ from free SO₂ and pH | molecular = free ÷ (1 + 10^(pH − pK₁)), the bisulfite equilibrium | **Needs source** for pK₁. Usseglio-Tomasset & Bosia (1984) are reported to give pK₁ 1.78 at 19 °C in water and nearer 2.0 under wine conditions; calculators use 1.77 or 1.81. Read only via web articles | Read Usseglio-Tomasset & Bosia (1984) and a reviewed text (Boulton et al. 1996, *Principles and Practices of Winemaking*; or Ribéreau-Gayon et al., *Handbook of Enology* vol. 2). pK₁ becomes a **named, versioned assumption** (temperature and ethanol dependent), never a hidden constant |
+| SO₂ released by potassium metabisulfite | K₂S₂O₅ → 2 SO₂: 2 × 64.064 ÷ 222.32 = 0.5763 of the salt's mass | **Chemistry**: stoichiometry from standard atomic weights (cite the IUPAC/CIAAW edition) | The atomic-weight citation |
+| Addition to reach a free SO₂ target | (target free − measured free) × volume ÷ 0.5763 | Arithmetic on the two rows above | Must say it is an **estimate**: part of any addition binds, so the resulting free SO₂ has to be measured, not assumed |
+| Molecular SO₂ targets (≈0.8 mg/L white, ≈0.5 mg/L red) | Guidance values | Secondary (attributed to Jackson, *Wine Science*) | Read the cited text. Targets are **user-chosen**, shown with their source, never a silent default. Red wines: pigment-bound SO₂ makes molecular SO₂ unreliable from free SO₂ alone (reported); limit or flag |
+| Cider: SO₂ by juice pH bands | Tabulated total SO₂ per pH band (Long Ashton tradition) | **Community** (cider.org.uk); primary (Beech & Carr; Lea) not read | Read Lea, *Craft Cider Making*, or Lea & Drilleau (2003); otherwise cider uses the molecular-SO₂ rows above |
+
+Rules that hold regardless: measured free SO₂ (with date and method) is
+kept apart from estimates and targets and is never replaced by either;
+pH and free SO₂ must be measured values for a molecular SO₂ result, or the
+result is unavailable.
+
+**Mead nutrients (CQ3)**
+
+| Calculation | Candidate | Source status | Needed before enabling |
+|---|---|---|---|
+| Staggered additions | Additions with timing on the fermentation stage (RECIPE_SCHEMA §7.2) | **Schema, no formula needed** | Nothing: supported now as recipe data |
+| YAN added by DAP | mass × 0.2121 (2 N × 14.007 ÷ 132.06) | **Chemistry**: stoichiometry | Atomic-weight citation |
+| YAN added by other nutrients | mass × the product's stated nitrogen content | **Maker data**: a cited data-sheet property per product (catalog) | Data sheets; unknown content stays unknown |
+| Total YAN added | Σ of the rows above | Arithmetic | None beyond its inputs |
+| Must YAN | Measured value | **Measurement only**; honey musts are reported to be very low in YAN, but no value is assumed | — |
+| YAN requirement / target | Bisson & Butzke (2000) are reported to recommend about 25 mg N/L per °Brix above a 21 °Brix baseline | **Secondary only**; later studies dispute high requirements; mead studies (Mendes-Ferreira et al. 2010; Pereira et al. 2015) show nitrogen needs depend on yeast and must | Read Bisson & Butzke (2000) and the mead studies. Until then a target is **user-entered guidance**, not a calculation |
+| Sugar-break timing (e.g. ⅓ sugar break) | A gravity point between OG and expected FG | Community protocol (TOSNA) | Treated as a user-defined schedule; Carboy can show the gravity point once OG and FG are known, labelled with its source |
+
+What 1.0 can therefore do without guessing: record staggered additions,
+sum the YAN they add where each product's nitrogen content is cited, show
+measured must YAN, and compare against a target the user chooses, with
+"unavailable" wherever an input or source is missing.
+
 ## Sake
 
 No predicted gravity or ABV (parallel fermentation; BEVERAGE_SCOPE).
@@ -168,3 +208,14 @@ Decided 2026-10-12 (owner accepted the recommendations):
   <https://www.brewersfriend.com/forum/threads/update-to-the-boil-size-target-volume-and-batch-size.11921/>;
   Grainfather help, <https://help.grainfather.com/hc/en-us/articles/360014527537-Calculation-IBU>.
   The original realbeer.com page now redirects elsewhere.
+
+## Web sources consulted (2026-10-13, leads only)
+
+For the CQ3/CQ4 review; none is a citation for a formula.
+
+- Molecular SO₂ and pK₁ discussion: BRsquared, "Sulphur Dioxide",
+  <http://www.brsquared.org/wine/Articles/SO2/SO2.htm>; WineMaker,
+  "Calculating molecular SO₂", <https://winemakermag.com/wine-wizard/calculate-molecular-so2>.
+- Bisson & Butzke (2000) record: <https://www.ajevonline.org/content/51/2/168>.
+- Mead nitrogen studies: Pereira et al. (2015), <https://onlinelibrary.wiley.com/doi/full/10.1002/jib.184>.
+- Cider SO₂ by pH: cider.org.uk, <https://cider.org.uk/sulphite.html>.

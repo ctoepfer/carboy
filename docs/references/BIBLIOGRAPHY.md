@@ -76,6 +76,29 @@ peer-reviewed version before citing.
 - White Labs (2023). Identifying lager vs ale strains. Manufacturer
   publication.
 
+## Wine, cider, and mead chemistry (to be read)
+
+Leads from the CQ3/CQ4 source review (FORMULA_COVERAGE.md); none read yet.
+
+- Usseglio-Tomasset, L. and Bosia, P. D. (1984). Determinazione delle
+  costanti di dissociazione dei principali acidi del vino in soluzioni
+  idroalcoliche di interesse enologico. *Rivista di Viticoltura e di
+  Enologia* 37. (pK of SO₂ in hydroalcoholic solutions; citation details to
+  confirm.)
+- Boulton, R. B., Singleton, V. L., Bisson, L. F., Kunkee, R. E. (1996).
+  *Principles and Practices of Winemaking.* Chapman & Hall.
+- Jackson, R. S. (2008). *Wine Science: Principles and Applications*, 3rd
+  ed. Academic Press.
+- Bisson, L. F. and Butzke, C. E. (2000). Diagnosis and rectification of
+  stuck and sluggish fermentations. *Am. J. Enol. Vitic.* 51(2):168–177.
+  doi:10.5344/ajev.2000.51.2.168.
+- Mendes-Ferreira, A. et al. (2010). Improvement of mead fermentation by
+  honey-must supplementation. (Journal to confirm.)
+- Pereira, A. P. et al. (2015). Mead production: effect of nitrogen
+  supplementation on growth, fermentation profile and aroma formation by
+  yeasts in mead fermentation. *J. Inst. Brew.* doi:10.1002/jib.184.
+- Lea, A. G. H. *Craft Cider Making.* (Edition to confirm.)
+
 ## Standards and specifications
 
 - BeerXML 1.0 specification. <https://www.beerxml.com/beerxml.htm>. **Read.**
