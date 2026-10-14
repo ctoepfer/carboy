@@ -115,6 +115,39 @@ Needed from the maintainer:
   no-publish note), for the performance budget and the large-recipe
   graph test.
 
+## Dependency advisories
+
+**GHSA-wrw7-89jp-8q8g / RUSTSEC-2024-0429 (Dependabot alert 1, moderate),
+reviewed 2026-10-14. Remediation deferred; not exploitable here.**
+
+- **What:** `glib` 0.18.5 (Rust, transitive, in
+  `shell-tauri/src-tauri/Cargo.lock`). `VariantStrIter::impl_get` passes
+  an out-pointer as `&p` instead of `&mut p`; with optimizing compilers
+  this dereferences NULL (a crash), affecting the `Iterator` and
+  `DoubleEndedIterator` impls reached through `Variant::array_iter_str()`.
+  Affected `>= 0.15.0, < 0.20.0`; fixed in 0.20.0 (gtk-rs-core PR 1343).
+- **Path:** spike-shell → tauri 2.12.3 / tauri-runtime-wry 2.12.1 →
+  wry 0.57.0 → webkit2gtk `=2.0.2` → gtk 0.18 / glib `^0.18`; also tao,
+  muda, tray-icon, libappindicator via gtk 0.18. These are the GTK 3
+  bindings (gtk3-rs), which have no release on glib ≥ 0.20, and no glib
+  0.18.x patch exists. Linux-only (the GTK crates are target-specific).
+- **Use of the vulnerable code:** none found. Searched the sources of all
+  32 crates in the lockfile that depend on glib, gio, or gtk (tauri, wry,
+  tao, muda, tray-icon, libappindicator, webkit2gtk, javascriptcore-rs,
+  soup3, gtk, gdk, gdkx11, pango, cairo-rs, atk, gdk-pixbuf, and their
+  `-sys` crates) and the spike's own code for `array_iter_str` and
+  `VariantStrIter`: the only uses are glib's own tests and documentation.
+- **Kind:** runtime dependency of the throwaway spike binary only. Not in
+  `packages/`, not distributed, not in the npm lockfile; Recipe Core and
+  its determinism are unaffected; core CI does not build it.
+- **Smallest remediation:** none compatible. A fix needs wry and
+  webkit2gtk to move to glib ≥ 0.20 (upstream). Forcing a newer glib
+  would break the build (`^0.18` requirement).
+- **Not suppressed.** The alert stays open as the record. If the owner
+  prefers, it can be dismissed as "vulnerable code not used" citing this
+  section. Re-check when Tauri/wry update their Linux webview stack, and
+  before ADR 0003 is accepted (input to its Linux risk).
+
 ## Rules for spike code
 
 - Pin exact dependency versions. Record each candidate's license.

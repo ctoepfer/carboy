@@ -38,6 +38,10 @@ together with the graph spike.
 
 - Webview differences (WebView2, WKWebView, WebKitGTK) must be tested; Linux
   is the highest risk.
+- On Linux, Tauri 2 (via wry and webkit2gtk) depends on the GTK 3 Rust
+  bindings, which are tied to glib 0.18; advisories fixed only in newer
+  glib cannot be taken until upstream moves (example: RUSTSEC-2024-0429,
+  not exploitable in the spike; [SPIKE_PLAN](../../../spikes/phase1/SPIKE_PLAN.md#dependency-advisories)).
 - Tauri mobile is younger than its desktop support; plugin gaps may need small
   native plugins.
 
