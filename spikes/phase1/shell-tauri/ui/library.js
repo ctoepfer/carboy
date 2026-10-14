@@ -3,6 +3,7 @@
 // kills the process part-way); SPIKE_AUTO=1 alone verifies and reports.
 import * as core from "./core/index.js";
 import { renderNav } from "./shared/nav.js";
+import { axeSummary } from "./shared/axe-run.js";
 
 const { invoke } = window.__TAURI__.core;
 renderNav(document.getElementById("header"), "library");
@@ -32,6 +33,9 @@ if (stress > 0) {
 
 const [{ integrity }] = await sql("PRAGMA integrity_check").then((r) => r.map((x) => ({ integrity: Object.values(x)[0] })));
 const [{ mode }] = await sql("PRAGMA journal_mode").then((r) => r.map((x) => ({ mode: Object.values(x)[0] })));
+// ADR 0006 durability default: FULL (2). Read from the pool's connection, so
+// it shows what the plugin actually uses, not what was requested.
+const [{ synchronous }] = await sql("PRAGMA synchronous").then((r) => r.map((x) => ({ synchronous: Object.values(x)[0] })));
 const rows = await sql("SELECT revision_id, content_hash, document FROM revision ORDER BY revision_id");
 let verified = 0;
 const failures = [];
@@ -64,5 +68,5 @@ document.getElementById("summary").textContent =
   (rows.length > 200 ? " Showing the first 200." : "");
 
 if (await invoke("auto_mode")) {
-  await invoke("report", { json: JSON.stringify({ page: "library", integrity, journal_mode: mode, revisions: rows.length, verified, failures }, null, 2) });
+  await invoke("report", { json: JSON.stringify({ page: "library", integrity, journal_mode: mode, synchronous, revisions: rows.length, verified, failures, axe: await axeSummary("./") }, null, 2) });
 }

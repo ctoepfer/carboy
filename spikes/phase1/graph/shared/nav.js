@@ -6,6 +6,7 @@ export const PAGES = [
   { id: "checks", href: "index.html", label: "Core checks" },
   { id: "graph-react", href: "graph-react/index.html", label: "Process graph: React Flow" },
   { id: "graph-svelte", href: "graph-svelte/index.html", label: "Process graph: Svelte Flow" },
+  { id: "probe", href: "probe.html", label: "Platform probe" },
 ];
 
 export function renderNav(container, current, depth = 0) {

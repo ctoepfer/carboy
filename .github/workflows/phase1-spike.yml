@@ -47,14 +47,14 @@ jobs:
       - run: (cd recipe-core && npm ci) && (cd graph && npm ci)
       - run: ./shell-tauri/prepare.sh
       - run: cargo build --manifest-path shell-tauri/src-tauri/Cargo.toml
-      - name: Run the core checks, Recipe, and Library pages in the webview (hidden window)
+      - name: Run the core checks, Recipe, Library, and platform probe pages (hidden window; axe-core on each)
         timeout-minutes: 6
         run: |
           exe=shell-tauri/src-tauri/target/debug/spike-shell
           [ -f "$exe.exe" ] && exe="$exe.exe"
           run() { if [ "$RUNNER_OS" = Linux ]; then xvfb-run -a "$@"; else "$@"; fi; }
-          for page in index recipe library; do
-            SPIKE_HIDDEN=1 SPIKE_START=$page.html SPIKE_AUTO=1 SPIKE_EXIT=1 SPIKE_REPORT=$PWD/report-$page.json \
+          for page in index recipe library probe; do
+            SPIKE_HIDDEN=1 SPIKE_START=$page.html SPIKE_AUTO=1 SPIKE_EXIT=1 SPIKE_AXE=1 SPIKE_REPORT=$PWD/report-$page.json \
               run "$exe" || echo "::warning::$page run exited with $?"
             cat report-$page.json || echo "::error::no report for $page"
           done
@@ -65,9 +65,25 @@ jobs:
           [ -f "$exe.exe" ] && exe="$exe.exe"
           run() { if [ "$RUNNER_OS" = Linux ]; then xvfb-run -a "$@"; else "$@"; fi; }
           for g in graph-react graph-svelte; do
-            SPIKE_START=$g/index.html SPIKE_AUTO=1 SPIKE_EXIT=1 SPIKE_REPORT=$PWD/report-$g.json \
+            SPIKE_START=$g/index.html SPIKE_AUTO=1 SPIKE_EXIT=1 SPIKE_AXE=1 SPIKE_REPORT=$PWD/report-$g.json \
               run "$exe" || echo "::warning::$g run exited with $?"
           done
+      - name: Navigation test (Linux, clean virtual display; GRAPH_REPORT finding 3)
+        if: runner.os == 'Linux'
+        timeout-minutes: 4
+        run: |
+          exe=shell-tauri/src-tauri/target/debug/spike-shell
+          # No SPIKE_EXIT: the checks page reports, then clicks the nav link; the
+          # graph page's report replaces it. The run ends at the timeout.
+          SPIKE_START=index.html SPIKE_AUTO=1 SPIKE_NAV="Process graph: React Flow" SPIKE_REPORT=$PWD/report-nav.json \
+            timeout 90 xvfb-run -a "$exe" 2>nav.log || true
+          python3 tools/nav_summary.py nav.log report-nav.json > report-nav-summary.json
+          cat report-nav-summary.json
+      - name: SQLite durability benchmark, FULL vs NORMAL under WAL (ADR 0006)
+        timeout-minutes: 4
+        run: |
+          py=python3; command -v python3 >/dev/null || py=python
+          $py tools/sqlite_durability_bench.py --n 200 --out $PWD/report-sqlite-bench.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:

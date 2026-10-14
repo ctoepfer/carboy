@@ -3,6 +3,7 @@
 // export/import through the Rust side.
 import * as core from "./core/index.js";
 import { renderNav } from "./shared/nav.js";
+import { axeSummary } from "./shared/axe-run.js";
 
 const { invoke } = window.__TAURI__.core;
 renderNav(document.getElementById("header"), "checks");
@@ -114,7 +115,7 @@ for (const r of results) {
   document.getElementById("results").append(li);
 }
 await log(`done, auto=${auto}`);
-if (auto) await invoke("report", { json: JSON.stringify({ userAgent: navigator.userAgent, passed, total: results.length, results }, null, 2) });
+if (auto) await invoke("report", { json: JSON.stringify({ userAgent: navigator.userAgent, passed, total: results.length, results, axe: await axeSummary("./") }, null, 2) });
 
 // Navigation test: click a nav link like a user would, after the checks finish.
 const navTarget = await invoke("nav_test");

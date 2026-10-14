@@ -1,6 +1,7 @@
 // The automated run, identical for both candidates ($SPIKE_AUTO=1).
 import { audit, keyboardMove, send, viewportFrames, waitFor } from "./measure.js";
 import { largeRecipe } from "./process.js";
+import { axeSummary } from "./axe-run.js";
 
 const nodeEls = (root) => [...root.querySelectorAll(".react-flow__node, .svelte-flow__node")];
 const visible = (el) => el.style.visibility !== "hidden" && el.getBoundingClientRect().width > 0;
@@ -46,6 +47,11 @@ export async function runAuto({ framework, versions, root, setRecipe, setViewpor
   await step("large: viewport pan/zoom, 60 frames", async () => viewportFrames(setViewport));
   report.passed = Object.values(report.steps).filter((s) => s.ok).length;
   report.total = Object.keys(report.steps).length;
+  try {
+    report.axe = await axeSummary("../");
+  } catch (e) {
+    report.axe = { error: String(e) };
+  }
   await send(report);
   return report;
 }

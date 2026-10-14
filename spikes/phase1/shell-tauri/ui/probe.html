@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Platform probe</title>
+    <link rel="stylesheet" href="./shared/app.css" />
+    <script type="module" src="./probe.js"></script>
+  </head>
+  <body>
+    <header id="header"></header>
+    <main>
+      <h1>Platform probe</h1>
+      <p class="note">Spike page (USABILITY §5): what this webview reports for the user's display preferences and for the internationalization features localization will rely on. Measurements only; nothing here is product behaviour.</p>
+      <p id="summary" role="status">Measuring…</p>
+      <h2>Display preferences</h2>
+      <table>
+        <caption class="sr-only">Media features: whether the webview recognizes each, and its current value</caption>
+        <thead><tr><th scope="col">Media feature</th><th scope="col">Recognized</th><th scope="col">Current value</th></tr></thead>
+        <tbody id="media"></tbody>
+      </table>
+      <h2>Internationalization</h2>
+      <table>
+        <caption class="sr-only">Intl checks and their results</caption>
+        <thead><tr><th scope="col">Check</th><th scope="col">Result</th></tr></thead>
+        <tbody id="intl"></tbody>
+      </table>
+    </main>
+  </body>
+</html>

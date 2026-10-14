@@ -3,6 +3,7 @@
 // library, and the native file. No framework until D-010 is decided.
 import * as core from "./core/index.js";
 import { renderNav } from "./shared/nav.js";
+import { axeSummary } from "./shared/axe-run.js";
 
 const { invoke } = window.__TAURI__.core;
 renderNav(document.getElementById("header"), "recipe");
@@ -164,5 +165,5 @@ if (await invoke("auto_mode")) {
     results[2].parents.length === 1 && results[2].parents[0] === parent &&
     reopened?.status === "editable" && reopened.revision.content.additions[0].amount.value === "5" &&
     /^Imported: editable/.test(results[5].text);
-  await invoke("report", { json: JSON.stringify({ page: "recipe", ok, ogBefore, ogAfter: core.contentOg(content), results }, null, 2) });
+  await invoke("report", { json: JSON.stringify({ page: "recipe", ok, ogBefore, ogAfter: core.contentOg(content), results, axe: await axeSummary("./") }, null, 2) });
 }
