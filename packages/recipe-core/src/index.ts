@@ -8,3 +8,4 @@ export type { Json } from "./canonical.js";
 export { canonicalSha256, sha256Hex } from "./hash.js";
 export { FORMAT, ORIGINS, RevisionError, contentHash, createRevision, isUuid, verifyRevision } from "./revision.js";
 export type { Content, Envelope, NewRevision, Origin, Revision, RevisionIssue, RevisionIssueCode, VerifyResult } from "./revision.js";
+export * from "./formulas/index.js";

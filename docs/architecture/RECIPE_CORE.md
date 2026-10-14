@@ -121,7 +121,25 @@ Implements RECIPE_SCHEMA §2–§3 (`canonical.ts`, `hash.ts`, `revision.ts`).
 
 The hash is an integrity check, not authentication or a signature.
 
-## 6. Verification
+## 6. Formula registry
+
+`src/formulas/`: each formula is a `FormulaDefinition` with an id and
+version, a status, its source status and citations, the expression,
+assumptions, inputs (with accepted units), applicability (beverages),
+rounding behaviour, and output. Results are either `computed` (value, unit,
+formula id and version, the assumptions that applied) or `unavailable` with
+a reason: `unsupported-beverage`, `missing-input`, `invalid-input`,
+`formula-unavailable` (with the missing dependency), or `not-enabled`.
+Nothing is ever defaulted: a missing moisture or efficiency is reported,
+not assumed.
+
+Status follows D-006: only `enabled` formulas produce values for users;
+`parity-reference` formulas run only when a caller opts in (`{ parity:
+true }`) to compare with Lumina or BeerXML-derived values. The current
+entries and their sources are listed in
+[FORMULA_COVERAGE.md](FORMULA_COVERAGE.md#implemented-in-recipe-core-2026-10-13).
+
+## 7. Verification
 
 `npm test` at the repository root builds and runs every package's tests;
 the `core` workflow runs them on Node 22 and 24 for every push and pull
@@ -130,8 +148,7 @@ implementation. Expected values are exact products or were computed independentl
 (Python `decimal`, 80 digits, rounded half-even to 34); the three oz/lb
 regression values are the ones brewconvert documents as its oracle.
 
-## 7. Next in Recipe Core
+## 8. Next in Recipe Core
 
-In order: the formula registry with versioned, cited formulas
-(FORMULA_COVERAGE, D-006), starting with MCU and the mass extract method;
-provenance and statistics layers; validation.
+In order: provenance and statistics layers; validation; more formulas as
+their sources are read (SG ↔ °P first, which unblocks mass-method OG).

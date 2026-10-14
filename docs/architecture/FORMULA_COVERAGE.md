@@ -25,6 +25,22 @@ cited by chapter ([BIBLIOGRAPHY.md](../references/BIBLIOGRAPHY.md)). It is a
 secondary source; the primary works it cites are named per row. Page-level
 details still need checking against the printed book.
 
+## Implemented in Recipe Core (2026-10-13)
+
+The formula registry ([RECIPE_CORE.md §6](RECIPE_CORE.md#6-formula-registry))
+holds these so far:
+
+| Registry id | Status | Note |
+|---|---|---|
+| `color.mcu` v1 | **Enabled** | Holle ch. 1 (Daniels p. 59 via); °L inputs only |
+| `extract.mass` v1 | **Enabled** | Holle ch. 1 (Kunze p. 266, Narziss II:313 via); extract mass in kg |
+| `gravity.og.mass-method` v1 | **Unavailable** | Needs a cited SG ↔ °P formula; reports `formula-unavailable` with that dependency |
+| `gravity.og.points-lumina` v1 | Parity reference | Opt-in only; matches Lumina on Verdant Reverie (points within 1e-9 relative; OG 1.064 at 3 places) |
+
+**Consequence for OG:** mass-method OG (FQ2's default) can't be shown until
+the SG ↔ °P relationship has a citable source (the ASBC tables or the
+original regression). Finding it is now the first blocker for beer OG.
+
 ## Beer
 
 | Calculation | Candidate formula | Source status | Inputs | Property rows | Stage-kind rows |
