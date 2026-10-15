@@ -14,7 +14,14 @@ file in [`packages/recipe-format/`](../packages/recipe-format/)
 ([RECIPE_FORMAT.md](architecture/RECIPE_FORMAT.md)). **Integration
 milestone reached (2026-10-14):** a complete recipe is created, validated,
 calculated, canonically serialized, hashed, saved, reopened, and verified
-with its identity and numbers unchanged.
+with its identity and numbers unchanged. Since then: the editor command
+applier ([`packages/editor-commands/`](../packages/editor-commands/),
+[EDITOR_COMMANDS.md](architecture/EDITOR_COMMANDS.md)), full content
+validation, scaling, schema 0.2, migrations, and the Lumina ⇄ Carboy
+mapping with round-trip and parity fixtures that pass in TypeScript and
+Python. **Phase 2's exit criteria are met pending the owner's review**;
+open owner questions are listed in the formula, core, and command
+documents.
 
 **Phase 1, platform proof** continues alongside it: the throwaway spikes
 under [`spikes/phase1/`](../spikes/phase1/README.md)
