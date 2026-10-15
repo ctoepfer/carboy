@@ -1,14 +1,17 @@
 import { EXTRACT_MASS, MCU, OG_MASS_METHOD, OG_POINTS_LUMINA } from "./beer.js";
 import { SG_PLATO } from "./gravity.js";
 import { SO2_FROM_METABISULFITE, YAN_FROM_DAP } from "./additions-chem.js";
+import { ABV_LUMINA, FG_LUMINA, IBU_TINSETH_LUMINA, SRM_MOREY } from "./lumina-parity.js";
 import type { Beverage, FormulaDefinition } from "./registry.js";
 
 export * from "./registry.js";
 export * from "./beer.js";
 export { SG_PLATO, densityAtPlato, platoFromSg, sgAtPlato, sgFromPlato } from "./gravity.js";
+export { ABV_LUMINA, FG_LUMINA, IBU_TINSETH_LUMINA, SRM_MOREY, abvLumina, finalGravityLumina, ibuTinsethLumina, srmMorey } from "./lumina-parity.js";
+export type { TinsethHop } from "./lumina-parity.js";
 export { SO2_FROM_METABISULFITE, YAN_FROM_DAP, so2FromMetabisulfite, yanFromDap } from "./additions-chem.js";
 
-const ALL: readonly FormulaDefinition[] = [MCU, EXTRACT_MASS, OG_MASS_METHOD, OG_POINTS_LUMINA, SG_PLATO, SO2_FROM_METABISULFITE, YAN_FROM_DAP];
+const ALL: readonly FormulaDefinition[] = [MCU, EXTRACT_MASS, OG_MASS_METHOD, OG_POINTS_LUMINA, SRM_MOREY, FG_LUMINA, ABV_LUMINA, IBU_TINSETH_LUMINA, SG_PLATO, SO2_FROM_METABISULFITE, YAN_FROM_DAP];
 
 /** The registry: every formula Recipe Core knows, keyed by id. */
 export const FORMULAS: ReadonlyMap<string, FormulaDefinition> = new Map(ALL.map((f) => [f.id, f]));

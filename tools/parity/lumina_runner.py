@@ -24,7 +24,7 @@ import sys
 from pathlib import Path
 
 FIXTURES = Path(__file__).resolve().parents[2] / "fixtures" / "parity"
-KEYS = ("color.mcu", "gravity.points", "gravity.og")
+KEYS = ("color.mcu", "gravity.points", "gravity.og", "color.srm.morey", "fermentation.fg", "fermentation.abv", "hops.ibu.tinseth")
 SOURCE_PREFIX = "Lumina "
 
 

@@ -7,7 +7,8 @@
   "source_sha256": "f906dc504a6a515d4f4f53aaaa347263f5bd29fcf7f555d2e6434f20d9daebff",
   "producer": "Lumina brains/recipes beerxml_import.parse_beerxml + stats_hooks.calculate_recipe_stats, run read-only on 2026-10-13 with Lumina's runtime venv (no bytecode written)",
   "lumina_revision": "632da60dd963ba006d0f0cd22433ef5898490622 (working tree has uncommitted changes in some recipes modules, including beerxml_import.py; stats_hooks.py unmodified)",
-  "notes": "Masses, colours, and batch volume are the BeerXML values (kg, degrees Lovibond, L). ppg and efficiency are what Lumina's importer derived. Lumina treats a missing colour or weight as 0 in MCU; Carboy reports them missing instead, so this fixture has none missing."
+  "notes": "Masses, colours, and batch volume are the BeerXML values (kg, degrees Lovibond, L). ppg and efficiency are what Lumina's importer derived. Lumina treats a missing colour or weight as 0 in MCU; Carboy reports them missing instead, so this fixture has none missing.",
+  "additions_2026_10_14": "input.hops, input.attenuation, and expected color.srm.morey, fermentation.fg, fermentation.abv, hops.ibu.tinseth added from the same producer (Lumina 632da60, stats_hooks.py unmodified); hop masses are Lumina's typed quantities, alpha acid and boil time Lumina's floats"
  },
  "input": {
   "batch_volume": {
@@ -80,12 +81,37 @@
     "ppg": "34.04",
     "efficiency": "0.8"
    }
-  ]
+  ],
+  "hops": [
+   {
+    "name": "Magnum",
+    "mass": {
+     "value": "0.021262142",
+     "unit": "kg"
+    },
+    "alpha_acid": "0.12",
+    "boil_time_min": "60.0"
+   },
+   {
+    "name": "Hallertau Mittelfrueh",
+    "mass": {
+     "value": "0.017",
+     "unit": "kg"
+    },
+    "alpha_acid": "0.04",
+    "boil_time_min": "10.0"
+   }
+  ],
+  "attenuation": "0.8"
  },
  "expected_lumina": {
   "color.mcu": 52.799607853352164,
   "gravity.points": 329.4577227213941,
   "gravity.og": 1.054,
-  "note": "Python floats; gravity.og rounded to 3 places by Lumina"
+  "color.srm.morey": 22.666237274419615,
+  "fermentation.fg": 1.011,
+  "fermentation.abv": 5.6,
+  "hops.ibu.tinseth": 27.1,
+  "note": "Python floats; gravity.og, fermentation.fg rounded to 3 places, fermentation.abv and hops.ibu.tinseth to 1 place by Lumina; color.srm.morey unrounded"
  }
 }

@@ -31,6 +31,13 @@ Every stored number is a decimal string (RECIPE_SCHEMA §3 rule 1).
 | `round(places)` | Half-even; used for display and for formulas whose source states a rounding step. Stored values are never rounded implicitly |
 | `toString` | Normalized document form |
 
+**Transcendental functions** (`math.ts`, 2026-10-14): `expDecimal`,
+`lnDecimal`, and `powDecimal` (x^y = exp(y · ln x), x > 0) use only integer
+arithmetic at the requested precision plus 20 guard digits, then round
+half-even once. JavaScript's `Math.exp` and `Math.pow` are not used in
+formulas, because engines may differ in the last bit (invariant 6). Tested
+against Python `decimal` (correctly rounded) to all 34 digits.
+
 **Parity tolerance.** brewconvert computes conversions in Python's `decimal`
 at 40 digits with intermediate rounding, so results can differ from Recipe
 Core in the last digits. Parity fixtures (D-005) compare with a declared

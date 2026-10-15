@@ -1,6 +1,7 @@
 import { Decimal } from "../decimal.js";
 import { convert, validateQuantity, type Quantity } from "../quantity.js";
 import { densityAtPlato, sgAtPlato } from "./gravity.js";
+import { blockers, check, checkFraction, fraction } from "./checks.js";
 import { checkBeverage, computed, unavailable, type Beverage, type FormulaDefinition, type FormulaResult } from "./registry.js";
 
 // First formulas (owner decision 2026-10-13): MCU and the mass-based extract
@@ -259,34 +260,4 @@ export function originalGravityPointsLumina(
   for (const s of sources) points = points.add(convert(s.mass, "lb").mul(Decimal.parse(s.ppg!)).mul(Decimal.parse(s.efficiency!)));
   const og = Decimal.ONE.add(points.div(gallons).div(Decimal.parse("1000")));
   return { ...computed(OG_POINTS_LUMINA, og), points };
-}
-
-// ---- shared input checks ------------------------------------------------------
-
-function check(q: Quantity | undefined, path: string, dimension: "mass" | "volume", missing: string[], invalid: string[]): void {
-  if (!q) {
-    missing.push(path);
-    return;
-  }
-  const units = dimension === "mass" ? ["kg", "g", "lb", "oz"] : ["L", "mL", "US gal", "qt", "US fl oz"];
-  if (!units.includes(q.unit) || validateQuantity(q).length > 0) invalid.push(path);
-}
-
-function checkFraction(q: Quantity | undefined, path: string, missing: string[], invalid: string[]): void {
-  if (!q) {
-    missing.push(path);
-    return;
-  }
-  if (!["fraction", "%"].includes(q.unit) || validateQuantity(q).length > 0 || fraction(q).compare(Decimal.ONE) > 0) invalid.push(path);
-}
-
-function fraction(q: Quantity): Decimal {
-  return convert(q, "fraction");
-}
-
-function blockers(def: FormulaDefinition, missing: string[], invalid: string[]): FormulaResult | undefined {
-  // Unknown stays unknown (invariant 7): nothing is defaulted to zero.
-  if (missing.length > 0) return unavailable(def, "missing-input", missing, `missing: ${missing.join(", ")}`);
-  if (invalid.length > 0) return unavailable(def, "invalid-input", invalid, `invalid: ${invalid.join(", ")}`);
-  return undefined;
 }

@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
-import { Decimal, maltColorUnits, originalGravityPointsLumina } from "../dist/index.js";
+import { Decimal, abvLumina, finalGravityLumina, ibuTinsethLumina, maltColorUnits, originalGravityPointsLumina, srmMorey } from "../dist/index.js";
 
 const dir = new URL("../../../fixtures/parity/lumina/", import.meta.url);
 const fixtures = readdirSync(dir).filter((f) => f.endsWith(".json")).map((f) => JSON.parse(readFileSync(new URL(f, dir), "utf8")));
@@ -33,3 +33,28 @@ for (const fx of fixtures) {
     assert.equal(r.value.round(3).toString(), String(fx.expected_lumina["gravity.og"]));
   });
 }
+
+// Lumina's remaining beer statistics, as parity references (lumina-parity.ts).
+// Lumina chains its displayed (rounded) OG and FG, so the parity inputs do too.
+for (const fx of fixtures) {
+  const e = fx.expected_lumina;
+  const og = { value: String(e["gravity.og"]), unit: "SG" };
+  test(`${fx.fixture}: Morey SRM, FG, ABV, Tinseth IBU match Lumina (parity references)`, () => {
+    const mcu = maltColorUnits("beer", fx.input.fermentables.map((f) => ({ mass: f.mass, color: f.color })), fx.input.batch_volume).value;
+    closeRel(srmMorey("beer", mcu, { parity: true }).value, e["color.srm.morey"], "SRM");
+    const fg = finalGravityLumina("beer", og, { value: fx.input.attenuation, unit: "fraction" }, { parity: true });
+    assert.equal(fg.value.toString(), String(e["fermentation.fg"]));
+    assert.equal(abvLumina("beer", og, { value: fg.value.toString(), unit: "SG" }, { parity: true }).value.toString(), String(e["fermentation.abv"]));
+    const hops = fx.input.hops.map((h) => ({ mass: h.mass, alpha_acid: { value: h.alpha_acid, unit: "fraction" }, boil_time: { value: Decimal.parse(h.boil_time_min).toString(), unit: "min" } }));
+    assert.equal(ibuTinsethLumina("beer", hops, og, fx.input.batch_volume, { parity: true }).value.toString(), String(e["hops.ibu.tinseth"]));
+  });
+}
+
+test("parity references stay off unless asked for, and never default an input", () => {
+  for (const r of [srmMorey("beer", Decimal.parse("10")), finalGravityLumina("beer", undefined, undefined), abvLumina("beer", undefined, undefined), ibuTinsethLumina("beer", [], undefined, undefined)]) {
+    assert.deepEqual([r.status, r.reason], ["unavailable", "not-enabled"]);
+  }
+  // Lumina defaults attenuation to 0.75; Carboy reports it missing.
+  assert.deepEqual(finalGravityLumina("beer", { value: "1.05", unit: "SG" }, undefined, { parity: true }).details, ["attenuation"]);
+  assert.equal(srmMorey("mead", Decimal.parse("10"), { parity: true }).reason, "unsupported-beverage");
+});

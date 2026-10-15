@@ -39,6 +39,14 @@ holds these so far:
 | `sulfite.so2-from-metabisulfite` v1 | **Enabled** (2026-10-14) | **Primary checked**: CIAAW atomic weights; factor 0.5763; SO₂ *released*, not resulting free SO₂; wine, cider, mead |
 | `nutrient.yan-from-dap` v1 | **Enabled** (2026-10-14) | **Primary checked**: CIAAW atomic weights; factor 0.2121; YAN *added*, no requirement calculated; wine, cider, mead |
 | `gravity.og.points-lumina` v1 | Parity reference | Opt-in only; matches Lumina on Verdant Reverie (points within 1e-9 relative; OG 1.064 at 3 places) |
+| `color.srm.morey` v1 | Parity reference (2026-10-14) | 1.4922 × MCU^0.6859 with deterministic decimal power; source web-only, so not user-facing; matches Lumina on both owner recipes within 1e-9 relative |
+| `fermentation.fg.lumina` v1 | Parity reference (2026-10-14) | Lumina's SG-point form from Lumina's displayed OG, rounded to 3 places; no default attenuation (Lumina uses 0.75). Enabling an FG prediction is FQ6 |
+| `fermentation.abv.lumina` v1 | Parity reference (2026-10-14) | (OG − FG) × 131.25 at Lumina's rounding (FQ4) |
+| `bitterness.ibu.tinseth-lumina` v1 | Parity reference (2026-10-14) | Tinseth with Lumina's OG (FQ3) and Lumina's approximate g/oz and L/gal constants; deterministic decimal exp and power; total at 1 place |
+
+All four 2026-10-14 parity references match Lumina's own values on both of
+the owner's recipes, in TypeScript and through the Python runner
+([fixtures/parity/README.md](../../fixtures/parity/README.md)).
 
 **SG ↔ °P (2026-10-13).** The source is the tabulated data, not a fitted
 equation: Plato's density measurements (Kaiserliche Normal-Eichungs-
@@ -249,6 +257,7 @@ Decided 2026-10-12 (owner accepted the recommendations):
 | FQ1 | Is a reviewed secondary source enough to ship a formula? | Yes, when it is published and reviewed (such as Holle, MBAA 2003), the formula is labeled with both citations, and the primary is listed "to verify". Web-only sources never are |
 | FQ2 | OG method | Both, as named formulas: the mass method is the default for recipes created in Carboy; the points method for Lumina and BeerXML parity |
 | FQ3 | Tinseth gravity | Follow the published model once a citable copy is read; Lumina's OG-based variant is kept only as a parity variant |
+| FQ6 (open, 2026-10-14) | May Carboy predict FG from a culture's stated apparent attenuation? Holle (H9.4) defines apparent degree of fermentation in °P, ADF = (OE − AE) ÷ OE, as a measured result; using a yeast's catalogue attenuation as the recipe's ADF is a prediction that depends on wort fermentability, mash, and pitching | Recommendation: **yes, labelled as an estimate**, in Holle's °P form (AE = OE × (1 − ADF), converted with `gravity.sg-plato`), with the assumption shown and the culture's attenuation required (never defaulted). Until decided, only Lumina's form exists, as a parity reference |
 | FQ5 (open, 2026-10-14) | May molecular SO₂ be offered with the aqueous pK₁ (Goldberg & Parker 1985, temperature-dependent), clearly labelled as an approximation that ignores ethanol and ionic strength, before a wine-condition source is read? | Recommendation: **no**; keep it unavailable until the wine-condition source is read, because the approximation's error in wine is unquantified |
 | FQ4 | ABV formula | Choose one with a citable source before Phase 2; 131.25 only as a Lumina parity variant |
 
