@@ -61,7 +61,7 @@ carboy/
     architecture/  Overview, invariants, boundary, naming, ADRs, reuse baseline
     development/   Developer setup
     references/    Bibliography of cited works
-  packages/        Product code (npm workspaces): recipe-core, recipe-format
+  packages/        Product code (npm workspaces): recipe-core, recipe-format, editor-commands
   spikes/phase1/   Throwaway Phase 1 spike code (not product code)
   .github/         CI: core tests on every push; manual spike workflow
 ```
@@ -82,6 +82,7 @@ is in [`docs/architecture/OVERVIEW.md`](docs/architecture/OVERVIEW.md).
 | [BIBLIOGRAPHY.md](docs/references/BIBLIOGRAPHY.md) | Sources for formulas and brewing data |
 | [RECIPE_CORE.md](docs/architecture/RECIPE_CORE.md) | Recipe Core: numbers, units, quantities, precision policy, formulas, validation |
 | [RECIPE_FORMAT.md](docs/architecture/RECIPE_FORMAT.md) | The native file: canonical writing, verified reading, integration milestone |
+| [EDITOR_COMMANDS.md](docs/architecture/EDITOR_COMMANDS.md) | Typed edit commands: the only path that changes a recipe, and the AI proposal format |
 | [USABILITY.md](docs/architecture/USABILITY.md) | Accessibility, localization, and GUI feature plan |
 | [ADRs](docs/architecture/adr/README.md) | Architecture decision records |
 | [SETUP.md](docs/development/SETUP.md) | Developer setup |

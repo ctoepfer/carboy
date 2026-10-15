@@ -1,0 +1,29 @@
+{
+  "name": "@carboy/editor-commands",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Editor Commands: typed edit commands applied all-or-nothing to recipe content, with channel-assigned provenance, validation, recalculation, and a semantic diff. The only path that changes recipe state; also the AI proposal format. Depends only on Recipe Core; no DOM, Node, storage, network, or shell dependency.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@carboy/recipe-core": "0.0.0"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

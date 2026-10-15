@@ -166,8 +166,7 @@ export function validateContent(content: unknown, base = "/content"): ContentIss
     for (const [k, v] of Object.entries(targets)) {
       const tp = `${base}/targets/${k}`;
       if (!checkQuantity(v, tp, add)) continue;
-      const rule = TARGET_RULES[k];
-      if (rule && !rule.check(v as { value: string; unit: string })) add("invalid-target", tp, rule.message);
+      if (targetFits(k, v as { value: string; unit: string }) === false) add("invalid-target", tp, TARGET_MESSAGES[k] ?? "invalid target");
     }
   }
 
@@ -231,10 +230,26 @@ function refKey(ref: unknown): string | undefined {
   return isObject(ref) && typeof ref["catalog"] === "string" && typeof ref["item"] === "string" ? JSON.stringify([ref["catalog"], ref["item"]]) : undefined;
 }
 
-/** Targets the calculator reads. The full target list is fixed with the formula coverage table (D-006). */
-const TARGET_RULES: Readonly<Record<string, { check: (q: { value: string; unit: string }) => boolean; message: string }>> = {
-  batch_volume: { check: (q) => unitDefinition(q.unit)?.dimension === "volume" && Decimal.parse(q.value).sign() > 0, message: "batch volume is a volume greater than zero" },
-  efficiency: { check: (q) => unitDefinition(q.unit)?.dimension === "fraction", message: "efficiency is a fraction (fraction or %)" },
+/**
+ * Targets the calculator reads, with their dimension. The full target list is
+ * fixed with the formula coverage table (D-006); other names are accepted in
+ * content but not settable by commands until they have a row.
+ */
+export const TARGETS: Readonly<Record<string, { readonly dimension: "volume" | "fraction"; readonly positive: boolean }>> = {
+  batch_volume: { dimension: "volume", positive: true },
+  efficiency: { dimension: "fraction", positive: false },
+};
+
+/** Does a valid quantity suit the named target? Undefined for names without a row. */
+export function targetFits(name: string, q: { value: string; unit: string }): boolean | undefined {
+  const rule = TARGETS[name];
+  if (!rule) return undefined;
+  return unitDefinition(q.unit)?.dimension === rule.dimension && (!rule.positive || Decimal.parse(q.value).sign() > 0);
+}
+
+const TARGET_MESSAGES: Readonly<Record<string, string>> = {
+  batch_volume: "batch volume is a volume greater than zero",
+  efficiency: "efficiency is a fraction (fraction or %)",
 };
 
 /** A quantity as stored: { value, unit } strings that pass validateQuantity. Reports and returns false otherwise. */

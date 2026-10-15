@@ -1,6 +1,9 @@
 # Editor Command Contract v0
 
-- Status: **Draft v0 (Phase 0). Not implemented. Nothing here is frozen.**
+- Status: **Draft v0. Core commands implemented in Phase 2** in
+  [`packages/editor-commands/`](../../packages/editor-commands/)
+  (`@carboy/editor-commands`, 2026-10-14); see "Implementation status"
+  below. Nothing here is frozen.
 - Date: 2026-10-11
 - Decision owner: Charles Toepfer
 - Freezes: Phase 2 (core commands), Phase 4 (editing and import)
@@ -230,7 +233,7 @@ sees every changed value.
 
 | `op` | Arguments | Expands to |
 |---|---|---|
-| `scale_recipe` | `batch_volume` (quantity), *`scope`* | `set_target` for the batch volume and `set_addition_amount` for each scaled addition. Which additions scale, and how (linear for grain; not for cultures, which Lumina also skips with a warning; hop utilization and boil-off are not linear), is the Phase 2 scaling policy: v1 in [RECIPE_CORE §7a](RECIPE_CORE.md#7a-scaling-policy-v1-2026-10-14) (`scaleRecipe`). The command applier arrives in Phase 4 |
+| `scale_recipe` | `batch_volume` (quantity), *`scope`* | `set_target` for the batch volume and `set_addition_amount` for each scaled addition. Which additions scale, and how (linear for grain; not for cultures, which Lumina also skips with a warning; hop utilization and boil-off are not linear), is the Phase 2 scaling policy: v1 in [RECIPE_CORE §7a](RECIPE_CORE.md#7a-scaling-policy-v1-2026-10-14) (`scaleRecipe`) |
 | `replace_ingredient` | `ingredient`, `with` (an `add_ingredient` body) | `add_ingredient`, one `move`-equivalent per addition re-pointed to the new ingredient, `remove_ingredient`. Amounts are kept; properties are not copied (the new ingredient has its own) |
 
 A stored proposal keeps the commands as submitted. The expansion is
@@ -446,6 +449,49 @@ validates, and only then commits, which matches §3. What changes:
 Lumina side effects with no counterpart: `recipe["status"] = "In
 Conversation"` (workflow state, not recipe content) and
 `meta["revision"] += 1` (replaced by the revision envelope).
+
+## Implementation status (Phase 2, 2026-10-14)
+
+`applyCommands(base, commands, { channel, schema_version? })` and
+`emptyTemplate(beverage, name)`. Tests:
+`packages/editor-commands/test/apply.test.mjs`.
+
+| Part | State |
+|---|---|
+| §2 encoding, §3 application, §4 provenance, §6 result, §7 diff | Implemented. Channels `editor`, `ai_proposal`, `ai_created`; the batch channel comes with batches (Phase 7) |
+| §5.1 recipe, §5.2 targets and statistics, §5.3 ingredients, §5.4 additions, §5.5 stages and steps, §5.6 flows | Implemented, except `set_style` and `set_style_text` (below) |
+| §5.8 macros | `scale_recipe` (policy v1; `scope` not defined yet) and `replace_ingredient` |
+| §5.7 equipment and water, §5.9 presentation, `set_style`, `set_style_text` | Refused with `unsupported-op`: equipment and water field lists are Phase 3; presentation waits for RECIPE_SCHEMA Q4 (AI channels still get `op-not-permitted`); style codes need style data (D-020); the schema has no free-text style member |
+| §8 proposals, §9 rebasing | Not yet: the proposal document and stale-base handling come with the review queue (Phase 4) and the Bridge (Phase 13) |
+
+Choices the draft left open, made here and open to review:
+
+1. **Schema 0.2 ops:** `set_ingredient_group_ref`, `clear_ingredient_group_ref`,
+   `set_ingredient_alternatives` (whole list, absolute; each alternative
+   gets the channel's origin). They need a list targeting 0.2 or later.
+2. **`measured` values:** `set_stated_statistic` with `layer: "measured"` is
+   `op-not-permitted` on the editor and AI channels. The measured layer
+   holds only origin `measured` (RECIPE_CORE §7), and measurements come from
+   batch readings (Phase 7).
+3. **Stage and step parameters:** until the stage-kind table has parameter
+   rows, any lowercase identifier with a valid quantity is accepted, as in
+   content validation. Needs confirmation when rows arrive.
+4. **Targets:** `set_target` accepts the names Recipe Core reads
+   (`batch_volume`, `efficiency`; `TARGETS`); others wait for the target list
+   (D-006).
+5. **Macros expand against the working copy at their place in the list**, so
+   a list may set a value and then scale it.
+6. **`replace_ingredient`** expands to `add_ingredient`, then
+   `remove_addition` + `add_addition` per addition with the same ID, amount,
+   timing, and place in its stage, then `remove_ingredient`. The re-added
+   amounts carry the channel's origin.
+7. **Stage order:** `add_stage`, `move_stage`, and `add_flow` are
+   `topology-invalid` if a flow would run from a later stage to an earlier
+   one in display order. Additions stay grouped in stage order.
+8. **Result validation** errors are reported as `validation-failed` with the
+   content issue code in `details.issue`; beverage advisories are `info`
+   diagnostics; scaling adds `not-scaled` (warning) and
+   `hop-utilization-not-modelled` (info).
 
 ## Decisions
 

@@ -15,7 +15,7 @@ export { STORED_LAYERS, displayedStatistic, isCalculatedCurrent, toCalculatedSta
 export type { CalculatedStatistic, DisplayedStatistic, Layer, StatisticEntry, StatisticIssue, StatisticValue, StoredLayer } from "./statistics.js";
 export { POINT_BASIS, STAGE_KINDS, stageKind } from "./stage-kinds.js";
 export type { StageKind } from "./stage-kinds.js";
-export { BEVERAGES, FLOW_KINDS, INGREDIENT_KINDS, TIMING_BASES, validateContent } from "./content.js";
+export { BEVERAGES, FLOW_KINDS, INGREDIENT_KINDS, TARGETS, TIMING_BASES, targetFits, validateContent } from "./content.js";
 export type { ContentIssue } from "./content.js";
 export { SCHEMA_VERSION, checkSchemaVersion, requiredSchemaVersion } from "./schema.js";
 export type { SchemaIssue, SchemaUse } from "./schema.js";
