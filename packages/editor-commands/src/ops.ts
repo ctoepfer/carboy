@@ -185,8 +185,15 @@ export const OPS: Readonly<Record<string, OpSpec>> = {
   set_name: { required: ["name"], run: (x, a) => void (x.c["name"] = stringArg(a["name"], "name", { nonEmpty: true })) },
   set_beverage_type: { required: ["type"], run: (x, a) => void (objAt(x.c, "beverage")["type"] = oneOf(a["type"], BEVERAGES, "type")) },
   set_style: unsupported("style codes need the style system's data, which is not in Carboy yet (D-020)"),
-  set_style_text: unsupported("the schema has no free-text style member yet"),
-  clear_style: { required: [], run: (x) => void delete objAt(x.c, "beverage")["style"] },
+  set_style_text: { required: ["text"], minor: 2, run: (x, a) => void (objAt(x.c, "beverage")["style_text"] = stringArg(a["text"], "text", { nonEmpty: true })) },
+  clear_style: {
+    required: [],
+    run: (x) => {
+      const bev = objAt(x.c, "beverage");
+      delete bev["style"];
+      delete bev["style_text"];
+    },
+  },
   add_note: {
     required: ["id", "text"],
     optional: ["position"],

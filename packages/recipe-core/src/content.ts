@@ -35,6 +35,9 @@ export function validateContent(content: unknown, base = "/content"): ContentIss
   if (!isObject(bev) || !(BEVERAGES as readonly unknown[]).includes(bev["type"])) {
     add("unknown-beverage", `${base}/beverage/type`, `beverage.type must be one of ${BEVERAGES.join(", ")}; there is no fallback to beer`);
   }
+  if (isObject(bev) && bev["style_text"] !== undefined && (typeof bev["style_text"] !== "string" || bev["style_text"].trim() === "")) {
+    add("invalid-content", `${base}/beverage/style_text`, "style_text is a non-empty string, never interpreted");
+  }
 
   // Identifiers: valid UUIDs, unique across the whole document.
   const seen = new Map<string, string>();

@@ -82,6 +82,8 @@ test("contract errors: typed, never coerced, unknown members rejected", () => {
   assert.equal(one({ op: "set_target", name: "batch_volume", quantity: q("20", "kg") }), "unit-dimension-mismatch");
   assert.equal(one({ op: "set_target", name: "colour_target", quantity: q("20", "L") }), "invalid-argument");
   assert.equal(one({ op: "set_style", system: "bjcp-2021", code: "18B" }), "unsupported-op");
+  assert.equal(one({ op: "set_style_text", text: "Schwarzbier" }, { ...editor, schema_version: "0.1" }), "unsupported-version");
+  assert.deepEqual(applyCommands(base, [{ op: "set_style_text", text: "Schwarzbier" }], editor).content.beverage, { type: "beer", style_text: "Schwarzbier" });
   assert.equal(one({ op: "set_node_layout", stage: U(20), x: "1", y: "2" }, ai), "op-not-permitted");
 });
 

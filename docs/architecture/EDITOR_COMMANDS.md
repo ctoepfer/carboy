@@ -459,14 +459,14 @@ Conversation"` (workflow state, not recipe content) and
 | Part | State |
 |---|---|
 | §2 encoding, §3 application, §4 provenance, §6 result, §7 diff | Implemented. Channels `editor`, `ai_proposal`, `ai_created`; the batch channel comes with batches (Phase 7) |
-| §5.1 recipe, §5.2 targets and statistics, §5.3 ingredients, §5.4 additions, §5.5 stages and steps, §5.6 flows | Implemented, except `set_style` and `set_style_text` (below) |
+| §5.1 recipe, §5.2 targets and statistics, §5.3 ingredients, §5.4 additions, §5.5 stages and steps, §5.6 flows | Implemented, except `set_style` (below). `set_style_text` writes `beverage.style_text` (schema 0.2) |
 | §5.8 macros | `scale_recipe` (policy v1; `scope` not defined yet) and `replace_ingredient` |
-| §5.7 equipment and water, §5.9 presentation, `set_style`, `set_style_text` | Refused with `unsupported-op`: equipment and water field lists are Phase 3; presentation waits for RECIPE_SCHEMA Q4 (AI channels still get `op-not-permitted`); style codes need style data (D-020); the schema has no free-text style member |
+| §5.7 equipment and water, §5.9 presentation, `set_style` | Refused with `unsupported-op`: equipment and water field lists are Phase 3; presentation waits for RECIPE_SCHEMA Q4 (AI channels still get `op-not-permitted`); style codes need style data (D-020) |
 | §8 proposals, §9 rebasing | Not yet: the proposal document and stale-base handling come with the review queue (Phase 4) and the Bridge (Phase 13) |
 
 Choices the draft left open, made here and open to review:
 
-1. **Schema 0.2 ops:** `set_ingredient_group_ref`, `clear_ingredient_group_ref`,
+1. **Schema 0.2 ops:** `set_style_text`, `set_ingredient_group_ref`, `clear_ingredient_group_ref`,
    `set_ingredient_alternatives` (whole list, absolute; each alternative
    gets the channel's origin). They need a list targeting 0.2 or later.
 2. **`measured` values:** `set_stated_statistic` with `layer: "measured"` is

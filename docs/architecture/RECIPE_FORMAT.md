@@ -53,6 +53,45 @@ gives the lowest version that can express a recipe and
 `checkSchemaVersion(content, "0.1")` lists what prevents writing it at 0.1
 (D-022 "write at X"; nothing is converted).
 
+## Lumina mapping v0 (2026-10-14)
+
+`fromLumina(dict, { newId })` maps a Lumina recipe dict (as Lumina's BeerXML
+importer produces it) to Carboy content plus a **report**; `toLumina(content)`
+maps back. Rules:
+
+- Typed quantities are authoritative; Lumina's legacy imperial floats
+  (`weight_lb`, `weight_oz`, `batch_size_gal`, `boil_size_gal`, …) and the
+  derived members of its quantities are recomputed on export.
+- Lumina's quantity `status` and source become provenance: `ambiguous` →
+  `confidence: "ambiguous"`, `inferred` → `estimated`; `source_field` and
+  `original_display` are kept; source **file names are not stored**.
+- Placement follows Lumina's own `use` (Mash, Boil, Primary/Secondary →
+  fermentation, Bottle → packaging; water salts by phase). Only Boil times
+  become timing (`before_end`, or `at_end` for 0); no timing is invented.
+  Fermentables go to the mash unless the method is `extract`.
+- Lumina-only fields of an item (`ppg`, per-malt `efficiency`, yeast
+  `attenuation` and `form`, misc `use`, notes, alternative readings, …) are
+  kept in the ingredient's `unmapped`, each as the JSON text of the original
+  value, so they round-trip exactly and are never calculated from.
+- Statistics: stated layers only, with BeerXML 1.0's implicit units (OG/FG
+  SG, ABV %, IBU, colour SRM); Lumina's `batch_volume`/`boil_volume`
+  statistics duplicate the targets and are recomputed. Calculated values are
+  never imported into content.
+- Lumina's style text becomes `beverage.style_text` (schema 0.2).
+- Everything without a Carboy home is listed in the report with a reason
+  (`not-mapped`, `derived`, `file-name-not-stored`, `workflow-state`,
+  `import-metadata`). Unsupported beverages (`soda`, `gruit`, `wash`,
+  `other`) are refused, not mapped to beer.
+
+**Round-trip fixtures** (`test/lumina.test.mjs`) on the owner's two real
+recipes as Lumina's importer produced them
+([fixtures/parity/lumina-dicts/](../../fixtures/parity/README.md)): the
+mapped content validates at schema 0.2 and saves and reopens editable;
+Carboy's MCU on it equals Lumina's own (within 1e-9 relative); Lumina →
+Carboy → Lumina reproduces every field the report doesn't list (floats
+within 1e-9 relative, derived values recomputed); Carboy → Lumina → Carboy
+is byte-identical.
+
 ## Integration milestone (2026-10-14)
 
 `packages/recipe-format/test/e2e.test.mjs` takes a complete recipe (the

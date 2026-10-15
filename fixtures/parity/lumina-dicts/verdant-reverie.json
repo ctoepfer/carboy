@@ -1,0 +1,709 @@
+{
+ "fixture": "lumina-dict-verdant-reverie",
+ "purpose": "Lumina's own recipe dict for the owner's recipe: input for the Lumina <-> Carboy mapping round-trip tests (recipe-format).",
+ "provenance": {
+  "recipe": "The owner's recipe; cleared for publication as a fixture (owner, 2026-10-11)",
+  "source_file": "Lumina tests/fixtures/recipe-formats/verdant-reverie/01-original-beerxml.xml",
+  "source_sha256": "1c004c13c4e9f6aafa4d8fd1ba472680f99fabbe12d81516bbb131d512e14d78",
+  "producer": "Lumina brains/recipes beerxml_import.parse_beerxml(...).recipe, run read-only (no bytecode) by tools/parity/lumina_dicts.py",
+  "lumina_revision": "632da60dd963ba006d0f0cd22433ef5898490622",
+  "normalization": "source_import.imported_at removed (time of the run); nothing else changed"
+ },
+ "lumina": {
+  "name": "Verdant Reverie Saison",
+  "method": "all_grain",
+  "style": "Saison",
+  "batch_size_gal": 5.500009295686178,
+  "status": "In Conversation",
+  "fermentables": [
+   {
+    "name": "Belgian Pilsner Malt",
+    "weight_lb": 9.500005478487216,
+    "ppg": 36.8,
+    "color_lovibond": 1.8,
+    "efficiency": 0.75,
+    "quantity": {
+     "value": "4.30913",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "4.30913",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT",
+     "original_display": "9.50 lb",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "01-original-beerxml.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   },
+   {
+    "name": "White Wheat Malt",
+    "weight_lb": 1.5000009810570667,
+    "ppg": 38.64,
+    "color_lovibond": 2.4,
+    "efficiency": 0.75,
+    "quantity": {
+     "value": "0.680389",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "0.680389",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT",
+     "original_display": "1.50 lb",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "01-original-beerxml.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   },
+   {
+    "name": "Vienna Malt",
+    "weight_lb": 0.7499993882172225,
+    "ppg": 35.88,
+    "color_lovibond": 3.5,
+    "efficiency": 0.75,
+    "quantity": {
+     "value": "0.340194",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "0.340194",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT",
+     "original_display": "0.75 lb",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "01-original-beerxml.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   },
+   {
+    "name": "Acidulated Malt",
+    "weight_lb": 0.24999979607240747,
+    "ppg": 34.5,
+    "color_lovibond": 1.8,
+    "efficiency": 0.75,
+    "quantity": {
+     "value": "0.113398",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "0.113398",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT",
+     "original_display": "0.25 lb",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "01-original-beerxml.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   },
+   {
+    "name": "Cane Sugar",
+    "weight_lb": 0.49999959214481493,
+    "ppg": 46.0,
+    "color_lovibond": 0.0,
+    "efficiency": 0.75,
+    "quantity": {
+     "value": "0.226796",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "0.226796",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT",
+     "original_display": "0.50 lb",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "01-original-beerxml.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   }
+  ],
+  "hops": [
+   {
+    "name": "Styrian Goldings",
+    "weight_oz": 0.9999991842896299,
+    "alpha_acid": 0.05,
+    "boil_time_min": 60.0,
+    "quantity": {
+     "value": "0.0283495",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "0.0283495",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT",
+     "original_display": "1.00 oz",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "01-original-beerxml.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   },
+   {
+    "name": "Saaz",
+    "weight_oz": 0.9999991842896299,
+    "alpha_acid": 0.035,
+    "boil_time_min": 10.0,
+    "quantity": {
+     "value": "0.0283495",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "0.0283495",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT",
+     "original_display": "1.00 oz",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "01-original-beerxml.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   }
+  ],
+  "yeast": {
+   "name": "Belle Saison",
+   "attenuation": 0.9,
+   "form": "Dry",
+   "quantity": {
+    "value": "0.011",
+    "unit": "kg",
+    "dimension": "mass",
+    "normalized_value": "0.011",
+    "normalized_unit": "kg",
+    "status": "explicit",
+    "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+    "original_display": "11 g",
+    "provenance": {
+     "origin": "imported",
+     "source_filename": null,
+     "source_format": null,
+     "adapter_profile": null,
+     "resolution": null
+    }
+   },
+   "notes": ""
+  },
+  "process": {
+   "boil_time_min": 60.0,
+   "mash_temp_f": 147.9,
+   "fermentation_temp_f": 68.0,
+   "quantities": {
+    "batch_size": {
+     "value": "20.8198",
+     "unit": "L",
+     "dimension": "volume",
+     "normalized_value": "20.8198",
+     "normalized_unit": "L",
+     "status": "explicit",
+     "source_field": "BATCH_SIZE",
+     "original_display": null,
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "01-original-beerxml.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    },
+    "boil_size": {
+     "value": "25.5516",
+     "unit": "L",
+     "dimension": "volume",
+     "normalized_value": "25.5516",
+     "normalized_unit": "L",
+     "status": "explicit",
+     "source_field": "BOIL_SIZE",
+     "original_display": null,
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "01-original-beerxml.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    },
+    "boil_time": {
+     "value": "60.0",
+     "unit": "min",
+     "dimension": "duration",
+     "normalized_value": "3600.0",
+     "normalized_unit": "sec",
+     "status": "explicit",
+     "source_field": "BOIL_TIME",
+     "original_display": null,
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "01-original-beerxml.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   },
+   "boil_size_gal": 6.750018613034465,
+   "mash_steps": [
+    {
+     "name": "Saccharification",
+     "type": "infusion",
+     "step_temp_f": 147.9,
+     "step_time_min": 60
+    },
+    {
+     "name": "Mash Out",
+     "type": "temperature",
+     "step_temp_f": 168.1,
+     "step_time_min": 10
+    }
+   ],
+   "mash_time_min": 60,
+   "fermentation_steps": [
+    {
+     "stage": "primary",
+     "temp_f": 68.0,
+     "days": 14,
+     "notes": ""
+    }
+   ]
+  },
+  "notes": [
+   "Inspired by Brew Dr. Clear Mind kombucha: a dry, peppery Saison with a restrained infusion of rosemary, peppermint, sage, and dandelion root. The herbs should complement the yeast rather than make the beer taste medicinal. HERB ADDITIONS AT FLAMEOUT: 0.08 oz (2.27 g) dried rosemary; 0.12 oz (3.40 g) dried peppermint; 0.04 oz (1.13 g) dried sage; 0.25 oz (7.09 g) roasted dandelion root. Turn off heat, add herbs in a fine mesh bag, steep 5 minutes, then remove and chill promptly. BeerXML compatibility note: the herb entries use USE=Boil and TIME=0 because FlameOut is not valid in strict BeerXML 1.0 and may be dropped by some importers. If the software displays the herbs as zero-minute boil additions, that is intentional. If a MISC quantity is not displayed after import, use the gram or ounce amounts in these notes. Ferment at 68 F for 24 hours, then allow to free-rise by roughly 2 F per day to 78 F. Hold until final gravity is stable. Carbonate to approximately 2.8 volumes CO2. Use culinary-quality dried herbs. Peppermint means dried peppermint leaf, not extract or oil."
+  ],
+  "botanicals": [
+   {
+    "name": "Dried Rosemary",
+    "use": "Boil",
+    "quantity": {
+     "value": "0.00226796",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "0.00226796",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+     "original_display": "0.08 oz",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "01-original-beerxml.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    },
+    "weight_oz": 0.0799999347431704
+   },
+   {
+    "name": "Dried Peppermint Leaf",
+    "use": "Boil",
+    "quantity": {
+     "value": "0.00340194",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "0.00340194",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+     "original_display": "0.12 oz",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "01-original-beerxml.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    },
+    "weight_oz": 0.11999990211475559
+   },
+   {
+    "name": "Dried Sage",
+    "use": "Boil",
+    "quantity": {
+     "value": "0.00113398",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "0.00113398",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+     "original_display": "0.04 oz",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "01-original-beerxml.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    },
+    "weight_oz": 0.0399999673715852
+   },
+   {
+    "name": "Roasted Dandelion Root",
+    "use": "Boil",
+    "quantity": {
+     "value": "0.00708738",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "0.00708738",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+     "original_display": "0.25 oz",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "01-original-beerxml.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    },
+    "weight_oz": 0.24999997244221722
+   }
+  ],
+  "water": {
+   "mash_volume": {
+    "value": "17.9807",
+    "unit": "L",
+    "dimension": "volume",
+    "normalized_value": "17.9807",
+    "normalized_unit": "L",
+    "status": "explicit",
+    "source_field": "MASH_STEP/INFUSE_AMOUNT (summed)",
+    "original_display": null,
+    "provenance": {
+     "origin": "imported",
+     "source_filename": null,
+     "source_format": "beerxml",
+     "adapter_profile": null,
+     "resolution": null
+    }
+   }
+  },
+  "statistics": {
+   "og": {
+    "declared": {
+     "value": 1.057,
+     "unit": null,
+     "source": "beerxml"
+    }
+   },
+   "fg": {
+    "declared": {
+     "value": 1.006,
+     "unit": null,
+     "source": "beerxml"
+    }
+   },
+   "abv": {
+    "declared": {
+     "value": 6.7,
+     "unit": null,
+     "source": "beerxml"
+    }
+   },
+   "ibu": {
+    "imported_estimate": {
+     "value": 27.5,
+     "unit": null,
+     "source": "beerxml"
+    }
+   },
+   "color": {
+    "imported_estimate": {
+     "value": 4.5,
+     "unit": null,
+     "source": "beerxml"
+    }
+   },
+   "batch_volume": {
+    "declared": {
+     "value": 5.500009295686178,
+     "unit": "gal",
+     "source": "beerxml"
+    }
+   },
+   "boil_volume": {
+    "declared": {
+     "value": 6.750018613034465,
+     "unit": "gal",
+     "source": "beerxml"
+    }
+   }
+  },
+  "beverage_type": "all_grain_beer",
+  "source_import": {
+   "source_format": "beerxml",
+   "source_filename": "01-original-beerxml.xml",
+   "raw_declaration": {
+    "batch_size_l": 20.8198,
+    "boil_size_l": 25.5516,
+    "boil_time_min": 60.0,
+    "efficiency_pct": 75.0,
+    "og": 1.057,
+    "fg": 1.006,
+    "est_og": null,
+    "est_fg": null,
+    "ibu": 27.5,
+    "abv": 6.7,
+    "est_abv": null,
+    "color_srm": 4.5
+   },
+   "quantities": {
+    "fermentables": [
+     {
+      "value": "4.30913",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "4.30913",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT",
+      "original_display": "9.50 lb",
+      "provenance": {
+       "origin": null,
+       "source_filename": null,
+       "source_format": null,
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.680389",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.680389",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT",
+      "original_display": "1.50 lb",
+      "provenance": {
+       "origin": null,
+       "source_filename": null,
+       "source_format": null,
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.340194",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.340194",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT",
+      "original_display": "0.75 lb",
+      "provenance": {
+       "origin": null,
+       "source_filename": null,
+       "source_format": null,
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.113398",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.113398",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT",
+      "original_display": "0.25 lb",
+      "provenance": {
+       "origin": null,
+       "source_filename": null,
+       "source_format": null,
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.226796",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.226796",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT",
+      "original_display": "0.50 lb",
+      "provenance": {
+       "origin": null,
+       "source_filename": null,
+       "source_format": null,
+       "adapter_profile": null,
+       "resolution": null
+      }
+     }
+    ],
+    "hops": [
+     {
+      "value": "0.0283495",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.0283495",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT",
+      "original_display": "1.00 oz",
+      "provenance": {
+       "origin": null,
+       "source_filename": null,
+       "source_format": null,
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.0283495",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.0283495",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT",
+      "original_display": "1.00 oz",
+      "provenance": {
+       "origin": null,
+       "source_filename": null,
+       "source_format": null,
+       "adapter_profile": null,
+       "resolution": null
+      }
+     }
+    ],
+    "miscs": [
+     {
+      "value": "0.00226796",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.00226796",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "0.08 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.00340194",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.00340194",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "0.12 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.00113398",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.00113398",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "0.04 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.00708738",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.00708738",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "0.25 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     }
+    ]
+   },
+   "excluded_hop_additions": [],
+   "other_miscs": [],
+   "yeast_detail": {
+    "form": "Dry",
+    "laboratory": "Lallemand",
+    "product_id": "Belle Saison",
+    "notes": "",
+    "quantity": {
+     "value": "0.011",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "0.011",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+     "original_display": "11 g",
+     "provenance": {
+      "origin": null,
+      "source_filename": null,
+      "source_format": null,
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   },
+   "water_agent_source_phases": {},
+   "unrecognized_extensions": {
+    "TASTE_NOTES": "<TASTE_NOTES>Dry and highly carbonated, with peppery Saison fermentation, soft grain, floral-spicy hops, cooling mint, and subtle savory woodland notes.</TASTE_NOTES>\n    ",
+    "OG": "<OG>1.057</OG>\n    ",
+    "FG": "<FG>1.006</FG>\n    ",
+    "ABV": "<ABV>6.7</ABV>\n    ",
+    "CARBONATION": "<CARBONATION>2.8</CARBONATION>\n    ",
+    "FERMENTATION_STAGES": "<FERMENTATION_STAGES>1</FERMENTATION_STAGES>\n    ",
+    "PRIMARY_AGE": "<PRIMARY_AGE>14</PRIMARY_AGE>\n    ",
+    "PRIMARY_TEMP": "<PRIMARY_TEMP>20.0</PRIMARY_TEMP>\n    "
+   },
+   "warnings": []
+  },
+  "additions": []
+ }
+}

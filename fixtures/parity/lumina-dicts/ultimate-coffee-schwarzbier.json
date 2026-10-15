@@ -1,0 +1,1289 @@
+{
+ "fixture": "lumina-dict-ultimate-coffee-schwarzbier",
+ "purpose": "Lumina's own recipe dict for the owner's recipe: input for the Lumina <-> Carboy mapping round-trip tests (recipe-format).",
+ "provenance": {
+  "recipe": "Real Grainfather export of the owner's recipe; cleared for publication as a fixture (owner, 2026-10-11)",
+  "source_file": "Lumina tests/fixtures/recipe-formats/Grainfather_Ultimate_Coffee_Schwarzbier_Final.xml",
+  "source_sha256": "f906dc504a6a515d4f4f53aaaa347263f5bd29fcf7f555d2e6434f20d9daebff",
+  "producer": "Lumina brains/recipes beerxml_import.parse_beerxml(...).recipe, run read-only (no bytecode) by tools/parity/lumina_dicts.py",
+  "lumina_revision": "632da60dd963ba006d0f0cd22433ef5898490622",
+  "normalization": "source_import.imported_at removed (time of the run); nothing else changed"
+ },
+ "lumina": {
+  "name": "Ultimate Coffee Schwarzbier",
+  "method": "all_grain",
+  "style": "Schwarzbier",
+  "batch_size_gal": 6.079919785022786,
+  "status": "In Conversation",
+  "fermentables": [
+   {
+    "name": "German Pilsner Malt",
+    "weight_lb": 6.690000098546631,
+    "ppg": 37.26,
+    "color_lovibond": 1.8,
+    "efficiency": 0.8,
+    "quantity": {
+     "value": "3.034533",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "3.034533",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT",
+     "original_display": null,
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "Grainfather_Ultimate_Coffee_Schwarzbier_Final.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   },
+   {
+    "name": "Weyermann Munich I",
+    "weight_lb": 2.764596767798365,
+    "ppg": 36.8,
+    "color_lovibond": 7.0,
+    "efficiency": 0.8,
+    "quantity": {
+     "value": "1.254",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "1.254",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT",
+     "original_display": null,
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "Grainfather_Ultimate_Coffee_Schwarzbier_Final.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   },
+   {
+    "name": "Vienna Malt",
+    "weight_lb": 0.8289381058151397,
+    "ppg": 36.8,
+    "color_lovibond": 3.5,
+    "efficiency": 0.8,
+    "quantity": {
+     "value": "0.376",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "0.376",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT",
+     "original_display": null,
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "Grainfather_Ultimate_Coffee_Schwarzbier_Final.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   },
+   {
+    "name": "Weyermann Carafa Special II",
+    "weight_lb": 0.6499999107127838,
+    "ppg": 32.2,
+    "color_lovibond": 425.0,
+    "efficiency": 0.8,
+    "quantity": {
+     "value": "0.294835",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "0.294835",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT",
+     "original_display": null,
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "Grainfather_Ultimate_Coffee_Schwarzbier_Final.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   },
+   {
+    "name": "Weyermann Caramunich I",
+    "weight_lb": 0.27557782773109696,
+    "ppg": 34.04,
+    "color_lovibond": 38.0,
+    "efficiency": 0.8,
+    "quantity": {
+     "value": "0.125",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "0.125",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT",
+     "original_display": null,
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "Grainfather_Ultimate_Coffee_Schwarzbier_Final.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   }
+  ],
+  "hops": [
+   {
+    "name": "Magnum",
+    "weight_oz": 0.7499999878745756,
+    "alpha_acid": 0.12,
+    "boil_time_min": 60.0,
+    "quantity": {
+     "value": "0.021262142",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "0.021262142",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT",
+     "original_display": null,
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "Grainfather_Ultimate_Coffee_Schwarzbier_Final.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   },
+   {
+    "name": "Hallertau Mittelfrueh",
+    "weight_oz": 0.5996573531428671,
+    "alpha_acid": 0.04,
+    "boil_time_min": 10.0,
+    "quantity": {
+     "value": "0.017",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "0.017",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT",
+     "original_display": null,
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "Grainfather_Ultimate_Coffee_Schwarzbier_Final.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   }
+  ],
+  "yeast": {
+   "name": "SafLager W-34/70",
+   "attenuation": 0.8,
+   "form": "Other",
+   "quantity": {
+    "value": "0.81",
+    "unit": "L",
+    "dimension": "volume",
+    "normalized_value": "0.81",
+    "normalized_unit": "L",
+    "status": "explicit",
+    "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+    "original_display": null,
+    "provenance": {
+     "origin": "imported",
+     "source_filename": null,
+     "source_format": null,
+     "adapter_profile": null,
+     "resolution": null
+    }
+   },
+   "notes": ""
+  },
+  "process": {
+   "boil_time_min": 90.0,
+   "mash_temp_f": 150.1,
+   "fermentation_temp_f": 50.0,
+   "quantities": {
+    "batch_size": {
+     "value": "23.015",
+     "unit": "L",
+     "dimension": "volume",
+     "normalized_value": "23.015",
+     "normalized_unit": "L",
+     "status": "explicit",
+     "source_field": "BATCH_SIZE",
+     "original_display": null,
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "Grainfather_Ultimate_Coffee_Schwarzbier_Final.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    },
+    "boil_size": {
+     "value": "100.094",
+     "unit": "L",
+     "dimension": "volume",
+     "normalized_value": "100.094",
+     "normalized_unit": "L",
+     "status": "explicit",
+     "source_field": "BOIL_SIZE",
+     "original_display": null,
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "Grainfather_Ultimate_Coffee_Schwarzbier_Final.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    },
+    "boil_time": {
+     "value": "90.0",
+     "unit": "min",
+     "dimension": "duration",
+     "normalized_value": "5400.0",
+     "normalized_unit": "sec",
+     "status": "explicit",
+     "source_field": "BOIL_TIME",
+     "original_display": null,
+     "provenance": {
+      "origin": "imported",
+      "source_filename": "Grainfather_Ultimate_Coffee_Schwarzbier_Final.xml",
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   },
+   "boil_size_gal": 26.442037408736507,
+   "mash_steps": [
+    {
+     "name": "Saccharification",
+     "type": "temperature",
+     "step_temp_f": 150.1,
+     "step_time_min": 60
+    },
+    {
+     "name": "Mash Out",
+     "type": "temperature",
+     "step_temp_f": 168.1,
+     "step_time_min": 10
+    }
+   ],
+   "mash_time_min": 60,
+   "fermentation_steps": [
+    {
+     "stage": "primary",
+     "temp_f": 50.0,
+     "days": 12,
+     "notes": ""
+    },
+    {
+     "stage": "secondary",
+     "temp_f": 34.0,
+     "days": 35,
+     "notes": ""
+    }
+   ]
+  },
+  "notes": [
+   "Target: OG 1.049-1.050, FG approximately 1.009-1.010, approximately 5.2-5.3% ABV, 28 IBU, deep dark Schwarzbier color with ruby highlights, 2.45 volumes CO2.\n\nPROCESS:\n1. Start with RO water and build approximately Ca 50 ppm, Mg 5 ppm, Na 10-15 ppm, SO4 45-50 ppm, Cl 65 ppm.\n2. Put all sodium bicarbonate in the mash; do not add bicarbonate to the sparge water.\n3. Adjust mash to pH 5.30-5.33 measured at room temperature. Actual measured mash pH controls; do not force a bicarbonate number if pH is already correct.\n4. Mash Pilsner, Munich I, Vienna, and Caramunich I at 150 F for 60 minutes.\n5. Add Carafa Special II only for the final 15 minutes of the mash.\n6. Mash out at 168 F for 10 minutes.\n7. Boil 90 minutes.\n8. Add Magnum at 60 minutes remaining, adjusted for actual AA% to target approximately 25.5 IBU from Magnum and about 28 IBU total.\n9. Add Hallertau Mittelfrueh at 10 minutes remaining.\n10. Chill to 48-50 F and oxygenate.\n11. Pitch two fresh sachets of SafLager W-34/70.\n12. Ferment initially at 50 F. Around 50 percent attenuation, allow a gradual rise into the mid-50s F. Near terminal gravity, raise to approximately 62 F for cleanup.\n13. Once gravity and flavor are clean, lower temperature gradually, approximately 3-5 F per day, to 32-34 F.\n14. Lager 4-6 weeks.\n15. Add 2 oz whole medium-roast coffee beans at 35-38 F. Begin tasting around 18 hours. Plan to remove around 24 hours; extend toward 36 hours only if aroma remains under target.\n16. Prepare cold brew separately from approximately 2 oz coffee plus 8 fl oz RO water, steeped cold 14-18 hours and paper-filtered.\n17. Conduct bench trials before dosing the batch: 0, 1, 2, and 3 mL concentrate per 100 mL beer.\n18. Scale only the preferred bench-trial dose to the full batch. The correct amount may be zero if whole-bean conditioning already provides enough coffee character.\n19. Closed transfer and purge all receiving vessels aggressively with CO2. Minimize oxygen exposure after fermentation.\n20. Force carbonate to approximately 2.45 volumes CO2.\n\nCOFFEE SELECTION:\nPrefer fresh, medium-roast washed coffee from Guatemala, Colombia, or Brazil with cocoa, milk chocolate, toasted nut, caramel, and brown-sugar characteristics. Avoid very dark/oily roasts and strongly fruity natural-process coffees.\n\nDESIGN INTENT:\nThe beer should remain unmistakably Schwarzbier: clean, dry, smooth, and highly drinkable. Coffee should lift the cocoa/toast character rather than push the beer toward porter or stout.",
+   "Sodium Bicarbonate (Baking Soda): 0.001700971387500 kg (Mash) -- water agent",
+   "Calcium Chloride: 0.002381357373703 kg (Mash) -- water agent",
+   "Magnesium Sulphate (Epsom Salt): 0.00090718376141067 kg (Mash) -- water agent",
+   "Calcium Sulphate (Gypsum): 0.0008504847763225 kg (Mash) -- water agent",
+   "Calcium Chloride: 0.0019561149855418 kg (Sparge) -- water agent",
+   "Magnesium Sulphate (Epsom Salt): 0.00073708680614617 kg (Sparge) -- water agent",
+   "Calcium Sulphate (Gypsum): 0.00070873731360209 kg (Sparge) -- water agent",
+   "Whirlfloc: 1 each (Other, Boil)",
+   "Yeast Nutrient: 1 tsp (Other, Boil)",
+   "Coffee Beans - Medium Roast: 2 oz (Other, Secondary)",
+   "2 oz fresh whole medium-roast coffee beans. Add cold at 35-38 F. Begin tasting at 18 hours; plan to remove around 24 hours. Extend toward 36 hours only if aroma remains under target. Prefer washed Guatemala, Colombia, or Brazil with cocoa, nut, caramel, and brown-sugar notes.",
+   "Cold Brew Coffee Concentrate: TBD by bench trial (Other, Bottle)",
+   "Optional only. Prepare approximately 2 oz coarse-ground coffee in 8 fl oz RO water, steep refrigerated 14-18 hours, then paper-filter. Bench trial finished beer at 0, 1, 2, and 3 mL concentrate per 100 mL beer and scale the preferred dose. The correct full-batch addition may be zero."
+  ],
+  "water": {
+   "treatments": [
+    {
+     "phase": "mash",
+     "salt": "Sodium Bicarbonate (Baking Soda)",
+     "form": "Baking Soda",
+     "form_assumed": true,
+     "quantity": {
+      "value": "0.001700971387500",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.001700971387500",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "0.060 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     }
+    },
+    {
+     "phase": "mash",
+     "salt": "Calcium Chloride",
+     "form": "Calcium Chloride Dihydrate",
+     "form_assumed": true,
+     "quantity": {
+      "value": "0.002381357373703",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.002381357373703",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "0.084 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     }
+    },
+    {
+     "phase": "mash",
+     "salt": "Magnesium Sulphate (Epsom Salt)",
+     "form": "Epsom Salt",
+     "form_assumed": true,
+     "quantity": {
+      "value": "0.00090718376141067",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.00090718376141067",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "0.032 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     }
+    },
+    {
+     "phase": "mash",
+     "salt": "Calcium Sulphate (Gypsum)",
+     "form": "Gypsum",
+     "form_assumed": true,
+     "quantity": {
+      "value": "0.0008504847763225",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.0008504847763225",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "0.03 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     }
+    },
+    {
+     "phase": "sparge",
+     "salt": "Calcium Chloride",
+     "form": "Calcium Chloride Dihydrate",
+     "form_assumed": true,
+     "quantity": {
+      "value": "0.0019561149855418",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.0019561149855418",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "0.069 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     }
+    },
+    {
+     "phase": "sparge",
+     "salt": "Magnesium Sulphate (Epsom Salt)",
+     "form": "Epsom Salt",
+     "form_assumed": true,
+     "quantity": {
+      "value": "0.00073708680614617",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.00073708680614617",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "0.026 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     }
+    },
+    {
+     "phase": "sparge",
+     "salt": "Calcium Sulphate (Gypsum)",
+     "form": "Gypsum",
+     "form_assumed": true,
+     "quantity": {
+      "value": "0.00070873731360209",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.00070873731360209",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "0.025 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     }
+    }
+   ]
+  },
+  "statistics": {
+   "og": {
+    "imported_estimate": {
+     "value": 1.05,
+     "unit": null,
+     "source": "beerxml"
+    }
+   },
+   "fg": {
+    "imported_estimate": {
+     "value": 1.009,
+     "unit": null,
+     "source": "beerxml"
+    }
+   },
+   "abv": {
+    "imported_estimate": {
+     "value": 5.3,
+     "unit": null,
+     "source": "beerxml"
+    }
+   },
+   "ibu": {
+    "imported_estimate": {
+     "value": 28.0,
+     "unit": null,
+     "source": "beerxml"
+    }
+   },
+   "color": {
+    "imported_estimate": {
+     "value": 19.773739574291,
+     "unit": null,
+     "source": "beerxml"
+    }
+   },
+   "batch_volume": {
+    "declared": {
+     "value": 6.079919785022786,
+     "unit": "gal",
+     "source": "beerxml"
+    }
+   },
+   "boil_volume": {
+    "declared": {
+     "value": 26.442037408736507,
+     "unit": "gal",
+     "source": "beerxml"
+    }
+   }
+  },
+  "beverage_type": "all_grain_beer",
+  "source_import": {
+   "source_format": "beerxml",
+   "source_filename": "Grainfather_Ultimate_Coffee_Schwarzbier_Final.xml",
+   "raw_declaration": {
+    "batch_size_l": 23.015,
+    "boil_size_l": 100.094,
+    "boil_time_min": 90.0,
+    "efficiency_pct": 80.0,
+    "og": null,
+    "fg": null,
+    "est_og": 1.05,
+    "est_fg": 1.009,
+    "ibu": 28.0,
+    "abv": null,
+    "est_abv": 5.3,
+    "color_srm": 19.773739574291
+   },
+   "quantities": {
+    "fermentables": [
+     {
+      "value": "3.034533",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "3.034533",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT",
+      "original_display": null,
+      "provenance": {
+       "origin": null,
+       "source_filename": null,
+       "source_format": null,
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "1.254",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "1.254",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT",
+      "original_display": null,
+      "provenance": {
+       "origin": null,
+       "source_filename": null,
+       "source_format": null,
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.376",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.376",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT",
+      "original_display": null,
+      "provenance": {
+       "origin": null,
+       "source_filename": null,
+       "source_format": null,
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.294835",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.294835",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT",
+      "original_display": null,
+      "provenance": {
+       "origin": null,
+       "source_filename": null,
+       "source_format": null,
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.125",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.125",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT",
+      "original_display": null,
+      "provenance": {
+       "origin": null,
+       "source_filename": null,
+       "source_format": null,
+       "adapter_profile": null,
+       "resolution": null
+      }
+     }
+    ],
+    "hops": [
+     {
+      "value": "0.021262142",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.021262142",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT",
+      "original_display": null,
+      "provenance": {
+       "origin": null,
+       "source_filename": null,
+       "source_format": null,
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.017",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.017",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT",
+      "original_display": null,
+      "provenance": {
+       "origin": null,
+       "source_filename": null,
+       "source_format": null,
+       "adapter_profile": null,
+       "resolution": null
+      }
+     }
+    ],
+    "miscs": [
+     {
+      "value": "0.001700971387500",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.001700971387500",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "0.060 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.002381357373703",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.002381357373703",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "0.084 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.00090718376141067",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.00090718376141067",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "0.032 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.0008504847763225",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.0008504847763225",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "0.03 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.0019561149855418",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.0019561149855418",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "0.069 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.00073708680614617",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.00073708680614617",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "0.026 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.00070873731360209",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.00070873731360209",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "0.025 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "1",
+      "unit": "L",
+      "dimension": "volume",
+      "normalized_value": "1",
+      "normalized_unit": "L",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "1 each",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.00492892",
+      "unit": "L",
+      "dimension": "volume",
+      "normalized_value": "0.00492892",
+      "normalized_unit": "L",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "1 tsp",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0.056698985088167",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.056698985088167",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "2 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     {
+      "value": "0",
+      "unit": "L",
+      "dimension": "volume",
+      "normalized_value": "0",
+      "normalized_unit": "L",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "TBD by bench trial",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     }
+    ]
+   },
+   "excluded_hop_additions": [],
+   "other_miscs": [
+    {
+     "name": "Whirlfloc",
+     "type": "Other",
+     "use": "Boil",
+     "quantity": {
+      "value": "1",
+      "unit": "count",
+      "dimension": "count",
+      "normalized_value": null,
+      "normalized_unit": null,
+      "status": "ambiguous",
+      "source_field": "DISPLAY_AMOUNT",
+      "original_display": "1 each",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": null,
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     "source_amount": "1",
+     "source_amount_is_weight": "false",
+     "source_display": "1 each",
+     "notes": "",
+     "time_min": "10",
+     "source_quantity": {
+      "value": "1",
+      "unit": "L",
+      "dimension": "volume",
+      "normalized_value": "1",
+      "normalized_unit": "L",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "1 each",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     "amount_status": "needs_count_confirmation"
+    },
+    {
+     "name": "Yeast Nutrient",
+     "type": "Other",
+     "use": "Boil",
+     "quantity": {
+      "value": "0.00492892",
+      "unit": "L",
+      "dimension": "volume",
+      "normalized_value": "0.00492892",
+      "normalized_unit": "L",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "1 tsp",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     "source_amount": "0.00492892",
+     "source_amount_is_weight": "false",
+     "source_display": "1 tsp",
+     "notes": "",
+     "time_min": "10",
+     "source_quantity": {
+      "value": "0.00492892",
+      "unit": "L",
+      "dimension": "volume",
+      "normalized_value": "0.00492892",
+      "normalized_unit": "L",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "1 tsp",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     "household_measure": "1 tsp",
+     "household_measure_dimension": "volume",
+     "conversion_uncertainty": "Household measure convention and measuring accuracy are unspecified; the supplied canonical amount is retained, not recalculated."
+    },
+    {
+     "name": "Coffee Beans - Medium Roast",
+     "type": "Other",
+     "use": "Secondary",
+     "quantity": {
+      "value": "0.056698985088167",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.056698985088167",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "2 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     "source_amount": "0.056698985088167",
+     "source_amount_is_weight": "true",
+     "source_display": "2 oz",
+     "notes": "2 oz fresh whole medium-roast coffee beans. Add cold at 35-38 F. Begin tasting at 18 hours; plan to remove around 24 hours. Extend toward 36 hours only if aroma remains under target. Prefer washed Guatemala, Colombia, or Brazil with cocoa, nut, caramel, and brown-sugar notes.",
+     "time_min": "1440",
+     "source_quantity": {
+      "value": "0.056698985088167",
+      "unit": "kg",
+      "dimension": "mass",
+      "normalized_value": "0.056698985088167",
+      "normalized_unit": "kg",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "2 oz",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     }
+    },
+    {
+     "name": "Cold Brew Coffee Concentrate",
+     "type": "Other",
+     "use": "Bottle",
+     "quantity": {
+      "value": "0",
+      "unit": "L",
+      "dimension": "volume",
+      "normalized_value": "0",
+      "normalized_unit": "L",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "TBD by bench trial",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     "source_amount": "0",
+     "source_amount_is_weight": "false",
+     "source_display": "TBD by bench trial",
+     "notes": "Optional only. Prepare approximately 2 oz coarse-ground coffee in 8 fl oz RO water, steep refrigerated 14-18 hours, then paper-filter. Bench trial finished beer at 0, 1, 2, and 3 mL concentrate per 100 mL beer and scale the preferred dose. The correct full-batch addition may be zero.",
+     "time_min": "0",
+     "source_quantity": {
+      "value": "0",
+      "unit": "L",
+      "dimension": "volume",
+      "normalized_value": "0",
+      "normalized_unit": "L",
+      "status": "explicit",
+      "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+      "original_display": "TBD by bench trial",
+      "provenance": {
+       "origin": "imported",
+       "source_filename": null,
+       "source_format": "beerxml",
+       "adapter_profile": null,
+       "resolution": null
+      }
+     },
+     "amount_status": "undetermined",
+     "optional": true
+    }
+   ],
+   "yeast_detail": {
+    "form": "Other",
+    "laboratory": null,
+    "product_id": "W-34/70",
+    "notes": "",
+    "quantity": {
+     "value": "0.81",
+     "unit": "L",
+     "dimension": "volume",
+     "normalized_value": "0.81",
+     "normalized_unit": "L",
+     "status": "explicit",
+     "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+     "original_display": null,
+     "provenance": {
+      "origin": null,
+      "source_filename": null,
+      "source_format": null,
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   },
+   "water_agent_source_phases": {
+    "sodium bicarbonate (baking soda)": [
+     "mash"
+    ],
+    "calcium chloride": [
+     "mash",
+     "sparge"
+    ],
+    "magnesium sulphate (epsom salt)": [
+     "mash",
+     "sparge"
+    ],
+    "calcium sulphate (gypsum)": [
+     "mash",
+     "sparge"
+    ]
+   },
+   "unrecognized_extensions": {
+    "CALORIES": "<CALORIES>171</CALORIES>\n    ",
+    "FERMENTATION_STAGES": "<FERMENTATION_STAGES>2</FERMENTATION_STAGES>\n    ",
+    "PRIMARY_AGE": "<PRIMARY_AGE>12</PRIMARY_AGE>\n    ",
+    "PRIMARY_TEMP": "<PRIMARY_TEMP>10</PRIMARY_TEMP>\n    ",
+    "SECONDARY_AGE": "<SECONDARY_AGE>35</SECONDARY_AGE>\n    ",
+    "SECONDARY_TEMP": "<SECONDARY_TEMP>1.1</SECONDARY_TEMP>\n  "
+   },
+   "warnings": [
+    "[dimension-contradiction] recipe='Ultimate Coffee Schwarzbier' ingredient='Whirlfloc'; source='1 each'; interpreted='1 L'; target='model'; DISPLAY_AMOUNT contradicts AMOUNT_IS_WEIGHT; canonical quantity retained.",
+    "[ambiguous-display] recipe='Ultimate Coffee Schwarzbier' ingredient='Yeast Nutrient'; source='1 tsp'; interpreted='0.00492892 L'; target='model'; DISPLAY_AMOUNT has an unrecognized unit or quantity.",
+    "[ambiguous-display] recipe='Ultimate Coffee Schwarzbier' ingredient='Cold Brew Coffee Concentrate'; source='TBD by bench trial'; interpreted='0 L'; target='model'; DISPLAY_AMOUNT has an unrecognized unit or quantity.",
+    "Boil volume (26.44 gal) is implausible relative to batch size (6.08 gal) -- 4.3x. Likely a unit or data-entry error, not a real process value.",
+    "Confirm the dry yeast package count. No sachet weight is assumed."
+   ]
+  },
+  "additions": [
+   {
+    "name": "Whirlfloc",
+    "type": "Other",
+    "use": "Boil",
+    "quantity": {
+     "value": "1",
+     "unit": "count",
+     "dimension": "count",
+     "normalized_value": null,
+     "normalized_unit": null,
+     "status": "ambiguous",
+     "source_field": "DISPLAY_AMOUNT",
+     "original_display": "1 each",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": null,
+      "source_format": null,
+      "adapter_profile": null,
+      "resolution": null
+     }
+    },
+    "source_amount": "1",
+    "source_amount_is_weight": "false",
+    "source_display": "1 each",
+    "notes": "",
+    "time_min": "10",
+    "source_quantity": {
+     "value": "1",
+     "unit": "L",
+     "dimension": "volume",
+     "normalized_value": "1",
+     "normalized_unit": "L",
+     "status": "explicit",
+     "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+     "original_display": "1 each",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": null,
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    },
+    "amount_status": "needs_count_confirmation"
+   },
+   {
+    "name": "Yeast Nutrient",
+    "type": "Other",
+    "use": "Boil",
+    "quantity": {
+     "value": "0.00492892",
+     "unit": "L",
+     "dimension": "volume",
+     "normalized_value": "0.00492892",
+     "normalized_unit": "L",
+     "status": "explicit",
+     "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+     "original_display": "1 tsp",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": null,
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    },
+    "source_amount": "0.00492892",
+    "source_amount_is_weight": "false",
+    "source_display": "1 tsp",
+    "notes": "",
+    "time_min": "10",
+    "source_quantity": {
+     "value": "0.00492892",
+     "unit": "L",
+     "dimension": "volume",
+     "normalized_value": "0.00492892",
+     "normalized_unit": "L",
+     "status": "explicit",
+     "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+     "original_display": "1 tsp",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": null,
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    },
+    "household_measure": "1 tsp",
+    "household_measure_dimension": "volume",
+    "conversion_uncertainty": "Household measure convention and measuring accuracy are unspecified; the supplied canonical amount is retained, not recalculated."
+   },
+   {
+    "name": "Coffee Beans - Medium Roast",
+    "type": "Other",
+    "use": "Secondary",
+    "quantity": {
+     "value": "0.056698985088167",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "0.056698985088167",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+     "original_display": "2 oz",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": null,
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    },
+    "source_amount": "0.056698985088167",
+    "source_amount_is_weight": "true",
+    "source_display": "2 oz",
+    "notes": "2 oz fresh whole medium-roast coffee beans. Add cold at 35-38 F. Begin tasting at 18 hours; plan to remove around 24 hours. Extend toward 36 hours only if aroma remains under target. Prefer washed Guatemala, Colombia, or Brazil with cocoa, nut, caramel, and brown-sugar notes.",
+    "time_min": "1440",
+    "source_quantity": {
+     "value": "0.056698985088167",
+     "unit": "kg",
+     "dimension": "mass",
+     "normalized_value": "0.056698985088167",
+     "normalized_unit": "kg",
+     "status": "explicit",
+     "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+     "original_display": "2 oz",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": null,
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    }
+   },
+   {
+    "name": "Cold Brew Coffee Concentrate",
+    "type": "Other",
+    "use": "Bottle",
+    "quantity": {
+     "value": "0",
+     "unit": "L",
+     "dimension": "volume",
+     "normalized_value": "0",
+     "normalized_unit": "L",
+     "status": "explicit",
+     "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+     "original_display": "TBD by bench trial",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": null,
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    },
+    "source_amount": "0",
+    "source_amount_is_weight": "false",
+    "source_display": "TBD by bench trial",
+    "notes": "Optional only. Prepare approximately 2 oz coarse-ground coffee in 8 fl oz RO water, steep refrigerated 14-18 hours, then paper-filter. Bench trial finished beer at 0, 1, 2, and 3 mL concentrate per 100 mL beer and scale the preferred dose. The correct full-batch addition may be zero.",
+    "time_min": "0",
+    "source_quantity": {
+     "value": "0",
+     "unit": "L",
+     "dimension": "volume",
+     "normalized_value": "0",
+     "normalized_unit": "L",
+     "status": "explicit",
+     "source_field": "AMOUNT/AMOUNT_IS_WEIGHT",
+     "original_display": "TBD by bench trial",
+     "provenance": {
+      "origin": "imported",
+      "source_filename": null,
+      "source_format": "beerxml",
+      "adapter_profile": null,
+      "resolution": null
+     }
+    },
+    "amount_status": "undetermined",
+    "optional": true
+   }
+  ]
+ }
+}

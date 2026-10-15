@@ -42,3 +42,14 @@ missing values.
 
 Last run 2026-10-14 (Lumina `632da60`, working tree with uncommitted
 changes outside `stats_hooks.py`): all three fixtures PASS.
+
+## Lumina recipe dicts (`lumina-dicts/`)
+
+Lumina's own recipe dict for each recipe above, as its BeerXML importer
+(`parse_beerxml(...).recipe`) produces it from the same checksummed source
+file, written by `tools/parity/lumina_dicts.py` (local, read-only; `--check`
+compares instead of writing). The only change: `source_import.imported_at`,
+the time of the run, is removed. They are the input of the Lumina ⇄ Carboy
+mapping round-trip tests (`packages/recipe-format/test/lumina.test.mjs`).
+Source file names appear as Lumina recorded them (base names only); Carboy
+does not store them.

@@ -169,7 +169,7 @@ converted.
 | Version | Adds |
 |---|---|
 | 0.1 | First implemented draft (Phase 2) |
-| 0.2 | Ingredient `group_ref` and `alternatives[]` (§7.2; INGREDIENT_CATALOG §3) |
+| 0.2 | Ingredient `group_ref` and `alternatives[]` (§7.2; INGREDIENT_CATALOG §3); `beverage.style_text`, a free-text style label never interpreted (§7.1) |
 
 ## 5. Typed quantities
 
@@ -270,7 +270,9 @@ handles "no calculations for this beverage" (BEVERAGE_SCOPE). Unknown types
 are a validation error, not a fallback to beer math.
 
 `style` is optional: `{ "system": "bjcp-2021", "code": "...", "name": "..." }`.
-Codes and names only (D-020).
+Codes and names only (D-020). `style_text` (schema 0.2) is an optional
+free-text label for a style outside any style system (Lumina's "custom
+style"); it is shown, never interpreted.
 
 ### 7.2 Ingredients and additions
 

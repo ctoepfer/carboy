@@ -34,6 +34,13 @@ test("required version: 0.1 without the new members, 0.2 with them, naming each 
   ]);
 });
 
+test("0.2 also adds beverage.style_text, a free-text label", () => {
+  const c = { ...recipe({}), beverage: { type: "beer", style_text: "Schwarzbier" } };
+  assert.deepEqual(requiredSchemaVersion(c).uses, [{ path: "/content/beverage/style_text", version: "0.2" }]);
+  assert.deepEqual(codes(c), []);
+  assert.deepEqual(codes({ ...c, beverage: { type: "beer", style_text: " " } }), [["invalid-content", "/content/beverage/style_text"]]);
+});
+
 test("write at X: content may use nothing newer than X; versions outside the supported range are refused", () => {
   const c = recipe({ group_ref: ref("g1") });
   assert.deepEqual(checkSchemaVersion(c, "0.2"), []);

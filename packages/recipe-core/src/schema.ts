@@ -31,6 +31,11 @@ export interface SchemaIssue {
 export function requiredSchemaVersion(content: unknown, base = "/content"): { version: string; uses: SchemaUse[] } {
   const uses: SchemaUse[] = [];
   let minor = OLDEST_MINOR;
+  // 0.2: free-text style label (EDITOR_COMMANDS set_style_text; Lumina "custom style").
+  if (isObject(content) && isObject(content["beverage"]) && content["beverage"]["style_text"] !== undefined) {
+    uses.push({ path: `${base}/beverage/style_text`, version: `${SCHEMA_VERSION.major}.2` });
+    minor = 2;
+  }
   const ings = isObject(content) ? content["ingredients"] : undefined;
   if (Array.isArray(ings)) {
     ings.forEach((ing, i) => {
