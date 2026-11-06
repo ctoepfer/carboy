@@ -4,7 +4,7 @@
 // exact values brewconvert's README documents as its regression oracle.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { UNIT_TOKENS, convert, validateQuantity } from "../dist/index.js";
+import { UNIT_TOKENS, convert, unitDefinition, validateQuantity } from "../dist/index.js";
 
 const c = (value, unit, to) => convert({ value, unit }, to).toString();
 const code = (fn) => {
@@ -85,4 +85,11 @@ test("unit table covers the Q2 tokens", () => {
   const q2 = ["kg", "g", "lb", "oz", "L", "mL", "US gal", "qt", "US fl oz", "s", "min", "h", "day", "C", "F", "K", "SG", "Plato", "kPa", "psi", "bar", "ppm", "mg/L", "g/L", "package", "sachet", "tablet", "count"];
   for (const t of q2) assert.ok(UNIT_TOKENS.includes(t), t);
   assert.equal(new Set(UNIT_TOKENS).size, UNIT_TOKENS.length);
+});
+
+test("RQ2: mg is exactly one millionth of a kilogram, and converts without rounding", () => {
+  assert.equal(unitDefinition("mg").dimension, "mass");
+  assert.equal(c("250", "mg", "g"), "0.25");
+  assert.equal(c("1", "kg", "mg"), "1000000");
+  assert.deepEqual(validateQuantity({ value: "50", unit: "mg" }), []);
 });

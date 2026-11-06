@@ -43,6 +43,7 @@ const DEFINITIONS: readonly UnitDefinition[] = [
   // Mass, base kg. International avoirdupois pound (exact).
   { token: "kg", dimension: "mass", factor: f("1") },
   { token: "g", dimension: "mass", factor: f("0.001") },
+  { token: "mg", dimension: "mass", factor: f("0.000001") }, // RQ2 (owner, 2026-11-05)
   { token: "lb", dimension: "mass", factor: f("0.45359237") },
   { token: "oz", dimension: "mass", factor: f("0.028349523125") },
 

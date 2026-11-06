@@ -14,7 +14,7 @@ const CIAAW = {
 
 const SO2_FRACTION = Decimal.parse("0.5763"); // 2 SO2 / K2S2O5 = 128.116 / 222.311
 const N_FRACTION = Decimal.parse("0.2121"); // 2 N / (NH4)2HPO4 = 28.014 / 132.056
-const MASS_UNITS = ["kg", "g", "lb", "oz"];
+const MASS_UNITS = ["kg", "g", "mg", "lb", "oz"];
 
 export const SO2_FROM_METABISULFITE: FormulaDefinition = {
   id: "sulfite.so2-from-metabisulfite",

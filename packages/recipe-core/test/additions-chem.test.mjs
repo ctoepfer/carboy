@@ -37,7 +37,9 @@ test("DAP: nitrogen supplied, and YAN added when a volume is given", () => {
   const c = yanFromDap("mead", q("2", "g"), q("20", "L"));
   assert.equal(c.concentration.toString(), "21.21"); // mg N/L: 424.2 mg / 20 L
   assert.equal(yanFromDap("wine", q("0.5", "g"), q("5", "L")).concentration.toString(), "21.21");
-  assert.equal(yanFromDap("wine", q("500", "mg")).reason, "invalid-input"); // mg is not a unit token (yet)
+  // RQ2: doses in mg give the same result as the same dose in g.
+  assert.equal(yanFromDap("wine", q("500", "mg")).value.toString(), yanFromDap("wine", q("0.5", "g")).value.toString());
+  assert.equal(so2FromMetabisulfite("wine", q("500", "mg")).value.toString(), so2FromMetabisulfite("wine", q("0.5", "g")).value.toString());
 });
 
 test("unavailable: tablets without a stated mass, wrong beverage, bad inputs", () => {
