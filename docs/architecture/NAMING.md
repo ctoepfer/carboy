@@ -1,7 +1,8 @@
 # Naming and Rebranding Policy
 
-**Carboy is a permanent project codename, not the product brand.** The final
-user-facing name is undecided. This policy keeps three kinds of names apart
+**Carboy is a permanent project codename, not the product brand.** The
+user-facing name is set in the identity configuration and stays provisional
+until trademark clearance. This policy keeps three kinds of names apart
 so a future rebrand changes one configuration file and some assets, and
 nothing that users' data or other software depends on.
 
@@ -13,7 +14,7 @@ nothing that users' data or other software depends on.
 | **Brand** (user-facing) | Display name, short name, logo, icons, store listing text, website | **Yes** | [`identity/identity.json`](../../identity/identity.json) and `identity/assets/` only |
 | **Data and protocol identifiers** | Recipe schema IDs and versions, recipe/revision IDs, native file extension and media type, API paths and versions, edit command names | **Never**, after first release | Defined by the contracts; deliberately **brand-neutral** |
 
-The default development display name is "Carboy". Release builds read the
+Release builds read the
 display name, short name, logo, and icons from the identity configuration;
 UI text never contains a typed-in product name.
 
@@ -50,7 +51,7 @@ UI text never contains a typed-in product name.
 | Schema `$id` base | Pending; brand-neutral | Recipe schema v0 (Phase 0) |
 | OS application/bundle IDs, URL scheme, data-folder names | **Not created**; review conventions first | Phase 1 review, ADR before Phase 6 |
 | Sync API base path and version | Proposed: `{service base}/sync/v0` ([SYNC_PROTOCOL.md](SYNC_PROTOCOL.md)); AI tool names proposed in [AI_TOOLS.md](AI_TOOLS.md) | Sync protocol and tool surface (Phase 13 / Phase 8) |
-| User-facing brand | Undecided; development default "Carboy" | Owner, before Phase 6 |
+| User-facing brand | Provisional, in [`identity/identity.json`](../../identity/identity.json); clearance before Phase 6 | Owner |
 
 ## Rebranding procedure
 

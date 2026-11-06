@@ -3,9 +3,9 @@
   "identityVersion": 1,
   "codename": "carboy",
   "brand": {
-    "status": "development-default",
-    "displayName": "Carboy",
-    "shortName": "Carboy",
+    "status": "provisional",
+    "displayName": "Omnibrew",
+    "shortName": "Omnibrew",
     "assets": {
       "logo": null,
       "appIcon": null

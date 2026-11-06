@@ -2,7 +2,8 @@
 
 `identity.json` is the single place the user-facing product identity is
 defined: display name, short name, and (later) logo and icons under
-`assets/`. The default development identity is "Carboy".
+`assets/`. `brand.status` is `provisional` until trademark clearance, which
+is required before public launch (Phase 6).
 
 - Change the `brand` section to rebrand. Nothing else in the repository
   should need to change.

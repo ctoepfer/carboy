@@ -4,8 +4,8 @@ Carboy is a free, open-source, cross-platform recipe application for beer,
 wine, mead, cider, sake, and, later, other fermented beverages. It is for
 designing recipes, improving them batch by batch, and brewing them.
 
-> "Carboy" is the project codename. The user-facing product name is not
-> decided yet and is configured in [`identity/identity.json`](identity/identity.json)
+> "Carboy" is the permanent project codename. The user-facing product name
+> is configured in [`identity/identity.json`](identity/identity.json)
 > ([naming policy](docs/architecture/NAMING.md)).
 
 **Status: Phase 2 (Recipe Core) has started; Phase 1 (platform proof)
