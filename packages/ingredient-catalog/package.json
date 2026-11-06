@@ -1,0 +1,31 @@
+{
+  "name": "@carboy/ingredient-catalog",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Ingredient Catalog: groups, products, classification, evidence, and catalog versions (INGREDIENT_CATALOG.md). Recipes snapshot what they use, so nothing here can change a saved recipe. No DOM, Node, storage, network, or shell dependency.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@carboy/recipe-core": "0.0.0"
+  },
+  "devDependencies": {
+    "@carboy/editor-commands": "0.0.0",
+    "@carboy/recipe-format": "0.0.0",
+    "typescript": "5.9.3"
+  }
+}

@@ -11,6 +11,6 @@
   },
   "scripts": {
     "build": "npm run build -w @carboy/recipe-core && npm run build --workspaces",
-    "test": "npm run build -w @carboy/recipe-core && npm run test --workspaces"
+    "test": "npm run build && npm run test --workspaces"
   }
 }
