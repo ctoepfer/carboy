@@ -21,17 +21,31 @@ commands all read it.
 
 | Field | Dimension | Rule | Meaning |
 |---|---|---|---|
-| `batch_capacity` | volume | above 0 | Largest batch the system makes |
-| `mash_capacity` | volume | above 0 | Usable mash tun volume |
+| `batch_size` | volume | above 0 | The batch this system usually makes |
+| `batch_capacity` | volume | above 0 | The largest batch it can make |
+| `mash_capacity` | volume | above 0 | Mash tun volume |
 | `boil_capacity` | volume | above 0 | Usable kettle volume |
-| `pre_boil_volume` | volume | above 0 | Wort volume usually collected before the boil |
-| `mash_tun_deadspace` | volume | 0 or more | Liquid left in the mash tun |
-| `trub_chiller_loss` | volume | 0 or more | Wort left behind with trub and in the chiller |
+| `pre_boil_volume` | volume | above 0 | Wort volume collected before the boil |
+| `boil_time` | duration | above 0 | Usual boil length. A recipe's own boil stage is what counts for that recipe |
+| `mash_tun_weight` | mass | above 0 | Mash tun weight |
+| `mash_tun_specific_heat` | fraction | above 0 | Specific heat relative to water, so 0.12 means 0.12 cal/g/°C |
+| `mash_tun_deadspace` | volume | 0 or more | Liquid left in the mash or lauter tun |
 | `boil_off_per_hour` | volume | 0 or more | Volume lost in one hour of boiling |
+| `boil_off_fraction_per_hour` | fraction | at most 100 % | Share of the volume lost in one hour of boiling |
+| `kettle_top_up` | volume | 0 or more | Water added to the kettle |
+| `hop_utilization_adjustment` | fraction | above 0 | Adjustment to calculated utilization. May pass 100 % |
+| `trub_chiller_loss` | volume | 0 or more | Wort left behind with trub and in the chiller |
+| `cooling_loss` | fraction | at most 100 % | Volume lost as wort cools |
+| `fermenter_top_up` | volume | 0 or more | Water added to the fermenter |
 | `brewhouse_efficiency` | fraction | at most 100 % | Efficiency assumption for this system |
 
-`boil_off_per_hour` is a volume because there is no volume-per-time unit
-token. If one is added, that is a schema MINOR.
+These cover the BeerXML 1.0 EQUIPMENT record apart from its boil-size switch
+(below), plus `cooling_loss`, `batch_capacity`, and `boil_capacity`. The first
+full test case is the owner's own system, in its stated units.
+
+Boil-off appears twice because brewers state it either way, and no
+volume-per-time unit token exists. If one is added, that is a schema MINOR. A
+stated zero is a value, and stays different from a value nobody stated.
 
 **There are no defaults.** A value nobody stated is absent, and absent stays
 absent: nothing is filled in from a typical system, and a new profile can be
@@ -85,6 +99,10 @@ with a diff.
 - **No formula reads equipment.** A snapshot changes no calculated result, and
   the efficiency a calculation uses stays `targets.efficiency`. Connecting the
   two needs a defined rule, so it isn't assumed here.
+- **Calculating boil size is not modelled.** A switch for it would promise a
+  calculation that doesn't exist, so it waits for the volume formulas
+  (FORMULA_COVERAGE: boil-off, shrinkage, losses). Until then `pre_boil_volume`
+  is a stated value.
 - Grain absorption is not a field yet. It is a volume per mass, with no unit
   token, and no formula reads it.
 - Lumina's profiles aren't mapped yet (`batch_size`, `boil_size`,

@@ -14,22 +14,37 @@ import { unitDefinition } from "./units.js";
 
 export interface EquipmentField {
   readonly name: string;
-  readonly dimension: "volume" | "fraction";
-  /** A volume that can't be zero. Losses and dead space can. */
+  readonly dimension: "volume" | "fraction" | "mass" | "duration";
+  /** A value that can't be zero. Losses, dead space, and top-ups can. */
   readonly positive?: boolean;
   /** Upper bound as a fraction. */
   readonly atMostOne?: boolean;
 }
 
 export const EQUIPMENT_FIELDS: readonly EquipmentField[] = [
+  // Sizes
+  { name: "batch_size", dimension: "volume", positive: true },
   { name: "batch_capacity", dimension: "volume", positive: true },
   { name: "mash_capacity", dimension: "volume", positive: true },
   { name: "boil_capacity", dimension: "volume", positive: true },
   { name: "pre_boil_volume", dimension: "volume", positive: true },
+  { name: "boil_time", dimension: "duration", positive: true },
+  // Mash tun
+  { name: "mash_tun_weight", dimension: "mass", positive: true },
+  // Relative to water, so it needs no unit token (0.12 for stainless steel means 0.12 cal/g/°C).
+  { name: "mash_tun_specific_heat", dimension: "fraction", positive: true },
   { name: "mash_tun_deadspace", dimension: "volume" },
-  { name: "trub_chiller_loss", dimension: "volume" },
-  // A volume lost in one hour of boiling: there is no volume-per-time unit token.
+  // Boil. A rate is a volume or a fraction lost in one hour: there are no per-time unit tokens.
   { name: "boil_off_per_hour", dimension: "volume" },
+  { name: "boil_off_fraction_per_hour", dimension: "fraction", atMostOne: true },
+  { name: "kettle_top_up", dimension: "volume" },
+  // An adjustment, not a share, so it can pass 100 %.
+  { name: "hop_utilization_adjustment", dimension: "fraction", positive: true },
+  // After the boil
+  { name: "trub_chiller_loss", dimension: "volume" },
+  { name: "cooling_loss", dimension: "fraction", atMostOne: true },
+  { name: "fermenter_top_up", dimension: "volume" },
+  // Assumptions
   { name: "brewhouse_efficiency", dimension: "fraction", atMostOne: true },
 ];
 

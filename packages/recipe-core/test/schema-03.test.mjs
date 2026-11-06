@@ -50,7 +50,12 @@ test("UQ5: language is an optional, well-formed BCP 47 tag", () => {
 });
 
 test("the equipment field table is closed, with no default values anywhere", () => {
-  assert.deepEqual(EQUIPMENT_FIELDS.map((f) => f.name), ["batch_capacity", "mash_capacity", "boil_capacity", "pre_boil_volume", "mash_tun_deadspace", "trub_chiller_loss", "boil_off_per_hour", "brewhouse_efficiency"]);
+  assert.deepEqual(EQUIPMENT_FIELDS.map((f) => f.name), [
+    "batch_size", "batch_capacity", "mash_capacity", "boil_capacity", "pre_boil_volume", "boil_time",
+    "mash_tun_weight", "mash_tun_specific_heat", "mash_tun_deadspace",
+    "boil_off_per_hour", "boil_off_fraction_per_hour", "kettle_top_up", "hop_utilization_adjustment",
+    "trub_chiller_loss", "cooling_loss", "fermenter_top_up", "brewhouse_efficiency",
+  ]);
   for (const f of EQUIPMENT_FIELDS) assert.equal("default" in f, false);
 });
 
@@ -73,6 +78,10 @@ const BAD_EQUIPMENT = [
   ["bad provenance", { fields: { boil_capacity: { value: "40", unit: "L", provenance: { origin: "nope" } } } }, "unknown-origin /content/equipment/fields/boil_capacity/provenance/origin"],
   ["zero capacity", { fields: { boil_capacity: entered("0", "L") } }, "equipment-value-out-of-range /content/equipment/fields/boil_capacity/value"],
   ["negative loss", { fields: { trub_chiller_loss: entered("-1", "L") } }, "negative-quantity /content/equipment/fields/trub_chiller_loss/value"],
+  ["a weight in litres", { fields: { mash_tun_weight: entered("12", "L") } }, "equipment-unit-not-allowed /content/equipment/fields/mash_tun_weight/unit"],
+  ["a boil time in litres", { fields: { boil_time: entered("60", "L") } }, "equipment-unit-not-allowed /content/equipment/fields/boil_time/unit"],
+  ["no boil time", { fields: { boil_time: entered("0", "min") } }, "equipment-value-out-of-range /content/equipment/fields/boil_time/value"],
+  ["cooling loss above 100 %", { fields: { cooling_loss: entered("101", "%") } }, "equipment-value-out-of-range /content/equipment/fields/cooling_loss/value"],
   ["efficiency above 100 %", { fields: { brewhouse_efficiency: entered("110", "%") } }, "equipment-value-out-of-range /content/equipment/fields/brewhouse_efficiency/value"],
   ["measured_on without a measurement", { fields: { boil_capacity: { ...entered("40", "L"), measured_on: "2026-10-01" } } }, "measured-on-not-measured /content/equipment/fields/boil_capacity/measured_on"],
   ["impossible date", { fields: { boil_capacity: { ...measured("40", "L"), measured_on: "2026-02-30" } } }, "invalid-date /content/equipment/fields/boil_capacity/measured_on"],
@@ -87,6 +96,10 @@ for (const [name, equipment, expected] of BAD_EQUIPMENT) {
     assert.ok(got.includes(expected), JSON.stringify(got));
   });
 }
+
+test("hop utilization may exceed 100 %, because it adjusts rather than limits", () => {
+  assert.deepEqual(codes({ ...base(), equipment: { fields: { hop_utilization_adjustment: entered("110", "%") } } }), []);
+});
 
 test("ingredient requirements: required versus preferred, on properties and traits", () => {
   assert.ok(INGREDIENT_TRAITS.some((t) => t.name === "diastatic"));

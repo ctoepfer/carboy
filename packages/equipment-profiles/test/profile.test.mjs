@@ -3,7 +3,7 @@
 // what nobody measured stays absent.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { calculateStatistics, createRevision, validateContent, verifyRevision } from "@carboy/recipe-core";
+import { Decimal, calculateStatistics, createRevision, validateContent, verifyRevision } from "@carboy/recipe-core";
 import { applyCommands, emptyTemplate } from "@carboy/editor-commands";
 import { readNative, writeNative } from "@carboy/recipe-format";
 import { changedFields, createProfile, reviseProfile, snapshotProfile, validateProfile } from "../dist/index.js";
@@ -29,6 +29,43 @@ test("an empty profile is fine: nothing is assumed about equipment no one has de
   const p = createProfile({ id: U(2), name: "New kettle", created_at: AT, fields: {} });
   assert.deepEqual(p.fields, {});
   assert.deepEqual(snapshotProfile(p).fields, {});
+});
+
+// A real profile from the owner, every line of it. Stated zeros are values;
+// they aren't the same as absent. Cooling loss is stated as 4.00 with no unit,
+// and the percentage reading is checked below.
+const OWNER_SYSTEM = {
+  batch_size: entered("5.5", "US gal"),
+  mash_capacity: entered("10", "US gal"),
+  mash_tun_weight: entered("12", "lb"),
+  mash_tun_specific_heat: entered("0.12", "fraction"),
+  mash_tun_deadspace: entered("0", "US gal"),
+  pre_boil_volume: entered("7", "US gal"),
+  boil_time: entered("60", "min"),
+  boil_off_fraction_per_hour: entered("10.7", "%"),
+  kettle_top_up: entered("0", "US gal"),
+  hop_utilization_adjustment: entered("100", "%"),
+  trub_chiller_loss: entered("0.5", "US gal"),
+  cooling_loss: entered("4", "%"),
+  fermenter_top_up: entered("0", "US gal"),
+};
+
+test("the owner's system fits, in the units it was stated in, and survives a snapshot unchanged", () => {
+  const p = createProfile({ id: U(2), name: "Ten-gallon three-vessel", created_at: AT, fields: OWNER_SYSTEM });
+  assert.deepEqual(validateProfile(p), []);
+  assert.deepEqual(snapshotProfile(p).fields, OWNER_SYSTEM);
+  const r = applyCommands(emptyTemplate("beer", "Helles"), [{ op: "apply_equipment_snapshot", snapshot: snapshotProfile(p) }], { channel: "editor" });
+  assert.equal(r.status, "applied", JSON.stringify(r.diagnostics));
+  assert.equal(r.content.equipment.fields.kettle_top_up.value, "0");
+  assert.equal(r.content.equipment.fields.batch_capacity, undefined); // not stated, so not there
+});
+
+test("the stated numbers agree with each other only if cooling loss is a percentage", () => {
+  // Arithmetic on the owner's own figures, exact in decimal: a check on reading
+  // the field, not a Carboy formula. No volume calculation exists yet.
+  const d = Decimal.parse;
+  const left = d("7").mul(d("1").sub(d("0.107"))).mul(d("1").sub(d("0.04"))).sub(d("0.5"));
+  assert.equal(left.toString(), "5.50096");
 });
 
 test("a profile that isn't valid is refused, not repaired", () => {
