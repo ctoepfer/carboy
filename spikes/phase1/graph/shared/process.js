@@ -37,6 +37,15 @@ export function largeRecipe(stages = 40, additionsPerStage = 8) {
   };
 }
 
+// $SPIKE_STAGE_ROLE: which ARIA role stages expose, to compare what screen
+// readers present (GRAPH_REPORT, role comparison). Unset keeps the library's
+// default, "group". Read before the first render.
+let stageRole;
+export async function loadStageRole() {
+  const tauri = window.__TAURI__;
+  if (tauri) stageRole = (await tauri.core.invoke("spike_env", { name: "SPIKE_STAGE_ROLE" })) ?? undefined;
+}
+
 export const COLUMN = 260;
 export const ROW = 220;
 export const PER_ROW = 6;
@@ -58,6 +67,7 @@ export function toGraph(recipe) {
     position: position(i),
     data: { stage, index: i, total },
     ariaLabel: stageLabel(stage, i, total),
+    ...(stageRole ? { ariaRole: stageRole } : {}),
   }));
   const edges = recipe.stages.slice(1).map((stage, i) => ({
     id: `f${i}`,

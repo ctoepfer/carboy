@@ -70,6 +70,11 @@ jobs:
             SPIKE_START=$g/index.html SPIKE_AUTO=1 SPIKE_EXIT=1 SPIKE_AXE=1 SPIKE_REPORT=$PWD/report-$g.json \
               run "$exe" || echo "::warning::$g run exited with $?"
           done
+          # Keyboard, selection, and axe with stages exposed as buttons (GRAPH_REPORT, role comparison).
+          for g in graph-react graph-svelte; do
+            SPIKE_STAGE_ROLE=button SPIKE_START=$g/index.html SPIKE_AUTO=1 SPIKE_EXIT=1 SPIKE_AXE=1 SPIKE_REPORT=$PWD/report-$g-button.json \
+              run "$exe" || echo "::warning::$g button run exited with $?"
+          done
       - name: Navigation test (Linux, clean virtual display; GRAPH_REPORT finding 3)
         if: runner.os == 'Linux'
         timeout-minutes: 4
@@ -84,10 +89,18 @@ jobs:
       - name: Scripted Orca run (Linux; supplements, never replaces, a person listening)
         if: runner.os == 'Linux'
         continue-on-error: true
-        timeout-minutes: 4
+        timeout-minutes: 12
         run: |
           exe=$PWD/shell-tauri/src-tauri/target/debug/spike-shell
-          xvfb-run -a dbus-run-session -- bash tools/orca_session.sh "$exe" "$PWD/orca-report" || true
+          # One clean session per candidate; "default" is the library's role, group.
+          session() {
+            SPIKE_STAGE_ROLE=$2 ORCA_PAGE=$1/index.html xvfb-run -a dbus-run-session -- bash tools/orca_session.sh "$exe" "$PWD/orca-report/$1-${2:-default}" || true
+          }
+          session graph-react ""
+          session graph-react button
+          session graph-react listitem
+          session graph-svelte button
+          grep -c "Stage [0-9]" orca-report/*/speech.txt || true
       - name: Recipe Core under JavaScriptCore (macOS jsc or osascript; iOS engine family, no app shell)
         if: runner.os == 'macOS'
         continue-on-error: true
@@ -126,6 +139,31 @@ jobs:
           npm run tauri -- ios init --ci 2>&1 | tail -40
           npm run tauri -- ios build --target aarch64-sim --debug --ci 2>&1 | grep -vE '^\s+export ' | tail -80
           find src-tauri/gen/apple -name '*.app' -maxdepth 6 2>/dev/null | head -5
+      - name: Run the shell in the iOS Simulator (exploratory; a simulator, not a device)
+        if: runner.os == 'macOS'
+        continue-on-error: true
+        timeout-minutes: 12
+        working-directory: spikes/phase1/shell-tauri
+        run: |
+          app=$(find src-tauri/gen/apple ~/Library/Developer/Xcode/DerivedData -name 'spike-shell.app' -path '*iphonesimulator*' 2>/dev/null | head -1)
+          [ -n "$app" ] || app=$(find src-tauri/gen/apple -name '*.app' 2>/dev/null | head -1)
+          echo "app: ${app:-none}"
+          udid=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k in sorted(d, reverse=True) if 'iOS' in k for x in d[k] if 'iPhone' in x['name']))")
+          echo "device: $udid"
+          xcrun simctl bootstatus "$udid" -b
+          xcrun simctl install "$udid" "$app"
+          id=$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$app/Info.plist")
+          reports=$PWD/../ios-report; mkdir -p "$reports"
+          # A simulated app is a host process, so it can write the report to a host path.
+          for page in index recipe library graph-react/index graph-svelte/index; do
+            name=$(echo "$page" | tr '/' '-')
+            SIMCTL_CHILD_SPIKE_AUTO=1 SIMCTL_CHILD_SPIKE_START=$page.html SIMCTL_CHILD_SPIKE_REPORT="$reports/$name.json" \
+              xcrun simctl launch --terminate-running-process "$udid" "$id" || echo "::warning::launch $page failed"
+            for _ in $(seq 1 45); do [ -f "$reports/$name.json" ] && break; sleep 1; done
+            xcrun simctl io "$udid" screenshot "$reports/$name.png" || true
+            xcrun simctl terminate "$udid" "$id" || true
+          done
+          ls -la "$reports"
       - name: SQLite durability benchmark, FULL vs NORMAL under WAL, with and without fullfsync (ADR 0006)
         timeout-minutes: 4
         run: |
@@ -139,4 +177,62 @@ jobs:
             spikes/phase1/report-*.json
             spikes/phase1/orca-report/
             spikes/phase1/recovery-report/
+            spikes/phase1/ios-report/
+          if-no-files-found: warn
+
+  android:
+    # Exploratory: does the shell build, install, and start on an Android
+    # emulator? Scripted directly, because third-party emulator actions don't
+    # pass the repository's Actions policy. An emulator is not a device.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    continue-on-error: true
+    defaults:
+      run:
+        shell: bash
+        working-directory: spikes/phase1
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 20
+      - name: Build the debug APK
+        run: |
+          export NDK_HOME=$ANDROID_NDK_LATEST_HOME JAVA_HOME=$JAVA_HOME_17_X64
+          rustup target add x86_64-linux-android
+          (cd recipe-core && npm ci) && (cd graph && npm ci)
+          ./shell-tauri/prepare.sh
+          cd shell-tauri
+          npm ci --no-audit --no-fund
+          npm run tauri -- android init --ci 2>&1 | tail -20
+          npm run tauri -- android build --debug --apk --target x86_64 --ci 2>&1 | tail -40
+          find src-tauri/gen/android -name '*.apk' | head
+      - name: Install and start on an emulator
+        run: |
+          mkdir -p android-report
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+          sdk=$ANDROID_HOME/cmdline-tools/latest/bin
+          export JAVA_HOME=$JAVA_HOME_17_X64 PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH
+          yes | "$sdk/sdkmanager" --licenses >/dev/null || true
+          "$sdk/sdkmanager" "system-images;android-34;google_apis;x86_64" "emulator" "platform-tools" >/dev/null
+          echo no | "$sdk/avdmanager" create avd -n spike -k "system-images;android-34;google_apis;x86_64" --force
+          nohup emulator -avd spike -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect >android-report/emulator.log 2>&1 &
+          adb wait-for-device
+          for _ in $(seq 1 120); do [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1 ] && break; sleep 3; done
+          apk=$(find shell-tauri/src-tauri/gen/android -name '*.apk' | head -1)
+          adb install -r "$apk"
+          adb shell monkey -p invalid.spike.phase1_shell -c android.intent.category.LAUNCHER 1 || adb shell monkey -p invalid.spike.phase1shell -c android.intent.category.LAUNCHER 1 || true
+          sleep 40
+          adb shell pidof invalid.spike.phase1_shell | tee android-report/pid.txt || true
+          adb exec-out screencap -p > android-report/screen.png || true
+          adb logcat -d > android-report/logcat.txt || true
+          adb shell pm list packages | grep -i spike | tee android-report/packages.txt || true
+          adb shell dumpsys webviewupdate | grep -iE 'current webview|version' | head -5 | tee android-report/webview.txt || true
+          grep -iE 'chromium|rust|panic|fatal|spike' android-report/logcat.txt | tail -40 || true
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: spike-reports-android
+          path: spikes/phase1/android-report/
           if-no-files-found: warn

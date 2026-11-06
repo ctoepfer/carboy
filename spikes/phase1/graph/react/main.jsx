@@ -5,7 +5,7 @@ import "@xyflow/react/dist/style.css";
 import "../shared/app.css";
 import { renderNav } from "../shared/nav.js";
 import { isAuto } from "../shared/measure.js";
-import { ARIA_LABELS, largeRecipe, moveStage, sampleRecipe, toGraph } from "../shared/process.js";
+import { ARIA_LABELS, largeRecipe, loadStageRole, moveStage, sampleRecipe, toGraph } from "../shared/process.js";
 import { runAuto } from "../shared/auto.js";
 import pkg from "../package.json";
 
@@ -122,6 +122,7 @@ function Editor() {
   );
 }
 
+await loadStageRole();
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ReactFlowProvider>

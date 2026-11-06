@@ -20,7 +20,8 @@ gsettings set org.gnome.desktop.interface toolkit-accessibility true 2>/dev/null
 orca --replace --debug-file="$out/orca-debug.txt" >"$out/orca-stdout.txt" 2>&1 &
 orca_pid=$!
 sleep 8
-SPIKE_START=graph-react/index.html "$exe" >"$out/app.log" 2>&1 &
+# $ORCA_PAGE picks the page; $SPIKE_STAGE_ROLE, if set, is the role stages expose.
+SPIKE_START=${ORCA_PAGE:-graph-react/index.html} "$exe" >"$out/app.log" 2>&1 &
 app=$!
 sleep 15
 win=$(xdotool search --pid "$app" 2>/dev/null | tail -1)
