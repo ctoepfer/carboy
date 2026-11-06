@@ -222,11 +222,14 @@ jobs:
           sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
           sdk=$ANDROID_HOME/cmdline-tools/latest/bin
           export JAVA_HOME=$JAVA_HOME_17_X64 PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH
+          # avdmanager and the emulator otherwise look in different places.
+          export ANDROID_USER_HOME=$HOME/.android ANDROID_AVD_HOME=$HOME/.android/avd
+          mkdir -p "$ANDROID_AVD_HOME"
           yes | "$sdk/sdkmanager" --licenses >/dev/null || true
           "$sdk/sdkmanager" "system-images;android-34;google_apis;x86_64" "emulator" "platform-tools" >/dev/null
           echo no | "$sdk/avdmanager" create avd -n spike -k "system-images;android-34;google_apis;x86_64" --force
           nohup emulator -avd spike -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect >android-report/emulator.log 2>&1 &
-          adb wait-for-device
+          timeout 300 adb wait-for-device || { tail -20 android-report/emulator.log; exit 1; }
           for _ in $(seq 1 120); do [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1 ] && break; sleep 3; done
           apk=$(find shell-tauri/src-tauri/gen/android -name '*.apk' | head -1)
           adb install -r "$apk"
