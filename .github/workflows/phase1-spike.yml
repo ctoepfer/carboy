@@ -5,12 +5,19 @@ name: phase1-spike
 
 on:
   workflow_dispatch:
+    inputs:
+      only:
+        description: "all, or mobile to run just the macOS shell (with iOS) and Android"
+        type: choice
+        options: [all, mobile]
+        default: all
 
 permissions:
   contents: read
 
 jobs:
   core-tests:
+    if: inputs.only != 'mobile'
     runs-on: ubuntu-24.04
     defaults:
       run:
@@ -27,7 +34,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, windows-latest, macos-latest]
+        os: ${{ fromJSON(inputs.only == 'mobile' && '["macos-latest"]' || '["ubuntu-24.04", "windows-latest", "macos-latest"]') }}
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -145,8 +152,9 @@ jobs:
         timeout-minutes: 12
         working-directory: spikes/phase1/shell-tauri
         run: |
-          app=$(find src-tauri/gen/apple ~/Library/Developer/Xcode/DerivedData -name 'spike-shell.app' -path '*iphonesimulator*' 2>/dev/null | head -1)
-          [ -n "$app" ] || app=$(find src-tauri/gen/apple -name '*.app' 2>/dev/null | head -1)
+          # The archive step leaves symlinks with this name; only a real bundle installs.
+          find src-tauri/gen/apple ~/Library/Developer/Xcode/DerivedData -type d -name 'spike-shell.app' 2>/dev/null | tee ../ios-candidates.txt
+          app=$(while read -r c; do [ -f "$c/Info.plist" ] && { echo "$c"; break; }; done < ../ios-candidates.txt)
           echo "app: ${app:-none}"
           udid=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k in sorted(d, reverse=True) if 'iOS' in k for x in d[k] if 'iPhone' in x['name']))")
           echo "device: $udid"
