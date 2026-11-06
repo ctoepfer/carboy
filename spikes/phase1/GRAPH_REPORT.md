@@ -157,16 +157,74 @@ Keyboard only (Tab, Return), React Flow page:
   listitem semantics, or buttons), which feeds D-017 and the Phase 5
   design. NVDA and VoiceOver behaviour is unknown.
 
+## Role comparison: why Orca didn't speak stages (2026-11-05, run 42169029431)
+
+Both candidates expose stages as focusable `role=group` by default, and both
+accept a per-node role (`ariaRole`), so the question could be tested directly.
+`SPIKE_STAGE_ROLE` sets the role, and the scripted Orca run repeats the same
+keys (Tab to the stages, Enter, Tab on) in one clean session per candidate:
+
+| Page, stage role | What Orca said on reaching stages |
+|---|---|
+| React Flow, `group` (default) | Nothing. Key names only |
+| React Flow, `listitem` | Nothing |
+| React Flow, `button` | "Stage 1 of 8: Mash, 5 additions push button.", then the description; stages 2, 3, 4 likewise |
+| Svelte Flow, `button` | The same |
+
+**Finding:** the silence comes from the role, so it is a defect in how the
+spike exposes stages, not an Orca defect that needs waiting on. A focusable
+`group` is not presented as a focus target. The stage name, description, and
+focus handling were already right, and `button` makes them heard. That confirms
+the 2026-10-14 finding's cause, in Orca's own speech output.
+
+With stages as buttons (auto runs on WebKitGTK, WebView2, and WKWebView; all
+reports read, not just job status):
+
+| | React Flow | Svelte Flow |
+|---|---|---|
+| Automated steps, including Enter selects, arrows move, and the non-drag "Move stage later" | 7/7 on all three | 7/7 on all three |
+| axe-core violations | **0** | **1 rule, 40 nodes: `nested-interactive`** |
+| AT-SPI: 8 stages, role push button, named, described, focusable | Yes | Yes |
+
+**Svelte Flow's handles are focusable buttons,** so a stage exposed as a button
+nests interactive controls. React Flow's handles aren't focusable. This is the
+first evidence separating the two candidates on accessibility, and an input to
+D-017. It is not a decision: Svelte Flow's handles may be fixable, and bundle
+size still favours it.
+
+**Direction for the real editor (Phase 5):** a stage is a button, or whatever a
+person listening prefers. Enter selects it, and the existing commands act on
+it. A button is a reasonable role: pressing it does something. The library's
+fixed `aria-roledescription="node"` was not spoken here, and should be checked
+by ear. Whichever library is chosen, the process list view stays the main
+non-graph path (ROADMAP principle 1), so screen-reader users don't depend on
+the graph.
+
+**Not settled by this:** whether it sounds right to a person, and NVDA and
+VoiceOver behaviour. CI shows what Orca sends to speech on WebKitGTK; the list
+below still needs people.
+
+## iOS Simulator (2026-11-05, run 42175619190)
+
+The spike shell ran in the iOS 18.7 Simulator (WKWebView), launched through
+`xcrun simctl` with reports read from the host. Both candidates **7/7** at the
+default role, including the provisional large recipe, and a screenshot shows the
+React Flow graph rendering. A simulator, not a device: no touch feel, no real
+performance. VoiceOver wasn't run.
+
 ## Not yet checked
 
-- **Orca speech, by ear.** The tree is right, but how Orca phrases it (and
-  whether it speaks the live-region message after "Move stage later") still
-  needs a person listening. Steps: start Orca (`orca`), run the app, open
-  each graph page, Tab to a stage, press Enter, and Tab to "Move stage
-  later". Expected: "Stage 1 of 8: Mash, 5 additions, node", the
-  description, then "Mash moved to position 2 of 8".
+- **Orca speech, by ear (needs a person).** Run the app with
+  `SPIKE_STAGE_ROLE=button` and Orca on, open each graph page, Tab to a stage,
+  press Enter, and Tab to "Move stage later". Expected: "Stage 1 of 8: Mash, 5
+  additions", button, the description, then "Mash moved to position 2 of 8".
+  Listen for whether that phrasing works and whether the live-region message
+  is spoken: the scripted run never pressed "Move stage later".
+- **NVDA and VoiceOver (needs a person).** `button` may behave differently
+  there.
 - Mouse and touch drag feel, and pan versus drag conflicts (manual).
-- iOS WKWebView and Android WebView (needs devices or CI).
+- Graph pages on Android (the shell starts on an emulator; the auto mode can't
+  reach it, because `adb` can't set an app's environment), and on real devices.
 - A large recipe sized from measured recipes (the 40-stage size is provisional).
 
 ## How to rerun

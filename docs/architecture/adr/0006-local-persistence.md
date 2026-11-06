@@ -128,9 +128,23 @@ No partial or unverifiable revision appeared after any kill. (Process kill,
 not power loss: power-loss durability rests on the `synchronous`/`fullfsync`
 settings above.)
 
+**Runs of 2026-11-05 (42169029431, 42170826631, 42175619190).** Windows and
+Linux passed their one run. macOS passed two of three. The failing run reached
+round 1 with every revision verified, killed the app in round 2, reopened it, and
+the Library page loaded, but it **never reported**, and the step timed out at 6
+minutes. Rounds normally take about 14 seconds, so that was a hang, not slowness.
+There is no sign of corruption: no check failed, because none finished. The
+same code then passed all three rounds, so it is intermittent and its cause is
+**unknown** (candidates: reopening right after a kill, or the hidden window). It
+needs reproducing before the Recipe Library relies on this path. The real
+library needs a bounded open, so a stuck database can't hang the app silently.
+
+**Mobile (2026-11-05).** iOS Simulator: saved a revision, relaunched, and
+verified 3/3 with integrity ok, WAL, `synchronous=2`. A simulator's disk says
+nothing about device durability. Android: the shell starts on an emulator, and
+SQLite is unverified there.
+
 **Acceptance status.** The durability setting is supported by evidence. The
-ADR as a whole is **not yet acceptable**: evidence item 1 needs a mobile
-save/reopen (Android, iOS; the shell now builds for the iOS Simulator but
-hasn't run there), and item 2 still needs the Phase 3 migration-rollback
-tests (interrupted writes are now covered on all three desktops). It stays
-Proposed.
+ADR as a whole is **not yet acceptable**: evidence item 1 needs Android and a
+device run, item 2 still needs the Phase 3 migration-rollback tests, and the
+macOS hang above is unexplained. It stays Proposed.

@@ -33,9 +33,11 @@ parity comes with the BeerXML port in Phase 4.
 
 **Phase 1, platform proof** continues alongside it: the throwaway spikes
 under [`spikes/phase1/`](../spikes/phase1/README.md)
-([SPIKE_PLAN.md](../spikes/phase1/SPIKE_PLAN.md)) still have to settle the
-shell (ADR 0003), persistence (ADR 0006), the graph library, and the
-mobile checks.
+([SPIKE_PLAN.md](../spikes/phase1/SPIKE_PLAN.md)). The shell now runs in the iOS
+Simulator and starts on an Android emulator, and stages are spoken by Orca once
+exposed as buttons ([GRAPH_REPORT](../spikes/phase1/GRAPH_REPORT.md)). Still
+open: the shell (ADR 0003), persistence (ADR 0006), the graph library, physical
+devices, and checks that need a person listening.
 
 ## Goal
 

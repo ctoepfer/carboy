@@ -52,3 +52,13 @@ together with the graph spike.
    with a representative large recipe.
 2. Minimal app builds and runs on Windows, macOS, Linux, Android, and iOS.
 3. Signed/notarized macOS build succeeds (with sidecar if ADR 0005 track runs).
+
+## Evidence so far (2026-11-05)
+
+| Item | State |
+|---|---|
+| 1. Graph on WebKitGTK and iOS WKWebView | Automated runs pass on WebKitGTK and the iOS Simulator, with the provisional large recipe. Stage semantics solved for Orca ([GRAPH_REPORT](../../../spikes/phase1/GRAPH_REPORT.md)). Open: listening by a person, VoiceOver, a measured large recipe, touch |
+| 2. Runs on all five targets | Windows, macOS, Linux pass in CI. iOS Simulator passes. Android emulator starts; its checks aren't verified. No physical device yet |
+| 3. Signed macOS build | Not attempted |
+
+No evidence so far favours the fallback shell, and this stays Proposed.

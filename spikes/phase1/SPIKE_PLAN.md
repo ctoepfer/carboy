@@ -75,6 +75,24 @@ run 38639846127). Not yet installed or run in a simulator; the next step is
 `xcrun simctl` install and launch with the auto-mode variables, then reading
 the report from the app's container.
 
+**Option 2 done (2026-11-05, run 42175619190):** the shell **runs in the iOS
+18.7 Simulator** (WKWebView, `xcrun simctl`, a real bundle from
+`gen/apple/build/arm64-sim/`). Core checks 5/5; Recipe page edit, preview, save
+as child revision, export, and import pass (OG 1.064 → 1.071); Library, after a
+relaunch: integrity ok, WAL, `synchronous=2`, 3/3 revisions verified; both graph
+candidates 7/7. Reports and screenshots are in the run's artifacts. That is
+save and reopen through SQLite on a simulator, not on a device. Recipe Core here
+is the spike's own copy (`spikes/phase1/recipe-core`), not `packages/recipe-core`.
+
+**Option 3 done in part (2026-11-05, same run):** the shell **builds as a debug
+APK and starts on an Android 14 emulator** (x86_64, WebView 113, scripted with
+`sdkmanager` and `emulator`): the process stays up, there are no fatal
+exceptions in logcat, and a screenshot shows the Recipe page with a revision ID
+the core generated. **Not verified:** the automated checks, SQLite save and
+reopen, and the graph pages, because `adb` can't set an app's environment, so
+the auto mode doesn't start. Next: a build-time switch for the auto mode, and a
+way to read the report back.
+
 **Options, cheapest first:**
 
 1. **Engine check without the shell:** run Recipe Core's vectors under
