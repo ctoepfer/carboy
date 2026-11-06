@@ -5,15 +5,22 @@ import { isObject } from "./provenance.js";
 // "Write at X" means: check the content uses nothing newer than X, then
 // stamp X. No content is ever converted between MINORs.
 
-export const SCHEMA_VERSION = { major: 0, minor: 2 } as const;
+export const SCHEMA_VERSION = { major: 0, minor: 3 } as const;
 
 /** Oldest MINOR of the current MAJOR this build can still write. */
 const OLDEST_MINOR = 1;
 
-/** Ingredient members each MINOR added (0.2: requirement and approved alternatives, INGREDIENT_CATALOG §3). */
+/** Ingredient members each MINOR added (0.2: requirement and approved alternatives, INGREDIENT_CATALOG §3; 0.3: attribute requirements). */
 const INGREDIENT_ADDITIONS: readonly { readonly member: string; readonly minor: number }[] = [
   { member: "group_ref", minor: 2 },
   { member: "alternatives", minor: 2 },
+  { member: "requirements", minor: 3 },
+];
+
+/** Top-level members each MINOR added (0.3: recipe language, UQ5; the equipment snapshot's field table). */
+const CONTENT_ADDITIONS: readonly { readonly member: string; readonly minor: number }[] = [
+  { member: "language", minor: 3 },
+  { member: "equipment", minor: 3 },
 ];
 
 export interface SchemaUse {
@@ -35,6 +42,13 @@ export function requiredSchemaVersion(content: unknown, base = "/content"): { ve
   if (isObject(content) && isObject(content["beverage"]) && content["beverage"]["style_text"] !== undefined) {
     uses.push({ path: `${base}/beverage/style_text`, version: `${SCHEMA_VERSION.major}.2` });
     minor = 2;
+  }
+  if (isObject(content)) {
+    for (const a of CONTENT_ADDITIONS) {
+      if (content[a.member] === undefined) continue;
+      uses.push({ path: `${base}/${a.member}`, version: `${SCHEMA_VERSION.major}.${a.minor}` });
+      minor = Math.max(minor, a.minor);
+    }
   }
   const ings = isObject(content) ? content["ingredients"] : undefined;
   if (Array.isArray(ings)) {

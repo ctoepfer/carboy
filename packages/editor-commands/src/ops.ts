@@ -1,6 +1,6 @@
-import { BEVERAGES, CONFIDENCES, FLOW_KINDS, INGREDIENT_KINDS, POINT_BASIS, TARGETS, TIMING_BASES, propertyRow, stageKind, targetFits, unitDefinition } from "@carboy/recipe-core";
+import { BEVERAGES, CONFIDENCES, EQUIPMENT_FIELDS, FLOW_KINDS, INGREDIENT_KINDS, POINT_BASIS, TARGETS, TIMING_BASES, propertyRow, stageKind, targetFits, unitDefinition } from "@carboy/recipe-core";
 import { CommandError } from "./diagnostics.js";
-import { catalogRefArg, indexOf, insertAt, isObject, nameArg, newIdArg, oneOf, quantityArg, stringArg, type Obj } from "./util.js";
+import { catalogRefArg, clone, indexOf, insertAt, isObject, nameArg, newIdArg, oneOf, quantityArg, stringArg, type Obj } from "./util.js";
 
 // Command catalogue v0 (EDITOR_COMMANDS §5). Each handler checks its own
 // preconditions against the working copy and throws CommandError; the
@@ -184,6 +184,8 @@ export const OPS: Readonly<Record<string, OpSpec>> = {
   // §5.1 Recipe
   set_name: { required: ["name"], run: (x, a) => void (x.c["name"] = stringArg(a["name"], "name", { nonEmpty: true })) },
   set_beverage_type: { required: ["type"], run: (x, a) => void (objAt(x.c, "beverage")["type"] = oneOf(a["type"], BEVERAGES, "type")) },
+  set_language: { required: ["language"], minor: 3, run: (x, a) => void (x.c["language"] = stringArg(a["language"], "language", { nonEmpty: true })) },
+  clear_language: { required: [], minor: 3, run: (x) => void delete x.c["language"] },
   set_style: unsupported("style codes need the style system's data, which is not in Carboy yet (D-020)"),
   set_style_text: { required: ["text"], minor: 2, run: (x, a) => void (objAt(x.c, "beverage")["style_text"] = stringArg(a["text"], "text", { nonEmpty: true })) },
   clear_style: {
@@ -305,6 +307,18 @@ export const OPS: Readonly<Record<string, OpSpec>> = {
       if ((ing["alternatives"] as Obj[]).length === 0) delete ing["alternatives"];
     },
   },
+  // Schema 0.3: what the recipe asks of the product; validated with the result.
+  set_ingredient_requirements: {
+    required: ["ingredient", "requirements"],
+    minor: 3,
+    run: (x, a) => {
+      if (!Array.isArray(a["requirements"])) throw new CommandError("invalid-argument", "requirements must be an array", undefined, { argument: "requirements" });
+      const ing = ingredient(x.c, a["ingredient"]);
+      if (a["requirements"].length === 0) delete ing["requirements"];
+      else ing["requirements"] = clone(a["requirements"]);
+    },
+  },
+  clear_ingredient_requirements: { required: ["ingredient"], minor: 3, run: (x, a) => void delete ingredient(x.c, a["ingredient"])["requirements"] },
   remove_ingredient: {
     required: ["ingredient"],
     run: (x, a) => {
@@ -461,10 +475,44 @@ export const OPS: Readonly<Record<string, OpSpec>> = {
   remove_flow: { required: ["flow"], run: (x, a) => void flows(x.c).splice(indexOf(flows(x.c), a["flow"], "flow", "/process/flows"), 1) },
 
   // §5.7 Equipment and water: field lists are Needs confirmation (Phase 3).
-  apply_equipment_snapshot: unsupported("equipment fields are not defined yet (Phase 3)"),
-  set_equipment_field: unsupported("equipment fields are not defined yet (Phase 3)"),
-  clear_equipment_field: unsupported("equipment fields are not defined yet (Phase 3)"),
-  clear_equipment: unsupported("equipment fields are not defined yet (Phase 3)"),
+  // A snapshot keeps the provenance its values have in the profile, measured
+  // ones included. So only the editor may apply one: an AI-supplied snapshot
+  // could label its own numbers measured (C7). A later Bridge tool can name a
+  // profile and let the host copy it.
+  apply_equipment_snapshot: {
+    required: ["snapshot"],
+    minor: 3,
+    run: (x, a) => {
+      if (x.channel !== "editor") throw new CommandError("op-not-permitted", "only the editor applies an equipment snapshot", undefined, { op: "apply_equipment_snapshot" });
+      if (!isObject(a["snapshot"])) throw new CommandError("invalid-argument", "snapshot must be an object", undefined, { argument: "snapshot" });
+      x.c["equipment"] = clone(a["snapshot"]);
+    },
+  },
+  set_equipment_field: {
+    required: ["field", "quantity"],
+    minor: 3,
+    run: (x, a) => {
+      const field = oneOf(a["field"], EQUIPMENT_FIELDS.map((f) => f.name), "field");
+      objAt(objAt(x.c, "equipment"), "fields")[field] = withProv(x, quantityArg(a["quantity"], "quantity"));
+    },
+  },
+  clear_equipment_field: {
+    required: ["field"],
+    minor: 3,
+    run: (x, a) => {
+      const eq = x.c["equipment"];
+      const fields = isObject(eq) && isObject(eq["fields"]) ? eq["fields"] : {};
+      clearMember(fields, a["field"], "field");
+    },
+  },
+  clear_equipment: {
+    required: [],
+    minor: 3,
+    run: (x) => {
+      if (x.c["equipment"] === undefined) throw new CommandError("unknown-reference", "the recipe has no equipment snapshot", "/equipment");
+      delete x.c["equipment"];
+    },
+  },
   set_water_profile: unsupported("water profiles are not defined yet"),
   clear_water_profile: unsupported("water profiles are not defined yet"),
 

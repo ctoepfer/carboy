@@ -6,7 +6,7 @@ import { isObject, type Obj } from "./util.js";
 // text, display only). Statistics compare recalculated values; "cannot
 // compute" stays visible as such, never as zero.
 
-export type EntityType = "recipe" | "target" | "statistic_stated" | "ingredient" | "addition" | "stage" | "step" | "flow" | "note";
+export type EntityType = "recipe" | "target" | "statistic_stated" | "equipment" | "ingredient" | "addition" | "stage" | "step" | "flow" | "note";
 
 export interface FieldChange {
   readonly path: string;
@@ -50,12 +50,14 @@ export function diffContent(
   const ingB = names(b), ingA = names(a), stB = stageLabel(b), stA = stageLabel(a);
 
   // Recipe-level members.
-  const recipeFields = ["name", "beverage", "calculation_settings"].filter((k) => !same(b[k], a[k])).map((k) => field(k, b[k], a[k]));
+  const recipeFields = ["name", "language", "beverage", "calculation_settings"].filter((k) => !same(b[k], a[k])).map((k) => field(k, b[k], a[k]));
   if (recipeFields.length) entities.push({ type: "recipe", id: "recipe", change: "changed", label: { name: String(a["name"] ?? "") }, fields: recipeFields });
 
   // Keyed members: targets and stated statistics.
   keyed(entities, "target", isObject(b["targets"]) ? b["targets"] : {}, isObject(a["targets"]) ? a["targets"] : {});
   keyed(entities, "statistic_stated", isObject(b["statistics"]) ? b["statistics"] : {}, isObject(a["statistics"]) ? a["statistics"] : {});
+
+  keyed(entities, "equipment", equipmentEntries(b), equipmentEntries(a));
 
   // Entities with IDs.
   byId(entities, "ingredient", arr(b, "ingredients"), arr(a, "ingredients"), (e) => ({ name: String(e["name"] ?? "") }));
@@ -75,6 +77,14 @@ export function diffContent(
     if (!same(x, y)) statistics.push({ statistic: k, before: x ?? { absent: true }, after: y ?? { absent: true } });
   }
   return { entities, statistics };
+}
+
+/** The snapshot as named entries: one per field, plus its origin and notes. */
+function equipmentEntries(c: Obj): Obj {
+  const eq = c["equipment"];
+  if (!isObject(eq)) return {};
+  const { fields, ...rest } = eq;
+  return { ...(isObject(fields) ? fields : {}), ...rest };
 }
 
 function field(path: string, before: unknown, after: unknown): FieldChange {

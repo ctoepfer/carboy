@@ -1,8 +1,9 @@
 import { Decimal } from "./decimal.js";
+import { validateEquipmentSnapshot } from "./equipment.js";
 import { isObject, validateProvenance } from "./provenance.js";
 import { isUuid } from "./revision.js";
-import { propertyRow } from "./properties.js";
-import { validateQuantity } from "./quantity.js";
+import { propertyRow, traitRow } from "./properties.js";
+import { QuantityError, convert, validateQuantity } from "./quantity.js";
 import { POINT_BASIS, stageKind } from "./stage-kinds.js";
 import { validateStatistics } from "./statistics.js";
 import { unitDefinition } from "./units.js";
@@ -32,12 +33,12 @@ type Add = (code: string, path: string, message: string) => void;
 
 /** Documented members of each record; anything else is `unknown-member`. */
 const MEMBERS = {
-  content: ["name", "beverage", "lineage", "targets", "equipment", "ingredients", "process", "additions", "water", "statistics", "calculation_settings", "notes", "presentation"],
+  content: ["name", "language", "beverage", "lineage", "targets", "equipment", "ingredients", "process", "additions", "water", "statistics", "calculation_settings", "notes", "presentation"],
   beverage: ["type", "style", "style_text"],
   style: ["system", "code", "name"],
   lineage: ["copied_from"],
   copied_from: ["recipe_id", "revision_id"],
-  ingredient: ["id", "kind", "name", "properties", "unmapped", "catalog_ref", "group_ref", "alternatives", "provenance"],
+  ingredient: ["id", "kind", "name", "properties", "unmapped", "catalog_ref", "group_ref", "alternatives", "requirements", "provenance"],
   process: ["stages", "flows"],
   stage: ["id", "kind", "name", "parameters", "steps", "provenance"],
   step: ["id", "name", "parameters", "provenance"],
@@ -46,6 +47,7 @@ const MEMBERS = {
   timing: ["basis", "offset", "point", "contact"],
   note: ["id", "text"],
   quantity: ["value", "unit", "provenance"],
+  requirement: ["attribute", "level", "min", "max", "equals"],
 } as const;
 
 function closed(o: { [key: string]: unknown }, members: readonly string[], path: string, add: Add): void {
@@ -69,8 +71,10 @@ export function validateContent(content: unknown, base = "/content"): ContentIss
 
   closed(content, MEMBERS.content, base, add);
   checkName(content["name"], `${base}/name`, "invalid-content", "the recipe name", add);
-  for (const member of ["water", "presentation", "calculation_settings", "equipment"]) checkObject(content[member], `${base}/${member}`, member, add);
+  for (const member of ["water", "presentation", "calculation_settings"]) checkObject(content[member], `${base}/${member}`, member, add);
   validateLineage(content["lineage"], `${base}/lineage`, add);
+  if (content["equipment"] !== undefined) out.push(...validateEquipmentSnapshot(content["equipment"], `${base}/equipment`));
+  if (content["language"] !== undefined && !isLanguageTag(content["language"])) add("invalid-language", `${base}/language`, "language is a BCP 47 tag, such as en or pt-BR");
 
   // Beverage
   const bev = content["beverage"];
@@ -109,6 +113,7 @@ export function validateContent(content: unknown, base = "/content"): ContentIss
     if (typeof ing["id"] === "string") ingredientIds.add(ing["id"]);
     if (!(INGREDIENT_KINDS as readonly unknown[]).includes(ing["kind"])) add("unknown-ingredient-kind", `${p}/kind`, `kind must be one of ${INGREDIENT_KINDS.join(", ")}`);
     validateCatalogRefs(ing, p, add);
+    validateRequirements(ing, p, add);
     const props = ing["properties"];
     if (props !== undefined && !isObject(props)) add("invalid-ingredient", `${p}/properties`, "properties must be an object");
     if (isObject(props) && (INGREDIENT_KINDS as readonly unknown[]).includes(ing["kind"])) {
@@ -334,6 +339,55 @@ function checkQuantity(v: unknown, path: string, add: (c: string, p: string, m: 
 
 function checkEntityProvenance(o: { [key: string]: unknown }, path: string, add: Add): void {
   if (o["provenance"] !== undefined) for (const i of validateProvenance(o["provenance"], `${path}/provenance`)) add(i.code, i.path, i.message);
+}
+
+/** BCP 47 shape (language, then subtags); whether a subtag is registered isn't checked. */
+function isLanguageTag(v: unknown): boolean {
+  return typeof v === "string" && /^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$/.test(v);
+}
+
+/**
+ * What the recipe asks of whichever product fills this ingredient (schema
+ * 0.3): `required` decides whether a product qualifies, `preferred` only
+ * informs. Never read by a calculation.
+ */
+function validateRequirements(ing: { [key: string]: unknown }, p: string, add: Add): void {
+  const list = ing["requirements"];
+  if (list === undefined) return;
+  const rp = `${p}/requirements`;
+  if (!Array.isArray(list)) return add("invalid-requirements", rp, "requirements must be an array");
+  const seen = new Set<string>();
+  list.forEach((r, i) => {
+    const at = `${rp}/${i}`;
+    if (!isObject(r)) return add("invalid-requirements", at, "a requirement must be an object");
+    closed(r, MEMBERS.requirement, at, add);
+    if (r["level"] !== "required" && r["level"] !== "preferred") add("invalid-requirements", `${at}/level`, 'level is "required" or "preferred"');
+    const key = `${String(r["attribute"])}|${String(r["level"])}`;
+    if (seen.has(key)) add("duplicate-requirement", at, "this attribute already has a requirement at this level");
+    seen.add(key);
+    const kind = String(ing["kind"]);
+    const attribute = String(r["attribute"]);
+    const prop = propertyRow(kind, attribute);
+    if (traitRow(kind, attribute)) {
+      if (typeof r["equals"] !== "boolean") add("invalid-requirements", `${at}/equals`, "a trait requirement states equals: true or false");
+      return;
+    }
+    if (!prop) return add("unknown-attribute", `${at}/attribute`, `${attribute} is not an attribute of ${kind}`);
+    if (r["min"] === undefined && r["max"] === undefined) return add("invalid-requirements", at, "a property requirement states min, max, or both");
+    const bounds = (["min", "max"] as const).filter((b) => r[b] !== undefined);
+    const fine = bounds.every((b) => checkQuantity(r[b], `${at}/${b}`, add) && (prop.units.includes((r[b] as { unit: string }).unit) || (add("property-unit-not-allowed", `${at}/${b}/unit`, `${attribute} takes ${prop.units.join(", ")}`), false)));
+    if (fine && bounds.length === 2 && reversed(r["min"] as { value: string; unit: string }, r["max"] as { value: string; unit: string })) add("invalid-requirements", at, "min is above max");
+  });
+}
+
+/** True when min is above max. Bounds in scales that convert only by formula aren't compared. */
+function reversed(min: { value: string; unit: string }, max: { value: string; unit: string }): boolean {
+  try {
+    return convert(min, max.unit).compare(Decimal.parse(max.value)) > 0;
+  } catch (e) {
+    if (e instanceof QuantityError) return false;
+    throw e;
+  }
 }
 
 function validateLineage(v: unknown, path: string, add: Add): void {

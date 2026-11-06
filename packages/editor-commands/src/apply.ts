@@ -47,7 +47,7 @@ export function applyCommands(base: Content, commands: readonly unknown[], optio
       const op = cmd["op"];
       if (op === "scale_recipe" || op === "replace_ingredient") {
         macros = true;
-        const steps = op === "scale_recipe" ? expandScale(work, cmd, i, notes) : expandReplace(work, cmd);
+        const steps = op === "scale_recipe" ? expandScale(work, cmd, i, notes) : expandReplace(work, cmd, i, notes);
         for (const step of steps) {
           applyOne(work, step, options.channel, minor);
           expanded.push(step);
@@ -119,14 +119,25 @@ function expandScale(work: Obj, cmd: Obj, index: number, notes: Diagnostic[]): O
   return r.commands.map((c) => ({ ...c, ...prov }) as Obj);
 }
 
-function expandReplace(work: Obj, cmd: Obj): Obj[] {
+function expandReplace(work: Obj, cmd: Obj, index: number, notes: Diagnostic[]): Obj[] {
   for (const k of Object.keys(cmd)) if (!["op", "ingredient", "with", "provenance"].includes(k)) throw new CommandError("unknown-member", `replace_ingredient has no argument ${k}`, undefined, { member: k });
   const body = cmd["with"];
   if (!isObject(body)) throw new CommandError("invalid-argument", "with is an add_ingredient body", undefined, { argument: "with" });
   const ingredients = (Array.isArray(work["ingredients"]) ? work["ingredients"] : []) as Obj[];
-  if (!ingredients.some((g) => g["id"] === cmd["ingredient"])) throw new CommandError("unknown-reference", "no ingredient with this id", "/ingredients", { id: cmd["ingredient"] });
+  const old = ingredients.find((g) => g["id"] === cmd["ingredient"]);
+  if (!old) throw new CommandError("unknown-reference", "no ingredient with this id", "/ingredients", { id: cmd["ingredient"] });
   const prov = cmd["provenance"] !== undefined ? { provenance: cmd["provenance"] } : {};
   const out: Obj[] = [{ ...body, op: "add_ingredient", ...prov }];
+  // What the recipe needs doesn't depend on the product, so it stays with a
+  // same-kind replacement. Approved alternatives were approved against the
+  // old product, so they aren't carried; the brewer is told.
+  const needs = [
+    ["group_ref", "set_ingredient_group_ref"],
+    ["requirements", "set_ingredient_requirements"],
+  ].filter(([member]) => old[member!] !== undefined) as [string, string][];
+  if (body["kind"] === old["kind"]) for (const [member, op] of needs) out.push({ op, ingredient: body["id"], [member]: old[member] });
+  else if (needs.length > 0) notes.push({ code: "requirement-not-carried", severity: "warning", command_index: index, path: `/ingredients`, message: "the new ingredient is another kind, so the old requirement doesn't apply; review it" });
+  if (old["alternatives"] !== undefined) notes.push({ code: "alternatives-not-carried", severity: "warning", command_index: index, path: `/ingredients`, message: "approved alternatives were approved against the old product; review them" });
   const additions = (Array.isArray(work["additions"]) ? work["additions"] : []) as Obj[];
   // Re-point each addition, keeping its ID, stage, amount, timing, and place in its stage.
   for (const ad of additions.filter((a) => a["ingredient"] === cmd["ingredient"])) {

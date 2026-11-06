@@ -19,8 +19,10 @@ export { BEVERAGES, FLOW_KINDS, INGREDIENT_KINDS, TARGETS, TIMING_BASES, targetF
 export type { ContentIssue } from "./content.js";
 export { SCHEMA_VERSION, checkSchemaVersion, requiredSchemaVersion } from "./schema.js";
 export type { SchemaIssue, SchemaUse } from "./schema.js";
-export { INGREDIENT_PROPERTIES, propertyRow } from "./properties.js";
-export type { PropertyRow } from "./properties.js";
+export { INGREDIENT_PROPERTIES, INGREDIENT_TRAITS, propertyRow, traitRow } from "./properties.js";
+export type { PropertyRow, TraitRow } from "./properties.js";
+export { EQUIPMENT_FIELDS, equipmentField, isCalendarDate, isVersionNumber, validateEquipmentFields, validateEquipmentSnapshot } from "./equipment.js";
+export type { EquipmentField, EquipmentIssue } from "./equipment.js";
 export { beverageAdvisories } from "./advisories.js";
 export type { Advisory } from "./advisories.js";
 export { scaleRecipe } from "./scaling.js";

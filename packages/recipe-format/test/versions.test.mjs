@@ -20,8 +20,8 @@ const content = (ingredient) => ({
   notes: [],
 });
 
-test("this build reads and writes schema 0.2", () => {
-  assert.deepEqual(SUPPORTED_SCHEMA, { major: 0, minor: 2 });
+test("this build reads and writes schema 0.3", () => {
+  assert.deepEqual(SUPPORTED_SCHEMA, { major: 0, minor: 3 });
 });
 
 test("0.2 members in a 0.2 file: editable, and they round-trip unchanged", () => {

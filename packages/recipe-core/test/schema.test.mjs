@@ -20,8 +20,8 @@ const recipe = (ingredient) => ({
 });
 const codes = (c) => validateContent(c).map((i) => [i.code, i.path]);
 
-test("current schema is 0.2", () => {
-  assert.deepEqual(SCHEMA_VERSION, { major: 0, minor: 2 });
+test("current schema is 0.3", () => {
+  assert.deepEqual(SCHEMA_VERSION, { major: 0, minor: 3 });
 });
 
 test("required version: 0.1 without the new members, 0.2 with them, naming each use", () => {
@@ -46,7 +46,7 @@ test("write at X: content may use nothing newer than X; versions outside the sup
   assert.deepEqual(checkSchemaVersion(c, "0.2"), []);
   assert.deepEqual(checkSchemaVersion(c, "0.1").map((i) => [i.code, i.path]), [["member-newer-than-schema", "/content/ingredients/0/group_ref"]]);
   assert.deepEqual(checkSchemaVersion(recipe({}), "0.1"), []);
-  assert.deepEqual(checkSchemaVersion(c, "0.3").map((i) => i.code), ["unsupported-schema-version"]);
+  assert.deepEqual(checkSchemaVersion(c, "0.4").map((i) => i.code), ["unsupported-schema-version"]);
   assert.deepEqual(checkSchemaVersion(c, "1.0").map((i) => i.code), ["unsupported-schema-version"]);
   assert.deepEqual(checkSchemaVersion(c, "0.0").map((i) => i.code), ["unsupported-schema-version"]);
 });

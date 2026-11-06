@@ -26,3 +26,23 @@ export const INGREDIENT_PROPERTIES: readonly PropertyRow[] = [
 export function propertyRow(kind: string, name: string): PropertyRow | undefined {
   return INGREDIENT_PROPERTIES.find((r) => r.name === name && r.kinds.includes(kind));
 }
+
+/**
+ * Yes-or-no attributes that decide whether a product suits a recipe
+ * (INGREDIENT_CATALOG rule 7, §2.5). Closed like the property table. They are
+ * not quantities and no formula reads them: they exist to be required,
+ * compared, and warned about.
+ */
+export interface TraitRow {
+  readonly name: string;
+  readonly kinds: readonly string[];
+}
+
+export const INGREDIENT_TRAITS: readonly TraitRow[] = [
+  { name: "diastatic", kinds: ["culture"] },
+  { name: "phenolic", kinds: ["culture"] },
+];
+
+export function traitRow(kind: string, name: string): TraitRow | undefined {
+  return INGREDIENT_TRAITS.find((r) => r.name === name && r.kinds.includes(kind));
+}
