@@ -8,10 +8,11 @@ designing recipes, improving them batch by batch, and brewing them.
 > is configured in [`identity/identity.json`](identity/identity.json)
 > ([naming policy](docs/architecture/NAMING.md)).
 
-**Status: Phase 2 (Recipe Core) has started; Phase 1 (platform proof)
-continues alongside it.** There is no application yet. Recipe Core is being
-built in TypeScript under [`packages/recipe-core/`](packages/recipe-core/)
-(ADR 0004, accepted). Throwaway spike code under
+**Status: Phase 2 (Recipe Core) is complete and Phase 3 has started; Phase 1
+(platform proof) continues alongside it.** There is no application yet. Recipe
+Core, the native format, and editor commands are built in TypeScript under
+[`packages/`](packages/) (ADR 0004, accepted), with the first ingredient
+catalog and equipment profile models. Throwaway spike code under
 [`spikes/phase1/`](spikes/phase1/README.md) still tests the shell, storage,
 and graph candidates. Phases and current focus:
 [`docs/ROADMAP.md`](docs/ROADMAP.md).

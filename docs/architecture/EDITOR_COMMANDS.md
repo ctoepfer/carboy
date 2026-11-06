@@ -139,6 +139,7 @@ supplied by the author. Every entity argument (`ingredient`, `stage`,
 |---|---|---|
 | `set_name` | `name` | Non-empty after trimming |
 | `set_beverage_type` | `type` | `beer`, `wine`, `mead`, `cider`, `sake` (D-019 open). Changing the type keeps every entity; statistics that no longer apply report "unsupported" |
+| `set_language` / `clear_language` | `language` / — | Schema 0.3. A BCP 47 tag for the recipe's own text; it changes no text (UQ5) |
 | `set_style` | `system`, `code`, *`name`* | Code must exist in the named style system's data. Lumina accepts unrecognized text as a "custom style"; here that is `set_style_text` |
 | `set_style_text` | `text` | A free-text style label, never interpreted |
 | `clear_style` | — | |
@@ -165,6 +166,7 @@ supplied by the author. Every entity argument (`ingredient`, `stage`,
 | `set_ingredient_property` | `ingredient`, `property`, `value` | `property` and its value type come from the ingredient property table (RECIPE_SCHEMA §7.2). A name not in the table for this `kind` is rejected (`unknown-property`; Q9 decided). Fields in `unmapped` can't be written by any command |
 | `clear_ingredient_property` | `ingredient`, `property` | |
 | `set_ingredient_catalog_ref` / `clear_ingredient_catalog_ref` | `ingredient`, `catalog_ref` / `ingredient` | Changing the reference never changes properties. Refreshing properties from the catalog is a set of `set_ingredient_property` commands the user reviews |
+| `set_ingredient_requirements` / `clear_ingredient_requirements` | `ingredient`, `requirements` / `ingredient` | Schema 0.3. Whole list, absolute (RECIPE_SCHEMA §7.2). Changes no statistic |
 | `remove_ingredient` | `ingredient` | **Rejected** (`entity-referenced`) while any addition uses it. Remove the additions in the same list. Nothing cascades silently |
 
 An ingredient's `kind` is fixed. Changing kind is remove + add, because the
@@ -220,8 +222,8 @@ apply and validate structurally; their statistics report "unsupported".
 
 | `op` | Arguments | Notes |
 |---|---|---|
-| `apply_equipment_snapshot` | `snapshot` | Copies a profile's values into `content.equipment`. The snapshot is data, not a reference (OVERVIEW §5) |
-| `set_equipment_field` / `clear_equipment_field` | `field`, `value` / `field` | Field list: Needs confirmation. Lumina's `EQUIPMENT_PROFILE_FIELDS` is the reference (Phase 3 equipment work) |
+| `apply_equipment_snapshot` | `snapshot` | Copies a profile's values into `content.equipment`, keeping their provenance. The snapshot is data, not a reference (OVERVIEW §5). **Editor channel only**: an AI-supplied snapshot could label its own numbers measured (C7) |
+| `set_equipment_field` / `clear_equipment_field` | `field`, `quantity` / `field` | Fields: [EQUIPMENT_PROFILES.md](EQUIPMENT_PROFILES.md). The value takes the channel's origin |
 | `clear_equipment` | — | |
 | `set_water_profile` / `clear_water_profile` | `role` (`source`, `target`), `ions` / `role` | Ion names and units follow Lumina `water_chemistry.py`. Salt treatments are ordinary `water_agent` ingredients with additions in mash or sparge stages, so same-named mash and sparge salts can't merge |
 
@@ -234,7 +236,7 @@ sees every changed value.
 | `op` | Arguments | Expands to |
 |---|---|---|
 | `scale_recipe` | `batch_volume` (quantity), *`scope`* | `set_target` for the batch volume and `set_addition_amount` for each scaled addition. Which additions scale, and how (linear for grain; not for cultures, which Lumina also skips with a warning; hop utilization and boil-off are not linear), is the Phase 2 scaling policy: v1 in [RECIPE_CORE §7a](RECIPE_CORE.md#7a-scaling-policy-v1-2026-10-14) (`scaleRecipe`) |
-| `replace_ingredient` | `ingredient`, `with` (an `add_ingredient` body) | `add_ingredient`, one `move`-equivalent per addition re-pointed to the new ingredient, `remove_ingredient`. Amounts are kept; properties are not copied (the new ingredient has its own) |
+| `replace_ingredient` | `ingredient`, `with` (an `add_ingredient` body) | `add_ingredient`, one `move`-equivalent per addition re-pointed to the new ingredient, `remove_ingredient`. Amounts are kept; properties are not copied (the new ingredient has its own). A same-kind replacement keeps `group_ref` and `requirements`, because what the recipe needs doesn't depend on the product. Approved `alternatives` aren't carried (warning `alternatives-not-carried`), and a change of kind drops the requirement (warning `requirement-not-carried`) |
 
 A stored proposal keeps the commands as submitted. The expansion is
 recomputed on every application, so a rebase (§9) scales from the new
@@ -459,12 +461,14 @@ Conversation"` (workflow state, not recipe content) and
 | Part | State |
 |---|---|
 | §2 encoding, §3 application, §4 provenance, §6 result, §7 diff | Implemented. Channels `editor`, `ai_proposal`, `ai_created`; the batch channel comes with batches (Phase 7) |
-| §5.1 recipe, §5.2 targets and statistics, §5.3 ingredients, §5.4 additions, §5.5 stages and steps, §5.6 flows | Implemented, except `set_style` (below). `set_style_text` writes `beverage.style_text` (schema 0.2) |
+| §5.1 recipe, §5.2 targets and statistics, §5.3 ingredients, §5.4 additions, §5.5 stages and steps, §5.6 flows | Implemented, except `set_style` (below). `set_style_text` writes `beverage.style_text` (schema 0.2); `set_language` and the requirement commands are schema 0.3 |
 | §5.8 macros | `scale_recipe` (policy v1; `scope` not defined yet) and `replace_ingredient` |
-| §5.7 equipment and water, §5.9 presentation, `set_style` | Refused with `unsupported-op`: equipment and water field lists are Phase 3; presentation waits for RECIPE_SCHEMA Q4 (AI channels still get `op-not-permitted`); style codes need style data (D-020) |
+| §5.7 equipment | Implemented (schema 0.3, 2026-11-05) |
+| §5.7 water, §5.9 presentation, `set_style` | Refused with `unsupported-op`: water profiles aren't defined yet; presentation waits for RECIPE_SCHEMA Q4 (AI channels still get `op-not-permitted`); style codes need style data (D-020) |
 | §8 proposals, §9 rebasing | Not yet: the proposal document and stale-base handling come with the review queue (Phase 4) and the Bridge (Phase 13) |
 
-Choices the draft left open, made here and open to review:
+Choices the draft left open, made here and accepted by the owner (EQ1,
+2026-11-05). Item 6 has since gained the carrying rule in §5.8:
 
 1. **Schema 0.2 ops:** `set_style_text`, `set_ingredient_group_ref`, `clear_ingredient_group_ref`,
    `set_ingredient_alternatives` (whole list, absolute; each alternative

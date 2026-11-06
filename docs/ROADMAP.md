@@ -7,21 +7,29 @@ kept by the maintainer. Contracts and architecture decisions are public in
 
 ## Current focus
 
-**Phase 2, Recipe Core** (since 2026-10-13), started after ADR 0004
-(pure TypeScript core) was accepted: [`packages/recipe-core/`](../packages/recipe-core/),
-documented in [RECIPE_CORE.md](architecture/RECIPE_CORE.md), and the native
-file in [`packages/recipe-format/`](../packages/recipe-format/)
-([RECIPE_FORMAT.md](architecture/RECIPE_FORMAT.md)). **Integration
-milestone reached (2026-10-14):** a complete recipe is created, validated,
-calculated, canonically serialized, hashed, saved, reopened, and verified
-with its identity and numbers unchanged. Since then: the editor command
-applier ([`packages/editor-commands/`](../packages/editor-commands/),
-[EDITOR_COMMANDS.md](architecture/EDITOR_COMMANDS.md)), full content
-validation, scaling, schema 0.2, migrations, and the Lumina ⇄ Carboy
-mapping with round-trip and parity fixtures that pass in TypeScript and
-Python. **Phase 2's exit criteria are met pending the owner's review**;
-open owner questions are listed in the formula, core, and command
-documents.
+**Phase 3, library, catalog, equipment profiles, recovery** (since
+2026-11-05). First slice: the ingredient catalog model
+([`packages/ingredient-catalog/`](../packages/ingredient-catalog/),
+[INGREDIENT_CATALOG §9](architecture/INGREDIENT_CATALOG.md#9-implementation-status-phase-3-2026-11-05))
+and equipment profiles with snapshots
+([`packages/equipment-profiles/`](../packages/equipment-profiles/),
+[EQUIPMENT_PROFILES.md](architecture/EQUIPMENT_PROFILES.md)), both data
+models with no storage or interface yet. No catalog data ships until D-009 is
+decided. The recipe library, autosave, and recovery are still to come.
+
+**Phase 2, Recipe Core, is complete** (2026-11-05): decimal arithmetic, units,
+canonical JSON and revision hashing, the formula registry and provenance,
+complete content validation, Editor Commands with semantic diffs, scaling,
+ingredient replacement, native save and reopen with verification, schema
+versions and migrations, and the Lumina mapping with parity fixtures that pass
+in TypeScript and Python
+([RECIPE_CORE.md](architecture/RECIPE_CORE.md),
+[RECIPE_FORMAT.md](architecture/RECIPE_FORMAT.md),
+[EDITOR_COMMANDS.md](architecture/EDITOR_COMMANDS.md)). Complete means the
+exit criteria are met. Deliberately later: statistics whose sources aren't
+accepted stay unavailable per D-006 (colour in SRM, IBU, ABV, FG, wine
+chemistry), proposals and rebasing come with the review queue, and brewconvert
+parity comes with the BeerXML port in Phase 4.
 
 **Phase 1, platform proof** continues alongside it: the throwaway spikes
 under [`spikes/phase1/`](../spikes/phase1/README.md)
@@ -130,6 +138,9 @@ Architecture decisions with lasting consequences also have an
 | D-022 | Schema version negotiation between devices and services | [RECIPE_SCHEMA §4](architecture/RECIPE_SCHEMA.md#4-schema-versioning) |
 | Q1, Q2, Q5, Q5b, Q9 | UUIDv7 identifiers; unit tokens and exact factors; timing points; stage per vessel; closed ingredient property table | [RECIPE_SCHEMA](architecture/RECIPE_SCHEMA.md) |
 | E1–E6 | Editor command decisions | [EDITOR_COMMANDS](architecture/EDITOR_COMMANDS.md#decisions) |
+| EQ1 | Editor command implementation choices accepted | [EDITOR_COMMANDS](architecture/EDITOR_COMMANDS.md#implementation-status-phase-2-2026-10-14) |
+| RQ2 | `mg` is a unit token | [RECIPE_CORE §3](architecture/RECIPE_CORE.md#rq2-mg-approved-2026-11-05) |
+| FQ5, FQ6 | Molecular SO₂ stays unavailable until a wine-condition source is read; FG may be predicted from stated attenuation as a labelled estimate (not implemented yet) | [FORMULA_COVERAGE](architecture/FORMULA_COVERAGE.md#decisions) |
 | SQ1–SQ4 | Sync protocol decisions | [SYNC_PROTOCOL](architecture/SYNC_PROTOCOL.md#decisions) |
 | TQ1–TQ5 | AI tool surface decisions | [AI_TOOLS](architecture/AI_TOOLS.md#decisions) |
 | FQ1–FQ4 | Formula sourcing rules | [FORMULA_COVERAGE](architecture/FORMULA_COVERAGE.md#decisions) |

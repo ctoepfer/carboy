@@ -85,13 +85,11 @@ formulas, not unit factors; **pH is a scale, never a linearly convertible
 concentration**; canonical tokens internally, aliases mapped only at
 import and display boundaries.
 
-### RQ2: `mg` (proposed 2026-10-14)
+### RQ2: `mg` (approved 2026-11-05)
 
-Nutrient and sulfite doses are usually stated in milligrams, and `mg` is
-not a token (Q2 and RQ1 have `kg`, `g`, `lb`, `oz`). Proposal: add `mg`
-(mass, 0.000001 kg exactly). **Owner confirmation needed**; until then
-inputs in milligrams are refused (`unknown-unit`), and callers convert to
-grams.
+Nutrient and sulfite doses are usually stated in milligrams, so `mg` is a
+token (mass, 0.000001 kg exactly), and the sulfite and nutrient dose
+formulas accept it.
 
 ## 4. Quantities
 
@@ -183,7 +181,9 @@ JSON Pointer; nothing is repaired or filled in.
   `flameout`), `whirlpool`, `chilling`, `fermentation` and `conditioning`
   (point `dry_hop`), `stabilization`, `packaging`. Parameter rows come with
   the formulas that read them; non-beer kinds with their beverage formulas.
-- **Content validation, first slice:** beverage type (no fallback to beer);
+- **Content validation** (complete 2026-11-05): required members and types,
+  with closed member sets on every record (`unknown-member`, RECIPE_SCHEMA
+  §7), beverage and style, lineage, notes; beverage type (no fallback to beer);
   ids valid and unique across the document; additions name an existing
   ingredient and stage and have an amount; flows name existing stages;
   ingredient, stage, and flow kinds from their tables; timing basis,
@@ -206,8 +206,14 @@ JSON Pointer; nothing is repaired or filled in.
   or `ai_proposed`); catalog references need non-empty `catalog`, `item`,
   `version`; an alternative may not repeat the preferred product or
   another alternative (same catalog and item, any version). Per-member
-  MINOR bookkeeping: `requiredSchemaVersion`, `checkSchemaVersion`. The
-  recipe `language` member waits for UQ5.
+  MINOR bookkeeping: `requiredSchemaVersion`, `checkSchemaVersion`.
+- **Schema 0.3 members** (`equipment.ts`, `properties.ts`, 2026-11-05):
+  `language`, a well-formed BCP 47 tag (UQ5); the equipment snapshot with its
+  closed field table `EQUIPMENT_FIELDS` and no defaults
+  ([EQUIPMENT_PROFILES.md](EQUIPMENT_PROFILES.md)); ingredient `requirements`,
+  with `required` and `preferred` levels on property-table attributes and on
+  `INGREDIENT_TRAITS` (`diastatic`, `phenolic`). No formula reads any of these,
+  so they change no calculated result.
 - **Remaining validation** (2026-10-14): every quantity is checked where
   it appears (addition amounts, stage and step parameters, targets,
   ingredient properties), with the issue on `/value` or `/unit`; stage
@@ -248,11 +254,11 @@ edits content; applying the commands is the editor's job (Phase 4).
 
 **Rounding:** each amount is computed from exact rationals with one
 division, rounded half-even to 34 significant digits, and stored at that
-precision; nothing is rounded to "nice" values. Whether scaled amounts
-should be rounded to a stated precision before they are stored (for
-example 1 g, or 0.01 kg) is open question **SQ1** for the owner; display
-rounding is a UI matter either way. Statistics of the scaled recipe are
-recalculated, never carried over.
+precision; nothing is rounded to "nice" values. Scaled amounts are not
+rounded to a coarser precision before they are stored (question SQ1 in the
+private register; **Needs confirmation** from the owner, because no
+recommendation was on record). Display rounding is a UI matter either way.
+Statistics of the scaled recipe are recalculated, never carried over.
 
 ## 7b. Migrations (2026-10-14)
 

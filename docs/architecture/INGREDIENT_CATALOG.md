@@ -1,6 +1,6 @@
 # Ingredient Catalog v0 (draft): hierarchy, substitution, inventory
 
-- Status: **v0.2. IQ1–IQ4 and YQ1–YQ5 (D-030) decided (owner, 2026-10-13; §7, §8).** Planning; implementation in Phase 3. Builds on RECIPE_SCHEMA §7.2
+- Status: **v0.2. IQ1–IQ4 and YQ1–YQ5 (D-030) decided (owner, 2026-10-13; §7, §8).** First slice implemented in Phase 3 in [`packages/ingredient-catalog/`](../../packages/ingredient-catalog/) (§9). No catalog data ships yet (D-009). Builds on RECIPE_SCHEMA §7.2
   (ingredient snapshots, `catalog_ref`, property table) and the Ingredient
   Catalog module ([OVERVIEW.md §2](OVERVIEW.md#2-modules)).
 - Date: 2026-10-13
@@ -333,8 +333,9 @@ Ingredient snapshot (RECIPE_SCHEMA §7.2; schema MINOR, with schema 1.0):
 
 ## 4. Substitution
 
-- **Substitute** is an editor command (`substitute_ingredient`: replace the
-  product in an ingredient snapshot, keep its additions), previewed with a
+- **Substitute** is the editor command `replace_ingredient` (replace the
+  product in an ingredient snapshot, keep its additions, and keep the
+  requirement: EDITOR_COMMANDS §5.8), previewed with a
   diff and recalculated statistics like every other edit. Nothing substitutes
   automatically.
 - Candidates are ranked by **functional** distance only: same leaf group
@@ -354,7 +355,7 @@ Ingredient snapshot (RECIPE_SCHEMA §7.2; schema MINOR, with schema 1.0):
 - **Two places to apply a choice:** *to this batch* records the actual
   product on the batch (the recipe is unchanged, and the batch's own
   calculations use the actual product's properties, previewed first); *to
-  the recipe* is `substitute_ingredient`, a reviewed edit that creates a new
+  the recipe* is `replace_ingredient`, a reviewed edit that creates a new
   revision, optionally keeping the old preferred product as an alternative.
 
 ## 5. Shopping lists (requirements; implementation later)
@@ -481,3 +482,35 @@ Additional requirements:
 - **Explainability:** a brewer can ask for "this kind of ingredient"
   without knowing its classification, and can always ask why two
   ingredients are considered related (§2.0).
+
+## 9. Implementation status (Phase 3, 2026-11-05)
+
+`@carboy/ingredient-catalog` depends only on Recipe Core. It holds no data and
+no storage.
+
+| Part | State |
+|---|---|
+| Catalog document: `format`, `schema_version` 0.1, stable `catalog` id, integer-string `version`, class (`curated`, `community`, `user`), `catalogHash` | Implemented. A catalog id and record ids are UUIDs and permanent |
+| Groups: per-kind tree, organizational above functional, at most two functional levels (§2.1) | Implemented. A taxon or strain can't be a group or a parent |
+| Products: maker, name, aliases, identifiers, one primary functional group, stated properties from the property table, traits, status | Implemented. Stated values are single values; maker ranges are not modelled yet |
+| Scientific classification: taxa and strains as separate records; species read from supported relations | Implemented. Unknown stays unknown |
+| Relations and evidence: the closed types of §2.3 with endpoints checked; kind, certainty, stance; `superseded_by`; `status_history` | Implemented. Status is derived, never stored as fact |
+| Identity: direct claims only, so not transitive; negative claims a hard boundary; conflicts `contested` (`strainIdentity`) | Implemented |
+| "Why are these related?" (`relationsBetween`) | Implemented as data; no UI |
+| User entries (§7 IQ3): own catalog, may link to curated groups, never merged | Implemented (`openCatalogs`, `CatalogSet.validate`) |
+| Import matching (rule 5): `importCandidates` lists candidates and never chooses | Implemented; the importer comes in Phase 4 |
+| Versions: `compareVersions` refuses removed records, changed kinds, deleted evidence, reused versions | Implemented |
+| Recipe at any specificity: `describeIngredient` (free text, group, product, both) | Implemented |
+| Snapshots: `snapshotCommands` copies stated values only | Implemented |
+| Refresh: `refreshCommands` returns commands for review and applies nothing | Implemented |
+| Candidate review (§2.5): `evaluateCandidate` against the recipe's `requirements`, exclusions, trait, and species warnings. `meets-stated-requirements` is the most it says | Implemented |
+| Substitution ranking (§4), hop quantity adjustment, staging and research imports (§2.6), packs, search | Not yet |
+
+**Retailer data is refused, not just absent:** a `sku` identifier is
+`retailer-data-not-catalog`, and prices, stock, and lots are `unknown-member`.
+What was actually used belongs to the batch record.
+
+The tests use invented makers wherever numbers are involved. The owner's
+Pilsner example appears as a brewer's own `user` catalog with no property
+values, so the project makes no data claims about those products.
+

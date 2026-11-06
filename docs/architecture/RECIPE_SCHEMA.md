@@ -170,6 +170,7 @@ converted.
 |---|---|
 | 0.1 | First implemented draft (Phase 2) |
 | 0.2 | Ingredient `group_ref` and `alternatives[]` (§7.2; INGREDIENT_CATALOG §3); `beverage.style_text`, a free-text style label never interpreted (§7.1) |
+| 0.3 | `language` (§7; UQ5); the `equipment` snapshot's field table (§7.5); ingredient `requirements` (§7.2) |
 
 ## 5. Typed quantities
 
@@ -245,11 +246,12 @@ later reader can tell which numbers came from AI.
 
 ```text
 content
-├── name                 string
-├── beverage             { type, style? }
+├── name                 non-empty string
+├── language?            BCP 47 tag for the recipe's own text (UQ5, schema 0.3)
+├── beverage             { type, style?, style_text? }
 ├── lineage?             { copied_from: { recipe_id, revision_id } }
 ├── targets              batch volume, boil volume, efficiency, ... (quantities)
-├── equipment?           snapshot of the equipment profile used (not a reference)
+├── equipment?           snapshot of an equipment profile (§7.5), not a reference
 ├── ingredients[]        ingredient snapshots, each with a stable id
 ├── process              { stages[], flows[] }
 ├── additions[]          ingredient × stage × timing × quantity
@@ -259,6 +261,15 @@ content
 ├── notes[]              { id, text }, never interpreted by calculations
 └── presentation?        graph coordinates, collapsed state, viewport
 ```
+
+Member sets are closed at every level: a member not documented here is
+`unknown-member`, because a member nothing validates could carry meaning no
+reader sees. Fields with no home go in `ingredient.unmapped`. `name` is
+required on the recipe and on each ingredient, a note has `text`, and a
+`lineage`'s `copied_from` holds two UUIDs. `water`, `presentation`, and
+`calculation_settings` must be objects; their inner fields are defined with the
+work that uses them. `language` is only ever a label for the text: localization
+never changes what a brewer wrote.
 
 ### 7.1 Beverage
 
@@ -303,6 +314,23 @@ stand-ins; neither changes calculations (owner clarification to D-030,
 **Approved (IQ1, 2026-10-13):** an optional `group_ref` naming the
 catalog group the recipe needs ("Chico-lineage ale yeast") beside the
 product used ([INGREDIENT_CATALOG.md](INGREDIENT_CATALOG.md) §3, IQ1).
+
+**Attribute requirements (schema 0.3).** An optional `requirements[]` states
+what the recipe asks of whichever product fills the ingredient, separately
+from any one product:
+
+```json
+"requirements": [
+  { "attribute": "color", "level": "required", "max": { "value": "4.5", "unit": "EBC" } },
+  { "attribute": "extract_yield", "level": "preferred", "min": { "value": "0.8", "unit": "fraction" } },
+  { "attribute": "diastatic", "level": "required", "equals": false }
+]
+```
+
+`required` decides whether a product qualifies, and `preferred` only informs.
+A property takes `min`, `max`, or both, in the units its table row allows; a
+trait (`diastatic`, `phenolic`) takes `equals`. Each attribute appears once per
+level. No calculation reads them, and they change no statistic.
 
 **Ingredient property table.** Which properties each `kind` may carry is
 defined in **one place**: a per-kind property table, published with the
@@ -422,6 +450,16 @@ by stage ID. Recipe Core never reads it (R9). It is part of `content`, and
 therefore of the hash, so a layout change is saved like any other change.
 Whether layout-only edits should create revisions or be saved as a sidecar
 is open question Q4.
+
+### 7.5 Equipment
+
+`equipment` (field table defined in schema 0.3) is the equipment assumptions
+the recipe was written for, copied in as data:
+`{ based_on?, fields, notes? }`. `fields` is a closed table with no defaults;
+each value is `{ value, unit, provenance, measured_on? }`, and `provenance` is
+required. `based_on` (`{ profile, version, name }`) records the profile version
+it was copied from and is never resolved. No formula reads these fields yet.
+See [EQUIPMENT_PROFILES.md](EQUIPMENT_PROFILES.md).
 
 ## 8. Statistics layers
 

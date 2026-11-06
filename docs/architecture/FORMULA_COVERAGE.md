@@ -174,7 +174,7 @@ dilution. Wine's ethanol and ionic strength shift the effective constant
 (reported, via secondary sources, as nearer 2.0; Usseglio-Tomasset and Bosia
 1984, not read). **Molecular SO₂ stays unavailable** until a source for the
 wine-condition constant is read; using the aqueous value for wine would be
-an unsourced approximation (open question FQ5).
+an unsourced approximation (FQ5, decided no).
 
 Rules that hold regardless: measured free SO₂ (with date and method) is
 kept apart from estimates and targets and is never replaced by either;
@@ -257,8 +257,8 @@ Decided 2026-10-12 (owner accepted the recommendations):
 | FQ1 | Is a reviewed secondary source enough to ship a formula? | Yes, when it is published and reviewed (such as Holle, MBAA 2003), the formula is labeled with both citations, and the primary is listed "to verify". Web-only sources never are |
 | FQ2 | OG method | Both, as named formulas: the mass method is the default for recipes created in Carboy; the points method for Lumina and BeerXML parity |
 | FQ3 | Tinseth gravity | Follow the published model once a citable copy is read; Lumina's OG-based variant is kept only as a parity variant |
-| FQ6 (open, 2026-10-14) | May Carboy predict FG from a culture's stated apparent attenuation? Holle (H9.4) defines apparent degree of fermentation in °P, ADF = (OE − AE) ÷ OE, as a measured result; using a yeast's catalogue attenuation as the recipe's ADF is a prediction that depends on wort fermentability, mash, and pitching | Recommendation: **yes, labelled as an estimate**, in Holle's °P form (AE = OE × (1 − ADF), converted with `gravity.sg-plato`), with the assumption shown and the culture's attenuation required (never defaulted). Until decided, only Lumina's form exists, as a parity reference |
-| FQ5 (open, 2026-10-14) | May molecular SO₂ be offered with the aqueous pK₁ (Goldberg & Parker 1985, temperature-dependent), clearly labelled as an approximation that ignores ethanol and ionic strength, before a wine-condition source is read? | Recommendation: **no**; keep it unavailable until the wine-condition source is read, because the approximation's error in wine is unquantified |
+| FQ6 (**decided yes**, 2026-11-05; not implemented yet) | May Carboy predict FG from a culture's stated apparent attenuation? Holle (H9.4) defines apparent degree of fermentation in °P, ADF = (OE − AE) ÷ OE, as a measured result; using a yeast's catalogue attenuation as the recipe's ADF is a prediction that depends on wort fermentability, mash, and pitching | **Yes, labelled as an estimate**, in Holle's °P form (AE = OE × (1 − ADF), converted with `gravity.sg-plato`), with the assumption shown and the culture's attenuation required (never defaulted). Scheduled with the `attenuation` property row. Until then, only Lumina's form exists, as a parity reference, and no FG is enabled |
+| FQ5 (**decided no**, 2026-11-05) | May molecular SO₂ be offered with the aqueous pK₁ (Goldberg & Parker 1985, temperature-dependent), clearly labelled as an approximation that ignores ethanol and ionic strength, before a wine-condition source is read? | **No**: it stays unavailable until the wine-condition source is read, because the approximation's error in wine is unquantified |
 | FQ4 | ABV formula | Choose one with a citable source before Phase 2; 131.25 only as a Lumina parity variant |
 
 **D-006, decided 2026-10-12:** BEVERAGE_SCOPE's staging, gated per statistic as in [Proposed D-006 staging](#proposed-d-006-staging): a statistic is enabled only when its source meets FQ1 and its fixtures pass.

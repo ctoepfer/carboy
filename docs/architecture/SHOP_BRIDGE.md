@@ -75,7 +75,7 @@ both sides support and falls back gracefully.
    for the chosen fulfilment method; changing one asks for a new quote.
 5. **Approve:** explicit choices per line; if a choice changes calculated
    outcomes, the batch or recipe preview shows the change (INGREDIENT_CATALOG
-   §4); applying to the recipe is the reviewed `substitute_ingredient` edit.
+   §4); applying to the recipe is the reviewed `replace_ingredient` edit.
 6. **Checkout** (L3): only after the brewer confirms a retailer-validated
    quote for the exact configuration (lines, options, fulfilment); then the
    shop's checkout page, opened in the system

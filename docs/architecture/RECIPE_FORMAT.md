@@ -46,7 +46,8 @@ rejected rather than opened, since no reading of it is authoritative.
 
 ## Schema versions
 
-This build writes and reads schema **0.1 and 0.2**. 0.2 adds the optional
+This build writes and reads schema **0.1 to 0.3**. 0.3 adds `language`,
+the `equipment` snapshot, and ingredient `requirements`. 0.2 adds the optional
 ingredient members `group_ref` and `alternatives[]` ([RECIPE_CORE §7](RECIPE_CORE.md#7-provenance-statistics-layers-and-validation)). Recipe Core
 records which MINOR introduced each member, so `requiredSchemaVersion`
 gives the lowest version that can express a recipe and

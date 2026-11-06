@@ -51,7 +51,7 @@ Shared fixture suite ⇄ Lumina (Python) and brewconvert (Python) parity
 | Editor Commands | Typed edit commands, validation, undo/redo, proposal diffs | Only path that changes canonical recipe state |
 | Ingredient Catalog | Catalog definitions, custom entries, search, catalog versions | Recipes snapshot the properties they use; catalog updates never silently alter recipes |
 | Recipe Library | Persistence, revisions, recovery, backups | Exposes repository interfaces; nobody else touches its tables |
-| Equipment Profiles | Capacities, efficiency, losses, boil-off, calibration history | Usable without hardware; profile assumptions are snapshotted into revisions |
+| Equipment Profiles | Capacities, efficiency, losses, boil-off, calibration history ([EQUIPMENT_PROFILES.md](EQUIPMENT_PROFILES.md)) | Usable without hardware; profile assumptions are snapshotted into revisions |
 | Brew Sessions | Batches from recipe snapshots, measurements, timers, deviations, improvement suggestions | Recipe edits never rewrite batches |
 | AI Assistance | Provider configuration, context building, proposals, provenance, local AI connector | No direct storage writes; no actuator path |
 | Shop Integration | Shop connector contract, product matching, shopping lists, orders; future design: [SHOP_BRIDGE.md](SHOP_BRIDGE.md) (capability levels, Purchase Resolver) | Optional; shop systems stay authoritative |

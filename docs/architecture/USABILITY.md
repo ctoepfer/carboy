@@ -315,7 +315,7 @@ not carried over.
 | Phase | Usability work added by this plan |
 |---|---|
 | 1 (now) | Measure webview support for the features this plan relies on (§5); choose the message format with D-010; record findings in the spike reports |
-| 2 | Core outputs only codes and structured details (U7) for all diagnostics and statistic labels; unit tokens get message keys; recipe language tag if UQ5 is accepted (schema MINOR) |
+| 2 | Core outputs only codes and structured details (U7) for all diagnostics and statistic labels; unit tokens get message keys; recipe language tag (schema 0.3) |
 | 3 | Preferences store: language, unit preferences, theme, motion, shortcuts |
 | 4 | Catalog infrastructure and lint (U8); pseudo-locales and axe-core in CI; design tokens with three themes; command palette; keyboard-only exit workflow |
 | 5 | Graph keeps spike accessibility rules; RTL decision (UQ6); screen-reader matrix on the graph |
@@ -376,7 +376,7 @@ recommendations for UQ1–UQ11 are approved, with these clarifications:
 | UQ2 | Message format decided from the Phase 1 trial (§5 item 3), with D-010 |
 | UQ3 | Language packs are **data-only and validated**; bundled for shipped languages, user-loaded only in a translator/developer setting (§2.3) |
 | UQ4 | Unit preferences are **independent of language**, per dimension, with regional defaults |
-| UQ5 | Optional BCP 47 `language` member for recipe text (schema MINOR). User-written recipe names and notes are never changed by localization |
+| UQ5 | Optional BCP 47 `language` member for recipe text (implemented in schema 0.3, 2026-11-05). User-written recipe names and notes are never changed by localization |
 | UQ6 | The process graph follows reading direction in RTL languages, **subject to testing with RTL readers** |
 | UQ7 | Recruit people who regularly use assistive technologies **before 1.0** |
 | UQ8 | Plain-text or Markdown recipe export is supported (export only) |
