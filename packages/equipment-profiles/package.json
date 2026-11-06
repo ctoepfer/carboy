@@ -1,0 +1,31 @@
+{
+  "name": "@carboy/equipment-profiles",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Equipment Profiles: versioned, named sets of equipment values, and the snapshot a recipe copies from one. No DOM, Node, storage, network, device, or shell dependency.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@carboy/recipe-core": "0.0.0"
+  },
+  "devDependencies": {
+    "@carboy/editor-commands": "0.0.0",
+    "@carboy/recipe-format": "0.0.0",
+    "typescript": "5.9.3"
+  }
+}
