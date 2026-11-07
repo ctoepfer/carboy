@@ -3,7 +3,7 @@
 // what nobody measured stays absent.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { Decimal, calculateStatistics, createRevision, validateContent, verifyRevision } from "@carboy/recipe-core";
+import { Decimal, EQUIPMENT_FIELDS, calculateStatistics, createRevision, validateContent, verifyRevision } from "@carboy/recipe-core";
 import { applyCommands, emptyTemplate } from "@carboy/editor-commands";
 import { readNative, writeNative } from "@carboy/recipe-format";
 import { changedFields, createProfile, reviseProfile, snapshotProfile, validateProfile } from "../dist/index.js";
@@ -42,7 +42,7 @@ const OWNER_SYSTEM = {
   mash_tun_deadspace: entered("0", "US gal"),
   pre_boil_volume: entered("7", "US gal"),
   boil_time: entered("60", "min"),
-  boil_off_fraction_per_hour: entered("10.7", "%"),
+  evaporation_rate: entered("10.7", "%"),
   kettle_top_up: entered("0", "US gal"),
   hop_utilization_adjustment: entered("100", "%"),
   trub_chiller_loss: entered("0.5", "US gal"),
@@ -62,10 +62,18 @@ test("the owner's system fits, in the units it was stated in, and survives a sna
 
 test("the stated numbers agree with each other only if cooling loss is a percentage", () => {
   // Arithmetic on the owner's own figures, exact in decimal: a check on reading
-  // the field, not a Carboy formula. No volume calculation exists yet.
+  // cooling loss, not a Carboy formula. No volume calculation exists yet. The
+  // 0.107 is applied once for this 60-minute boil, which says nothing about
+  // evaporation_rate's time basis: per hour and per boil give the same answer.
   const d = Decimal.parse;
   const left = d("7").mul(d("1").sub(d("0.107"))).mul(d("1").sub(d("0.04"))).sub(d("0.5"));
   assert.equal(left.toString(), "5.50096");
+});
+
+test("evaporation_rate is stored as stated and claims no time basis", () => {
+  const eq = EQUIPMENT_FIELDS.find((f) => f.name === "evaporation_rate");
+  assert.equal(eq.dimension, "fraction");
+  assert.equal(EQUIPMENT_FIELDS.some((f) => f.name === "boil_off_fraction_per_hour"), false);
 });
 
 test("a profile that isn't valid is refused, not repaired", () => {

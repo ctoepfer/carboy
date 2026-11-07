@@ -31,7 +31,7 @@ commands all read it.
 | `mash_tun_specific_heat` | fraction | above 0 | Specific heat relative to water, so 0.12 means 0.12 cal/g/°C |
 | `mash_tun_deadspace` | volume | 0 or more | Liquid left in the mash or lauter tun |
 | `boil_off_per_hour` | volume | 0 or more | Volume lost in one hour of boiling |
-| `boil_off_fraction_per_hour` | fraction | at most 100 % | Share of the volume lost in one hour of boiling |
+| `evaporation_rate` | fraction | at most 100 % | Evaporation percentage as stated. **Time basis unconfirmed**: see below |
 | `kettle_top_up` | volume | 0 or more | Water added to the kettle |
 | `hop_utilization_adjustment` | fraction | above 0 | Adjustment to calculated utilization. May pass 100 % |
 | `trub_chiller_loss` | volume | 0 or more | Wort left behind with trub and in the chiller |
@@ -43,9 +43,17 @@ These cover the BeerXML 1.0 EQUIPMENT record apart from its boil-size switch
 (below), plus `cooling_loss`, `batch_capacity`, and `boil_capacity`. The first
 full test case is the owner's own system, in its stated units.
 
-Boil-off appears twice because brewers state it either way, and no
-volume-per-time unit token exists. If one is added, that is a schema MINOR. A
-stated zero is a value, and stays different from a value nobody stated.
+`boil_off_per_hour` is a volume lost in one hour, because no volume-per-time
+unit token exists. If one is added, that is a schema MINOR.
+
+`evaporation_rate` holds a percentage as its source states it, and makes **no
+claim about its time basis**. The owner's profile gives 10.7 %; whether that means
+per hour or per boil hasn't been checked against the original equipment setting,
+and its 60-minute boil can't tell them apart. BeerXML's EVAP_RATE is percent per
+hour, but that is a statement about that format, not about this value. No
+formula may read this field until the basis is confirmed and recorded.
+
+A stated zero is a value, and stays different from a value nobody stated.
 
 **There are no defaults.** A value nobody stated is absent, and absent stays
 absent: nothing is filled in from a typical system, and a new profile can be

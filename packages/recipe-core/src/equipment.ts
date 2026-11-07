@@ -34,9 +34,11 @@ export const EQUIPMENT_FIELDS: readonly EquipmentField[] = [
   // Relative to water, so it needs no unit token (0.12 for stainless steel means 0.12 cal/g/°C).
   { name: "mash_tun_specific_heat", dimension: "fraction", positive: true },
   { name: "mash_tun_deadspace", dimension: "volume" },
-  // Boil. A rate is a volume or a fraction lost in one hour: there are no per-time unit tokens.
+  // Boil. There are no per-time unit tokens, so this one is a volume lost in one hour.
   { name: "boil_off_per_hour", dimension: "volume" },
-  { name: "boil_off_fraction_per_hour", dimension: "fraction", atMostOne: true },
+  // A percentage as the source states it. Its time basis (per hour, per boil) is
+  // unconfirmed, so nothing may calculate from it until that is settled.
+  { name: "evaporation_rate", dimension: "fraction", atMostOne: true },
   { name: "kettle_top_up", dimension: "volume" },
   // An adjustment, not a share, so it can pass 100 %.
   { name: "hop_utilization_adjustment", dimension: "fraction", positive: true },

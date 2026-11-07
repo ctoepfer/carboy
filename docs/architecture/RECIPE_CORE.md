@@ -254,10 +254,9 @@ edits content; applying the commands is the editor's job (Phase 4).
 
 **Rounding:** each amount is computed from exact rationals with one
 division, rounded half-even to 34 significant digits, and stored at that
-precision; nothing is rounded to "nice" values. Scaled amounts are not
-rounded to a coarser precision before they are stored (question SQ1 in the
-private register; **Needs confirmation** from the owner, because no
-recommendation was on record). Display rounding is a UI matter either way.
+precision; nothing is rounded to "nice" values. **Decided (SQ1, owner,
+2026-11-06): stored amounts keep full precision.** Rounding happens only for
+display, or as an explicit user adjustment, which is an ordinary edit.
 Statistics of the scaled recipe are recalculated, never carried over.
 
 ## 7b. Migrations (2026-10-14)

@@ -53,7 +53,7 @@ test("the equipment field table is closed, with no default values anywhere", () 
   assert.deepEqual(EQUIPMENT_FIELDS.map((f) => f.name), [
     "batch_size", "batch_capacity", "mash_capacity", "boil_capacity", "pre_boil_volume", "boil_time",
     "mash_tun_weight", "mash_tun_specific_heat", "mash_tun_deadspace",
-    "boil_off_per_hour", "boil_off_fraction_per_hour", "kettle_top_up", "hop_utilization_adjustment",
+    "boil_off_per_hour", "evaporation_rate", "kettle_top_up", "hop_utilization_adjustment",
     "trub_chiller_loss", "cooling_loss", "fermenter_top_up", "brewhouse_efficiency",
   ]);
   for (const f of EQUIPMENT_FIELDS) assert.equal("default" in f, false);
