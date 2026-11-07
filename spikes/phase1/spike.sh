@@ -16,7 +16,10 @@ core="$here/recipe-core"
 graph="$here/graph"
 shell="$here/shell-tauri"
 exe="$shell/src-tauri/target/debug/spike-shell"
+# The webview's data and exports live under the data directory; the SQLite
+# plugin keeps the library under the config directory.
 data="${XDG_DATA_HOME:-$HOME/.local/share}/invalid.spike.phase1-shell"
+config="${XDG_CONFIG_HOME:-$HOME/.config}/invalid.spike.phase1-shell"
 PATH="$HOME/.cargo/bin:$PATH"
 
 say() { printf '\033[1m%s\033[0m\n' "$*"; }
@@ -105,12 +108,15 @@ cmd_test() {
 }
 
 cmd_reset_data() {
-  if [ -d "$data" ]; then
-    rm -rf "$data"
-    say "Deleted $data"
-  else
-    say "No spike data at $data"
-  fi
+  local dir found=0
+  for dir in "$data" "$config"; do
+    if [ -d "$dir" ]; then
+      rm -rf "$dir"
+      say "Deleted $dir"
+      found=1
+    fi
+  done
+  [ "$found" = 1 ] || say "No spike data found"
 }
 
 case "${1:-}" in

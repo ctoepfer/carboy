@@ -11,6 +11,10 @@ on:
         type: choice
         options: [all, mobile]
         default: all
+      recovery_rounds:
+        description: "Rounds of the hard-kill recovery test (raise it to hunt the macOS hang)"
+        type: number
+        default: 3
 
 permissions:
   contents: read
@@ -128,12 +132,12 @@ jobs:
             printf '\n__carboyReport;\n' >> jxa-check.js
             osascript -l JavaScript jxa-check.js | tee spikes/phase1/report-jsc.json
           fi
-      - name: SQLite recovery after hard kill during writes, 3 rounds (ADR 0006; blocking)
-        timeout-minutes: 6
+      - name: SQLite recovery after hard kill during writes (ADR 0006; blocking)
+        timeout-minutes: 45
         run: |
           exe=$PWD/shell-tauri/src-tauri/target/debug/spike-shell
           [ -f "$exe.exe" ] && exe="$exe.exe"
-          tools/kill_recovery.sh "$exe" 3 6 "$PWD/recovery-report"
+          tools/kill_recovery.sh "$exe" "${{ inputs.recovery_rounds || 3 }}" 6 "$PWD/recovery-report"
       - name: iOS Simulator build of the shell (exploratory; Tauri 2 mobile)
         if: runner.os == 'macOS'
         continue-on-error: true

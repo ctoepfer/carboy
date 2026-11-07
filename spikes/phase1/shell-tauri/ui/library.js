@@ -12,7 +12,24 @@ const db = "sqlite:spike.db";
 const sql = (query, values = []) => invoke("plugin:sql|select", { db, query, values });
 const exec = (query, values = []) => invoke("plugin:sql|execute", { db, query, values });
 
+// Where the page has got to, so a stall names its step (ADR 0006, the macOS
+// recovery hang). A log line goes through the same IPC as the database calls:
+// if the lines stop but the watchdog still fires, the page is alive and the
+// call is stuck; if the watchdog stays silent too, the page itself has stopped.
+const started = performance.now();
+let stage = "start";
+const mark = (name) => {
+  stage = name;
+  return log(`step ${name} at ${Math.round(performance.now() - started)} ms`);
+};
+const auto = await invoke("auto_mode");
+const watchdog = auto
+  ? setTimeout(() => invoke("report", { json: JSON.stringify({ page: "library", stalled: stage, after_ms: Math.round(performance.now() - started) }) }), 45000)
+  : undefined;
+
+await mark("database-load");
 await invoke("plugin:sql|load", { db });
+await mark("create-table");
 await exec("CREATE TABLE IF NOT EXISTS revision (revision_id TEXT PRIMARY KEY, content_hash TEXT NOT NULL, document TEXT NOT NULL)");
 
 const stress = Number((await invoke("spike_env", { name: "SPIKE_STRESS" })) ?? 0);
@@ -31,12 +48,16 @@ if (stress > 0) {
   await log(`stress: all ${stress} written`);
 }
 
+await mark("integrity-check");
 const [{ integrity }] = await sql("PRAGMA integrity_check").then((r) => r.map((x) => ({ integrity: Object.values(x)[0] })));
+await mark("journal-mode");
 const [{ mode }] = await sql("PRAGMA journal_mode").then((r) => r.map((x) => ({ mode: Object.values(x)[0] })));
 // ADR 0006 durability default: FULL (2). Read from the pool's connection, so
 // it shows what the plugin actually uses, not what was requested.
 const [{ synchronous }] = await sql("PRAGMA synchronous").then((r) => r.map((x) => ({ synchronous: Object.values(x)[0] })));
+await mark("read-rows");
 const rows = await sql("SELECT revision_id, content_hash, document FROM revision ORDER BY revision_id");
+await mark(`verify-${rows.length}-rows`);
 let verified = 0;
 const failures = [];
 const tbody = document.getElementById("rows");
@@ -67,6 +88,8 @@ document.getElementById("summary").textContent =
   `${rows.length} revision${rows.length === 1 ? "" : "s"}; ${verified} verified${failures.length ? `; ${failures.length} failed` : ""}.` +
   (rows.length > 200 ? " Showing the first 200." : "");
 
-if (await invoke("auto_mode")) {
+await mark("report");
+clearTimeout(watchdog);
+if (auto) {
   await invoke("report", { json: JSON.stringify({ page: "library", integrity, journal_mode: mode, synchronous, revisions: rows.length, verified, failures, axe: await axeSummary("./") }, null, 2) });
 }
