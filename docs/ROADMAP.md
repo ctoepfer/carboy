@@ -14,8 +14,11 @@ kept by the maintainer. Contracts and architecture decisions are public in
 and equipment profiles with snapshots
 ([`packages/equipment-profiles/`](../packages/equipment-profiles/),
 [EQUIPMENT_PROFILES.md](architecture/EQUIPMENT_PROFILES.md)), both data
-models with no storage or interface yet. No catalog data ships until D-009 is
-decided. The recipe library, autosave, and recovery are still to come.
+models with no interface yet. No catalog data ships until D-009 is decided. The
+Recipe Library ([`packages/recipe-library/`](../packages/recipe-library/),
+[RECIPE_LIBRARY.md](architecture/RECIPE_LIBRARY.md)) has its repository contract
+and in-memory and SQLite stores; it isn't in the app yet. **Autosave and crash
+recovery are not started.**
 
 **Phase 2, Recipe Core, is complete** (2026-11-05): decimal arithmetic, units,
 canonical JSON and revision hashing, the formula registry and provenance,

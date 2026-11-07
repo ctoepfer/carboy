@@ -50,7 +50,7 @@ Shared fixture suite ⇄ Lumina (Python) and brewconvert (Python) parity
 | Recipe Format | Native exchange format, schema versions, migrations, BeerXML import/export with loss reports | Depends only on Recipe Core; portable XML parsing, no browser globals |
 | Editor Commands | Typed edit commands, validation, undo/redo, proposal diffs | Only path that changes canonical recipe state |
 | Ingredient Catalog | Catalog definitions, custom entries, search, catalog versions | Recipes snapshot the properties they use; catalog updates never silently alter recipes |
-| Recipe Library | Persistence, revisions, recovery, backups | Exposes repository interfaces; nobody else touches its tables |
+| Recipe Library | Persistence, revisions, recovery, backups ([RECIPE_LIBRARY.md](RECIPE_LIBRARY.md)) | Exposes repository interfaces; nobody else touches its tables |
 | Equipment Profiles | Capacities, efficiency, losses, boil-off, calibration history ([EQUIPMENT_PROFILES.md](EQUIPMENT_PROFILES.md)) | Usable without hardware; profile assumptions are snapshotted into revisions |
 | Brew Sessions | Batches from recipe snapshots, measurements, timers, deviations, improvement suggestions | Recipe edits never rewrite batches |
 | AI Assistance | Provider configuration, context building, proposals, provenance, local AI connector | No direct storage writes; no actuator path |

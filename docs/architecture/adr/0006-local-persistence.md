@@ -144,6 +144,15 @@ verified 3/3 with integrity ok, WAL, `synchronous=2`. A simulator's disk says
 nothing about device durability. Android: the shell starts on an emulator, and
 SQLite is unverified there.
 
+**Recipe Library (2026-11-06, Linux, Node's SQLite).** The repository in
+[RECIPE_LIBRARY.md](../RECIPE_LIBRARY.md) passes `SIGKILL` during a transaction,
+during a migration, and during saves, and a failed migration rolls back with its
+backup intact. That is the first direct evidence for item 2, on one platform and
+outside the real shell, so item 2 stays open.
+
+**macOS hang, instrumented (2026-11-06).** The recovery test now logs each step
+and captures a stall, but hasn't run on macOS since. Linux: 8 rounds, no hang.
+
 **Acceptance status.** The durability setting is supported by evidence. The
 ADR as a whole is **not yet acceptable**: evidence item 1 needs Android and a
 device run, item 2 still needs the Phase 3 migration-rollback tests, and the
