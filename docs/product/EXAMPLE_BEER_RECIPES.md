@@ -1,7 +1,7 @@
 # Example Beer Recipes
 
 - Status: **Reference document.** Every recipe here is an **unbrewed example**.
-- Revision 1 — November 5, 2026
+- Revision 2 — November 6, 2026. Revision 2 states the exact Tinseth volume and gravity assumptions and recalculates every IBU on them, which changes four estimates (Hefeweizen, both variants; Märzen and Belgian Dubbel, dry extract). No recipe changed, so each variant stays at revision 1.
 
 Six standalone example styles, each with dry-malt-extract and all-grain variants. These are newly formulated, unbrewed examples for documentation and later import. They are not schema-valid Carboy import files. No original-sheet preservation or application changes are required.
 
@@ -29,7 +29,7 @@ So these figures are not test fixtures, performance benchmarks, or brewing resul
 - Extract: DME potential **44 points per pound per US gallon**; actual product data takes precedence. Steeped specialty grain recovery: **50% of listed laboratory potential**. This is an estimate, not an all-grain efficiency setting.
 - Full extract charge is present at the beginning of the boil. Late extract additions or a concentrated boil require bitterness recalculation.
 - OG is calculated from ingredient potentials and chilled kettle volume. FG uses the stated whole-recipe apparent attenuation assumption; it is an estimate, not a yeast guarantee. ABV = (OG − FG) × 131.25.
-- IBU: Tinseth, pellet hops, no pellet bonus, average boil gravity estimated at 5.875 gal with the full fermentable charge; the Dubbel estimate conservatively treats late-added syrup as present throughout; post-flameout bitterness is not modeled. Hop weights assume the stated alpha acids. For a different lot, weight × stated AA / actual AA is a first approximation.
+- IBU: Tinseth, pellet hops, no pellet bonus; post-flameout bitterness is not modeled. **Volume:** the 5.25 gal / 19.87 L chilled kettle volume, the same volume OG and color use, for every variant. **Gravity:** the average boil gravity is 1 + P ÷ 5.875 ÷ 1000, where P is the same total of gravity points used for OG (pound × ppg × recovery, summed), with the full fermentable charge; the Dubbel estimate conservatively treats late-added syrup as present throughout. **Hop mass:** the ounce weight × 28.3495 g, not the rounded gram figure. Per addition, IBU = 1.65 × 0.000125^(gravity − 1) × (1 − e^(−0.04 × minutes)) ÷ 4.15 × alpha fraction × grams × 1000 ÷ liters; the additions are summed and the total rounded to a whole number. Hop weights assume the stated alpha acids. For a different lot, weight × stated AA / actual AA is a first approximation.
 - Color: Morey estimate from ingredient color and chilled kettle volume. Extract and candi-syrup colors are particularly product dependent; these estimates need recalculation with actual catalog data.
 - Water targets below are illustrative all-grain **mash-water ion targets in ppm**, not salt doses. Use dechlorinated water. Aim for mash pH **5.2–5.5 measured on a cooled sample**; dark grists may need alkalinity rather than acid. Do not blindly apply all-grain salt additions to extract: extract already contains minerals. RO or low-mineral water is a useful extract baseline.
 - Standard all-grain mash: 60 minutes at the listed temperature, about 1.5 qt/lb (3.1 L/kg), then drain and sparge as needed to collect the stated pre-boil volume. Include sugar only during the boil, not in mash weight. Adjust strike water for grain absorption and equipment losses.
@@ -50,11 +50,11 @@ External reference estimates ([what these figures are](#what-these-figures-are))
 | Irish Red Ale | All grain | 1.048 | 1.012 | 4.8% | 21 | 11 |
 | Dry Irish Stout | Dry extract | 1.042 | 1.009 | 4.3% | 28 | 31 |
 | Dry Irish Stout | All grain | 1.044 | 1.010 | 4.5% | 27 | 31 |
-| Hefeweizen | Dry extract | 1.052 | 1.012 | 5.3% | 13 | 4 |
-| Hefeweizen | All grain | 1.053 | 1.012 | 5.3% | 13 | 4 |
-| Märzen | Dry extract | 1.059 | 1.014 | 5.9% | 21 | 8 |
+| Hefeweizen | Dry extract | 1.052 | 1.012 | 5.3% | 14 | 4 |
+| Hefeweizen | All grain | 1.053 | 1.012 | 5.3% | 14 | 4 |
+| Märzen | Dry extract | 1.059 | 1.014 | 5.9% | 22 | 8 |
 | Märzen | All grain | 1.060 | 1.014 | 6.0% | 21 | 9 |
-| Belgian Dubbel | Dry extract | 1.067 | 1.012 | 7.2% | 19 | 17 |
+| Belgian Dubbel | Dry extract | 1.067 | 1.012 | 7.2% | 20 | 17 |
 | Belgian Dubbel | All grain | 1.069 | 1.012 | 7.4% | 19 | 17 |
 
 ## American Pale Ale
@@ -212,7 +212,7 @@ Variant ID: `carboy-example-hefeweizen-dme`. Revision: 1.
 | --- | --- | --- | --- | --- | --- |
 | Wheat DME (assume 65% wheat / 35% barley) | 6.25 | 2835 | 44 | 3 | Dissolve before boil |
 
-Estimated OG **1.052**, FG **1.012**, ABV **5.3%**, IBU **13**, color **4 SRM**. Assumed apparent attenuation: **77%**.
+Estimated OG **1.052**, FG **1.012**, ABV **5.3%**, IBU **14**, color **4 SRM**. Assumed apparent attenuation: **77%**.
 
 ### All grain variant
 
@@ -223,7 +223,7 @@ Variant ID: `carboy-example-hefeweizen-all-grain`. Revision: 1.
 | Wheat malt | 6 | 2722 | 38 | 2 | Mash 60 min |
 | Pilsner malt | 4 | 1814 | 37 | 1.7 | Mash 60 min |
 
-Estimated OG **1.053**, FG **1.012**, ABV **5.3%**, IBU **13**, color **4 SRM**. Assumed apparent attenuation: **77%**.
+Estimated OG **1.053**, FG **1.012**, ABV **5.3%**, IBU **14**, color **4 SRM**. Assumed apparent attenuation: **77%**.
 
 Mash at **152°F / 66.7°C for 60 minutes**.
 
@@ -256,7 +256,7 @@ Variant ID: `carboy-example-marzen-dme`. Revision: 1.
 | Munich DME (assume 50% Munich / 50% pale malt) | 7 | 3175 | 44 | 8 | Dissolve before boil |
 | Caramunich I, 35L | 0.25 | 113 | 34 | 35 | Steep 30 min |
 
-Estimated OG **1.059**, FG **1.014**, ABV **5.9%**, IBU **21**, color **8 SRM**. Assumed apparent attenuation: **76%**.
+Estimated OG **1.059**, FG **1.014**, ABV **5.9%**, IBU **22**, color **8 SRM**. Assumed apparent attenuation: **76%**.
 
 ### All grain variant
 
@@ -305,7 +305,7 @@ Variant ID: `carboy-example-belgian-dubbel-dme`. Revision: 1.
 | Caramunich II, 45L | 0.5 | 227 | 34 | 45 | Steep 30 min |
 | Dark Belgian candi syrup, 90 SRM | 1 | 454 | 32 | 90 | Boil, 10 min remaining |
 
-Estimated OG **1.067**, FG **1.012**, ABV **7.2%**, IBU **19**, color **17 SRM**. Assumed apparent attenuation: **82%**.
+Estimated OG **1.067**, FG **1.012**, ABV **7.2%**, IBU **20**, color **17 SRM**. Assumed apparent attenuation: **82%**.
 
 ### All grain variant
 
@@ -344,7 +344,7 @@ This document is the editable recipe specification. Defer schema mapping and imp
 **Deferred until supported:** native import files, catalog seeding (D-009), and UI integration. None of these exists for this document yet, and none is implied by it.
 
 - Keep the six family IDs and twelve variant IDs stable; use a separate revision value for recipe changes.
-- These IDs identify the examples in this document. They are not recipe identifiers: an imported recipe gets a UUID `recipe_id`, and because they contain the codename they stay out of any field the software interprets ([NAMING.md](../architecture/NAMING.md) rule 2). Hold the link from a recipe to its example ID somewhere uninterpreted, such as a note or a sidecar.
+- These are documentation identifiers only. An imported recipe is assigned a UUID `recipe_id` on import, and because these IDs contain the codename they stay out of any field the software interprets ([NAMING.md](../architecture/NAMING.md) rule 2). Hold the link from a recipe to its example ID somewhere uninterpreted, such as a note or a sidecar.
 - Map each variant to its own recipe, with a shared family relationship when supported. DME and all-grain versions approximate the same beer; they are not claimed to be sensory identical.
 - Map ingredients, exact masses, hop AA, addition times, mash, fermentation, carbonation and equipment assumptions into the then-current native schema. Preserve useful notes when no structured field exists.
 - Store calculated estimates separately from measured batch values. Recompute with Carboy's actual ingredient catalog and calculation engine; document differences instead of presenting these rounded figures as test fixtures. If a figure from this document is kept, it stays a stated value with its origin recorded, never a calculated or measured one.
