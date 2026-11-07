@@ -58,7 +58,7 @@ carboy/
   identity/        Central user-facing identity (display name, assets)
   docs/
     ROADMAP.md     Phases, principles, accepted decisions
-    product/       Product brief, beverage scope
+    product/       Product brief, beverage scope, example recipes
     architecture/  Overview, invariants, boundary, naming, ADRs, reuse baseline
     development/   Developer setup
     references/    Bibliography of cited works

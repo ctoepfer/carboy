@@ -248,6 +248,10 @@ its fixtures pass.** On today's evidence:
 | Sulfite, acid, nutrients, stabilization | 1.x, high-verification, as BEVERAGE_SCOPE says |
 | Sake | Recording only, as BEVERAGE_SCOPE says |
 
+The figures in [EXAMPLE_BEER_RECIPES.md](../product/EXAMPLE_BEER_RECIPES.md)
+were calculated outside Carboy. They are not sources, fixtures, or evidence for
+any row here.
+
 ## Decisions
 
 Decided 2026-10-12 (owner accepted the recommendations):

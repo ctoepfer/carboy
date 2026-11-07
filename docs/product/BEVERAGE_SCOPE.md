@@ -5,6 +5,10 @@ Status: Planning baseline, 2026-10-09. Launch staging below is **proposed**
 Every formula listed here must be sourced, implemented in Recipe Core, and
 verified against independently checked fixtures before it is shown to users.
 
+Example recipes for beer: [EXAMPLE_BEER_RECIPES.md](EXAMPLE_BEER_RECIPES.md).
+They are unbrewed, and their figures are external estimates, not evidence that
+a calculation here is enabled.
+
 ## Principle
 
 All five beverages are first-class in the **data model** from the start:

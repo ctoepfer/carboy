@@ -47,7 +47,7 @@ An offline-first, open-source recipe application that:
 
 | User | Needs |
 |---|---|
-| New homebrewer | Guided creation, clear warnings, understandable numbers, starter recipes |
+| New homebrewer | Guided creation, clear warnings, understandable numbers, starter recipes (early, unbrewed [examples](EXAMPLE_BEER_RECIPES.md)) |
 | Experienced brewer | Precise control, equipment calibration, batch history, reliable exchange with other tools |
 | Winemaker / mead / cider maker | Calculations that are not beer math in disguise: Brix/SG, sugar sources, acid, sulfite, nutrients |
 | Home sake brewer | Multi-stage (sandan shikomi) schedules, koji/rice/water ratios, honest limits on prediction |
