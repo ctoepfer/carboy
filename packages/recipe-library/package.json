@@ -1,0 +1,30 @@
+{
+  "name": "@carboy/recipe-library",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Recipe Library: stable recipe identity, immutable revisions, save, open, list, and recoverable deletion behind one repository contract. Stores plug in beneath it. No DOM, Node, network, or shell dependency.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@carboy/recipe-core": "0.0.0",
+    "@carboy/recipe-format": "0.0.0"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}
