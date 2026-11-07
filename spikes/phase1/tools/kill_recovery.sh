@@ -9,8 +9,10 @@ exe=$1; rounds=$2; secs=$3; out=$4
 mkdir -p "$out"
 run() { if [ "${RUNNER_OS:-Linux}" = Linux ] && command -v xvfb-run >/dev/null; then xvfb-run -a "$@"; else "$@"; fi; }
 py=python3; command -v python3 >/dev/null || py=python
+[ -f "$exe" ] || [ -f "$exe.exe" ] || { echo "no app at $exe: build it first" >&2; exit 2; }
 status=0
 hangs=0
+exits=0
 limit=${RECOVERY_VERIFY_LIMIT:-90}
 # RECOVERY_WINDOW=visible is the control for the macOS hang: does it need a hidden window?
 hidden=1
@@ -60,6 +62,14 @@ for r in $(seq 1 "$rounds"); do
     sleep 1
     waited=$((waited + 1))
   done
+  if [ ! -s "$out/after-kill-$r.json" ] && [ "$waited" -lt "$limit" ]; then
+    # It stopped by itself: a crash or failed start, not a stall.
+    echo "round $r: EXITED without a report after ${waited}s; log: $out/verify-$r.log"
+    wait "$verify" 2>/dev/null
+    exits=$((exits + 1))
+    status=1
+    continue
+  fi
   if [ ! -s "$out/after-kill-$r.json" ]; then
     echo "round $r: HANG: no report after ${waited}s; last step: $(grep -a 'step ' "$out/verify-$r.log" | tail -1)"
     capture "$r"
@@ -81,5 +91,5 @@ print(f"round {sys.argv[2]}: integrity={d['integrity']} journal={d['journal_mode
 sys.exit(0 if ok else 1)
 PY
 done
-echo "rounds: $rounds, hangs: $hangs"
+echo "rounds: $rounds, hangs: $hangs, early exits: $exits"
 exit $status
