@@ -44,7 +44,7 @@ fn sql_column(v: ValueRef) -> Result<Value, String> {
 /// fsync there would freeze the window.
 #[tauri::command(async)]
 fn library_open(app: tauri::AppHandle, state: State<LibraryConnection>, name: String) -> Result<Value, String> {
-    let dir = app.path().app_config_dir().map_err(|e| e.to_string())?;
+    let dir = test_dir().map_or_else(|| app.path().app_config_dir().map_err(|e| e.to_string()), Ok)?;
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     let conn = Connection::open(dir.join(safe_name(&name)?)).map_err(|e| e.to_string())?;
     *state.0.lock().map_err(|e| e.to_string())? = Some(conn);
@@ -98,8 +98,15 @@ fn library_all(state: State<LibraryConnection>, sql: String, params: Vec<Value>)
     }
 }
 
+/// $SPIKE_DATA_DIR: where a test run keeps everything, on every OS. macOS and
+/// Windows ignore the XDG variables, so nothing else isolates a run from the
+/// machine's normal spike data.
+fn test_dir() -> Option<PathBuf> {
+    std::env::var_os("SPIKE_DATA_DIR").map(PathBuf::from)
+}
+
 fn data_dir(app: &tauri::AppHandle) -> Result<PathBuf, String> {
-    let dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
+    let dir = test_dir().map_or_else(|| app.path().app_data_dir().map_err(|e| e.to_string()), Ok)?;
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     Ok(dir)
 }

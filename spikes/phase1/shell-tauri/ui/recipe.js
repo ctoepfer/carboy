@@ -8,7 +8,9 @@ import { axeSummary } from "./shared/axe-run.js";
 const { invoke } = window.__TAURI__.core;
 renderNav(document.getElementById("header"), "recipe");
 const $ = (id) => document.getElementById(id);
-const db = "sqlite:spike.db";
+// $SPIKE_DATA_DIR keeps a test run's database out of the app's normal folder.
+const testDir = await invoke("spike_env", { name: "SPIKE_DATA_DIR" });
+const db = testDir ? `sqlite:${testDir}/spike.db` : "sqlite:spike.db";
 const exec = (query, values = []) => invoke("plugin:sql|execute", { db, query, values });
 const select = (query, values = []) => invoke("plugin:sql|select", { db, query, values });
 

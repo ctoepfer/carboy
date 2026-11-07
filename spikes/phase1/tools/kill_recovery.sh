@@ -18,7 +18,8 @@ hidden=1
 # RECOVERY_PAGE=repo.html runs this through @carboy/recipe-library on the shell's own connection.
 page=${RECOVERY_PAGE:-library.html}
 db=${RECOVERY_DB:-spike.db}
-stop_app() { if [ "${RUNNER_OS:-}" = Windows ]; then taskkill //F //IM spike-shell.exe >/dev/null 2>&1; else pkill -9 -x spike-shell 2>/dev/null; fi; }
+# Git Bash on Windows has taskkill; RUNNER_OS exists only in CI.
+stop_app() { if command -v taskkill >/dev/null; then taskkill //F //IM spike-shell.exe >/dev/null 2>&1; else pkill -9 -x spike-shell 2>/dev/null; fi; }
 # What a stall looks like from outside, before the app is killed.
 capture() {
   local dir="$out/hang-$1" data
@@ -27,12 +28,13 @@ capture() {
   command -v sample >/dev/null && sample spike-shell 3 -file "$dir/sample.txt" >/dev/null 2>&1
   # The web process runs the page: is it busy, or suspended?
   if command -v sample >/dev/null; then
-    for wc in $(pgrep -f com.apple.WebKit.WebContent 2>/dev/null); do
+    # The newest one: on a personal Mac, Safari and Mail have their own.
+    for wc in $(pgrep -nf com.apple.WebKit.WebContent 2>/dev/null); do
       sample "$wc" 3 -file "$dir/sample-webcontent-$wc.txt" >/dev/null 2>&1
       taskinfo "$wc" >"$dir/taskinfo-$wc.txt" 2>&1
     done
   fi
-  data=${RECOVERY_DATA_DIR:-$HOME/Library/Application Support/invalid.spike.phase1-shell}
+  data=${SPIKE_DATA_DIR:-${RECOVERY_DATA_DIR:-$HOME/Library/Application Support/invalid.spike.phase1-shell}}
   if [ -d "$data" ]; then
     ls -la "$data" >"$dir/files.txt"
     command -v lsof >/dev/null && lsof "$data/$db" "$data/$db-wal" >"$dir/lsof.txt" 2>/dev/null

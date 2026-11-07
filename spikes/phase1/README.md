@@ -119,3 +119,8 @@ docstring.
 React Flow and Svelte Flow versions of the same page, built with Vite into
 `shell-tauri/ui/graph-*`. Shared code is in `graph/shared/`. Results:
 [GRAPH_REPORT.md](GRAPH_REPORT.md) (interim: both 7/7 on WebKitGTK).
+
+## Testing on a native machine
+
+[PLATFORM_CHECK.md](PLATFORM_CHECK.md) has the commands, expected results, and
+report format for testing one commit on Linux, macOS, or Windows.

@@ -8,7 +8,8 @@
 #   ./spike.sh reset-data     delete the spike app's local data (SQLite library, exports)
 #
 # It never runs git: pull or commit yourself. Rust is expected in ~/.cargo/bin
-# (rustup per-user install) or on PATH.
+# (rustup per-user install) or on PATH. Set SPIKE_DATA_DIR to an existing folder
+# to keep a run's data out of the app's normal folders, on every OS.
 set -euo pipefail
 
 here=$(cd "$(dirname "$0")" && pwd)
@@ -24,6 +25,11 @@ PATH="$HOME/.cargo/bin:$PATH"
 
 say() { printf '\033[1m%s\033[0m\n' "$*"; }
 die() { printf 'error: %s\n' "$*" >&2; exit 1; }
+
+# macOS has no timeout command.
+limited() {
+  if command -v timeout >/dev/null; then timeout "$@"; else perl -e 'alarm shift; exec @ARGV' "$@"; fi
+}
 
 check_tools() {
   command -v node >/dev/null || die "node not found (Node 20+ needed)"
@@ -87,7 +93,7 @@ cmd_test() {
     local hidden=1
     case "$page" in graph-*) hidden=0 ;; esac
     if SPIKE_HIDDEN=$hidden SPIKE_START="$(page_path "$page")" SPIKE_AUTO=1 SPIKE_EXIT=1 \
-      SPIKE_REPORT="$out/$page.json" timeout 120 "$exe" >"$out/$page.log" 2>&1 && [ -f "$out/$page.json" ]; then
+      SPIKE_REPORT="$out/$page.json" limited 120 "$exe" >"$out/$page.log" 2>&1 && [ -f "$out/$page.json" ]; then
       node -e '
         const d = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
         // Report shapes: graph pages {steps, passed, total}; checks {results, passed, total};
@@ -124,5 +130,5 @@ case "${1:-}" in
   refresh) cmd_refresh ;;
   test) cmd_test ;;
   reset-data) cmd_reset_data ;;
-  *) sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+  *) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac

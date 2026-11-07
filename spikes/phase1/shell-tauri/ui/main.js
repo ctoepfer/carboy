@@ -80,7 +80,8 @@ await check("Native file: export via Rust, import, verify hash", async () => {
 });
 
 await check("SQLite: save, or reopen and verify from a previous launch", async () => {
-  const db = "sqlite:spike.db";
+  const testDir = await invoke("spike_env", { name: "SPIKE_DATA_DIR" });
+  const db = testDir ? `sqlite:${testDir}/spike.db` : "sqlite:spike.db";
   await invoke("plugin:sql|load", { db });
   await invoke("plugin:sql|execute", {
     db,
