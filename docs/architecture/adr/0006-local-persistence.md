@@ -150,8 +150,24 @@ during a migration, and during saves, and a failed migration rolls back with its
 backup intact. That is the first direct evidence for item 2, on one platform and
 outside the real shell, so item 2 stays open.
 
-**macOS hang, instrumented (2026-11-06).** The recovery test now logs each step
-and captures a stall, but hasn't run on macOS since. Linux: 8 rounds, no hang.
+**macOS hang, reproduced (2026-11-06, run 42333150516 at `aa36331`; OPEN).**
+20 rounds on macOS 26.7: 5 passed, **15 stalled**, and Linux showed none in 8.
+
+| Finding | Evidence |
+|---|---|
+| Real stalls, not slowness | Passing rounds verify at 6,600–11,000 rows/s, in 0.5–3.7 s. Stalled rounds gave no report in 90 s |
+| Where | 14 stalled in the verify loop, after the database had returned every row; 1 at `read-rows` |
+| Not the app process | Stack sample of a stall: every thread idle, including the SQLite worker |
+| Page not running | WebContent process asleep (`Ss`) in all 15, though the loop is CPU-bound. The 45 s watchdog never reported |
+| Stored data unharmed | All 15 captured databases: integrity ok, and **all 616,800 revisions verify** (checked off the runner) |
+
+**Not established:** the cause. The leading hypothesis is that WebKit suspends the
+web process of a hidden window, since the test uses `SPIKE_HIDDEN=1`, but the web
+process was never sampled and there has been no visible-window control. The
+watchdog's silence is weak evidence too, because a microtask-only loop would
+also starve a timer. `RECOVERY_WINDOW=visible` and web-process sampling are
+ready for the next macOS run. If the hypothesis holds, this is a test-harness
+condition, but a real app verifying in a background window would meet it too.
 
 **Acceptance status.** The durability setting is supported by evidence. The
 ADR as a whole is **not yet acceptable**: evidence item 1 needs Android and a

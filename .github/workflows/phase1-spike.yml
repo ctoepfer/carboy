@@ -15,6 +15,11 @@ on:
         description: "Rounds of the hard-kill recovery test (raise it to hunt the macOS hang)"
         type: number
         default: 3
+      recovery_window:
+        description: "hidden, or visible as the control for the macOS hang"
+        type: choice
+        options: [hidden, visible]
+        default: hidden
 
 permissions:
   contents: read
@@ -134,6 +139,8 @@ jobs:
           fi
       - name: SQLite recovery after hard kill during writes (ADR 0006; blocking)
         timeout-minutes: 45
+        env:
+          RECOVERY_WINDOW: ${{ inputs.recovery_window || 'hidden' }}
         run: |
           exe=$PWD/shell-tauri/src-tauri/target/debug/spike-shell
           [ -f "$exe.exe" ] && exe="$exe.exe"

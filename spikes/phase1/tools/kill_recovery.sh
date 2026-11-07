@@ -12,22 +12,35 @@ py=python3; command -v python3 >/dev/null || py=python
 status=0
 hangs=0
 limit=${RECOVERY_VERIFY_LIMIT:-90}
+# RECOVERY_WINDOW=visible is the control for the macOS hang: does it need a hidden window?
+hidden=1
+[ "${RECOVERY_WINDOW:-hidden}" = visible ] && hidden=0
+# RECOVERY_PAGE=repo.html runs this through @carboy/recipe-library on the shell's own connection.
+page=${RECOVERY_PAGE:-library.html}
+db=${RECOVERY_DB:-spike.db}
 stop_app() { if [ "${RUNNER_OS:-}" = Windows ]; then taskkill //F //IM spike-shell.exe >/dev/null 2>&1; else pkill -9 -x spike-shell 2>/dev/null; fi; }
 # What a stall looks like from outside, before the app is killed.
 capture() {
   local dir="$out/hang-$1" data
   mkdir -p "$dir"
-  ps -axo pid,ppid,stat,etime,command 2>/dev/null | grep -iE 'spike-shell|WebKit|WebContent' | grep -v grep >"$dir/processes.txt"
+  ps -axo pid,ppid,stat,pcpu,etime,command 2>/dev/null | grep -iE 'spike-shell|WebKit|WebContent' | grep -v grep >"$dir/processes.txt"
   command -v sample >/dev/null && sample spike-shell 3 -file "$dir/sample.txt" >/dev/null 2>&1
+  # The web process runs the page: is it busy, or suspended?
+  if command -v sample >/dev/null; then
+    for wc in $(pgrep -f com.apple.WebKit.WebContent 2>/dev/null); do
+      sample "$wc" 3 -file "$dir/sample-webcontent-$wc.txt" >/dev/null 2>&1
+      taskinfo "$wc" >"$dir/taskinfo-$wc.txt" 2>&1
+    done
+  fi
   data=${RECOVERY_DATA_DIR:-$HOME/Library/Application Support/invalid.spike.phase1-shell}
   if [ -d "$data" ]; then
     ls -la "$data" >"$dir/files.txt"
-    command -v lsof >/dev/null && lsof "$data/spike.db" "$data/spike.db-wal" >"$dir/lsof.txt" 2>/dev/null
-    cp "$data"/spike.db* "$dir/" 2>/dev/null
+    command -v lsof >/dev/null && lsof "$data/$db" "$data/$db-wal" >"$dir/lsof.txt" 2>/dev/null
+    cp "$data/$db"* "$dir/" 2>/dev/null
   fi
 }
 for r in $(seq 1 "$rounds"); do
-  SPIKE_HIDDEN=1 SPIKE_START=library.html SPIKE_STRESS=1000000 run "$exe" >"$out/stress-$r.log" 2>&1 &
+  SPIKE_HIDDEN=$hidden SPIKE_START=$page SPIKE_STRESS=1000000 run "$exe" >"$out/stress-$r.log" 2>&1 &
   pid=$!
   # Start the kill timer only once writing is under way (start-up under a
   # virtual display can take longer than the timer itself).
@@ -37,7 +50,7 @@ for r in $(seq 1 "$rounds"); do
   stop_app
   wait "$pid" 2>/dev/null
   # Reopen, with a bound: a stall must fail with evidence, not time out the job.
-  SPIKE_HIDDEN=1 SPIKE_START=library.html SPIKE_AUTO=1 SPIKE_EXIT=1 SPIKE_REPORT="$out/after-kill-$r.json" \
+  SPIKE_HIDDEN=$hidden SPIKE_START=$page SPIKE_AUTO=1 SPIKE_EXIT=1 SPIKE_REPORT="$out/after-kill-$r.json" \
     run "$exe" >"$out/verify-$r.log" 2>&1 &
   verify=$!
   waited=0
