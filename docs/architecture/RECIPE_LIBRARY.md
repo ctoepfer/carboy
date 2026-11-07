@@ -55,6 +55,12 @@ The package has no Node, Tauri, or Rust dependency: a host supplies an
 are per connection (ADR 0006 notes the plugin's pool). The tests use a driver
 over Node's built-in SQLite, so they need Node 22 or later and skip on Node 20.
 
+**In the Tauri shell,** `tauriDriver(invoke)` passes SQL to three thin Rust
+commands (`library_open`, `library_run`, `library_all`) that own one `rusqlite`
+connection. They are async commands, so an fsync can't block the main thread, and
+they hold no domain logic. `library_open` reports whether this is an Apple
+platform, for `fullfsync`.
+
 - **Durability:** WAL and `synchronous=FULL` are set, then read back. Storage
   that can't give them is `durability-not-met`. `apple: true` adds `fullfsync`
   and `checkpoint_fullfsync`.
@@ -69,12 +75,18 @@ over Node's built-in SQLite, so they need Node 22 or later and skip on Node 20.
   in one transaction, so a library is never between versions. A failure rolls
   back and the backup stays. A database from a newer build is refused untouched.
 
-**Verified:** real `SIGKILL` during a transaction, during a migration, and during
-saves over three rounds: integrity ok, every acknowledged revision present and
-verifying, head on the last revision. On Linux with Node's SQLite.
+**Verified with Node's SQLite on Linux:** real `SIGKILL` during a transaction,
+during a migration, and during saves over three rounds: integrity ok, every
+acknowledged revision present and verifying, head on the last revision.
 
-**Not verified:** power loss, other platforms, or the real shell. There is no
-`SqlDriver` for Tauri yet, so the app doesn't use this package.
+**Verified through the real shell on Linux (spike `repo.html`):** the same library
+over Tauri IPC and the shell's connection, hard-killed during saves for 5 rounds:
+integrity ok, WAL, `synchronous=2`, 2,532 of 2,532 revisions verify, head on the
+last saved revision.
+
+**Not verified:** power loss; macOS, Windows, iOS, and Android through the shell
+(the workflow step exists and has not run); `fullfsync` through the shell;
+migration through the shell.
 
 ## Not done
 
@@ -88,5 +100,5 @@ these Phase 3 requirements.
 | Backups as a user feature | Not started. `VACUUM INTO` before migration only |
 | Restoring from a migration backup as a user action | Not started. The backup is made and verified to open |
 | Search, duplicate | Not started |
-| Tauri driver and shell wiring | Not started |
+| Tauri driver | Done in the spike shell, Linux. The production shell doesn't exist yet (ADR 0003) |
 | Batches, equipment profile versions, catalogs in the library | Later |

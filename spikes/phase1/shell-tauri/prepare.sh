@@ -14,3 +14,8 @@ cp "$graph/shared/nav.js" "$graph/shared/app.css" "$graph/shared/axe-run.js" "$h
 # axe-core (MPL-2.0), for the platform probe page only (USABILITY §5).
 cp "$graph/node_modules/axe-core/axe.min.js" "$here/ui/shared/axe.min.js"
 (cd "$graph" && npm run build --silent)
+# @carboy/recipe-library and what it needs, as one file for the repository page.
+repo="$here/../../.."
+[ -d "$repo/node_modules/@carboy" ] || (cd "$repo" && npm ci --no-audit --no-fund)
+(cd "$repo" && npm run build --silent)
+(cd "$repo" && npx --yes esbuild@0.28.2 spikes/phase1/shell-tauri/repo-entry.js --bundle --format=esm --outfile="$here/ui/recipe-library/index.js" --log-level=warning)

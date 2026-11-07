@@ -3,6 +3,7 @@
 export const PAGES = [
   { id: "recipe", href: "recipe.html", label: "Recipe" },
   { id: "library", href: "library.html", label: "Library" },
+  { id: "repo", href: "repo.html", label: "Repository" },
   { id: "checks", href: "index.html", label: "Core checks" },
   { id: "graph-react", href: "graph-react/index.html", label: "Process graph: React Flow" },
   { id: "graph-svelte", href: "graph-svelte/index.html", label: "Process graph: Svelte Flow" },

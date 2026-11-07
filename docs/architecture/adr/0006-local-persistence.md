@@ -147,8 +147,11 @@ SQLite is unverified there.
 **Recipe Library (2026-11-06, Linux, Node's SQLite).** The repository in
 [RECIPE_LIBRARY.md](../RECIPE_LIBRARY.md) passes `SIGKILL` during a transaction,
 during a migration, and during saves, and a failed migration rolls back with its
-backup intact. That is the first direct evidence for item 2, on one platform and
-outside the real shell, so item 2 stays open.
+backup intact. That is the first direct evidence for item 2. Through the spike shell on Linux,
+on one `rusqlite` connection, it also survives hard kills (5 rounds, 2,532
+revisions verified). Item 2 stays open: other platforms and migration through the
+shell haven't run. The connection requirement this ADR's Measurements noted is
+now met by construction: the library doesn't use the plugin's pool.
 
 **macOS hang, reproduced (2026-11-06, run 42333150516 at `aa36331`; OPEN).**
 20 rounds on macOS 26.7: 5 passed, **15 stalled**, and Linux showed none in 8.

@@ -145,8 +145,19 @@ jobs:
           exe=$PWD/shell-tauri/src-tauri/target/debug/spike-shell
           [ -f "$exe.exe" ] && exe="$exe.exe"
           tools/kill_recovery.sh "$exe" "${{ inputs.recovery_rounds || 3 }}" 6 "$PWD/recovery-report"
+      - name: Recipe Library through the shell, hard kill during saves (ADR 0006)
+        if: ${{ !cancelled() }}
+        timeout-minutes: 12
+        env:
+          RECOVERY_PAGE: repo.html
+          RECOVERY_DB: repo.db
+          RECOVERY_WINDOW: ${{ inputs.recovery_window || 'hidden' }}
+        run: |
+          exe=$PWD/shell-tauri/src-tauri/target/debug/spike-shell
+          [ -f "$exe.exe" ] && exe="$exe.exe"
+          tools/kill_recovery.sh "$exe" 3 6 "$PWD/repo-recovery-report"
       - name: iOS Simulator build of the shell (exploratory; Tauri 2 mobile)
-        if: runner.os == 'macOS'
+        if: ${{ !cancelled() && runner.os == 'macOS' }}
         continue-on-error: true
         timeout-minutes: 25
         working-directory: spikes/phase1/shell-tauri
@@ -158,7 +169,7 @@ jobs:
           npm run tauri -- ios build --target aarch64-sim --debug --ci 2>&1 | grep -vE '^\s+export ' | tail -80
           find src-tauri/gen/apple -name '*.app' -maxdepth 6 2>/dev/null | head -5
       - name: Run the shell in the iOS Simulator (exploratory; a simulator, not a device)
-        if: runner.os == 'macOS'
+        if: ${{ !cancelled() && runner.os == 'macOS' }}
         continue-on-error: true
         timeout-minutes: 12
         working-directory: spikes/phase1/shell-tauri
@@ -174,7 +185,7 @@ jobs:
           id=$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$app/Info.plist")
           reports=$PWD/../ios-report; mkdir -p "$reports"
           # A simulated app is a host process, so it can write the report to a host path.
-          for page in index recipe library graph-react/index graph-svelte/index; do
+          for page in index recipe library repo graph-react/index graph-svelte/index; do
             name=$(echo "$page" | tr '/' '-')
             SIMCTL_CHILD_SPIKE_AUTO=1 SIMCTL_CHILD_SPIKE_START=$page.html SIMCTL_CHILD_SPIKE_REPORT="$reports/$name.json" \
               xcrun simctl launch --terminate-running-process "$udid" "$id" || echo "::warning::launch $page failed"
@@ -184,6 +195,7 @@ jobs:
           done
           ls -la "$reports"
       - name: SQLite durability benchmark, FULL vs NORMAL under WAL, with and without fullfsync (ADR 0006)
+        if: ${{ !cancelled() }}
         timeout-minutes: 4
         run: |
           py=python3; command -v python3 >/dev/null || py=python
@@ -196,6 +208,7 @@ jobs:
             spikes/phase1/report-*.json
             spikes/phase1/orca-report/
             spikes/phase1/recovery-report/
+            spikes/phase1/repo-recovery-report/
             spikes/phase1/ios-report/
           if-no-files-found: warn
 

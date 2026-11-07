@@ -1,5 +1,6 @@
 src-tauri/target/
 ui/core/
+ui/recipe-library/
 ui/fixtures/
 ui/shared/
 ui/graph-react/
