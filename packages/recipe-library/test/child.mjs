@@ -1,10 +1,16 @@
-// Runs in a separate process, which the parent or the process itself kills.
+// Runs in a separate process, which the parent kills.
+import { writeSync } from "node:fs";
 import { openSqliteStore, LIBRARY_MIGRATIONS, createLibrary } from "../dist/index.js";
 import { nodeDriver } from "./node-driver.mjs";
 import { U, rev } from "./conformance.mjs";
 
 const [mode, path, recipe, firstParent] = process.argv.slice(2);
-const die = () => process.kill(process.pid, "SIGKILL");
+// Asks the parent for the kill and waits for it, holding everything open: a
+// process that kills itself on Windows reports an exit code, not a signal.
+const die = () => {
+  writeSync(1, "kill-me\n");
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0);
+};
 
 if (mode === "save-loop") {
   const lib = createLibrary(await openSqliteStore(nodeDriver(path)));

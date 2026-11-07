@@ -11,8 +11,17 @@ try {
 }
 export const available = sqlite !== undefined;
 
+const opened = new Set();
+
+// Windows can't delete a file that is still open, so tests close these first.
+export function closeAllDrivers() {
+  for (const db of opened) if (db.isOpen) db.close();
+  opened.clear();
+}
+
 export function nodeDriver(path) {
   const db = new sqlite.DatabaseSync(path);
+  opened.add(db);
   return {
     run: async (sql, params = []) => void db.prepare(sql).run(...params),
     all: async (sql, params = []) => db.prepare(sql).all(...params),

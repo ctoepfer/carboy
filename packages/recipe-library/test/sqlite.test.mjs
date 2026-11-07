@@ -13,13 +13,16 @@ import { fileURLToPath } from "node:url";
 import { LIBRARY_MIGRATIONS, LibraryError, createLibrary, openSqliteStore } from "../dist/index.js";
 import { U, conformance, rev } from "./conformance.mjs";
 import { failing } from "./helpers.mjs";
-import { available, nodeDriver } from "./node-driver.mjs";
+import { available, closeAllDrivers, nodeDriver } from "./node-driver.mjs";
 
 const skip = available ? false : "needs Node's built-in SQLite (Node 22+)";
 if (!available) test("SQLite store", { skip }, () => {});
 
 const dir = mkdtempSync(join(tmpdir(), "recipe-library-"));
-after(() => rmSync(dir, { recursive: true, force: true }));
+after(() => {
+  closeAllDrivers();
+  rmSync(dir, { recursive: true, force: true, maxRetries: 5 });
+});
 let n = 0;
 const file = () => join(dir, `db-${n++}.sqlite`);
 const code = async (p) => p.then(() => "no error", (e) => { assert.ok(e instanceof LibraryError, String(e)); return e.code; });
@@ -150,11 +153,20 @@ if (available) {
 
   const child = (args) => spawn(process.execPath, ["--no-warnings", fileURLToPath(new URL("./child.mjs", import.meta.url)), ...args], { stdio: ["ignore", "pipe", "inherit"] });
   const ended = (p) => new Promise((resolve) => p.on("close", (_, signal) => resolve(signal)));
+  // The child runs to its kill point, then the parent kills it there. A child
+  // that fails before that point ends without a signal, and the test fails.
+  const killedAtPoint = (args) => {
+    const p = child(args);
+    p.stdout.on("data", (b) => {
+      if (String(b).includes("kill-me")) p.kill("SIGKILL");
+    });
+    return ended(p);
+  };
 
   test("killed mid-transaction: nothing of it survives, and the head stays where it was", async () => {
     const path = file();
     await seeded(path);
-    assert.equal(await ended(child(["die-in-transaction", path, R])), "SIGKILL");
+    assert.equal(await killedAtPoint(["die-in-transaction", path, R]), "SIGKILL");
     const store = await open(path);
     assert.equal(await store.integrityCheck(), "ok");
     const lib = createLibrary(store);
@@ -166,7 +178,7 @@ if (available) {
   test("killed mid-migration: the database reopens at its old version with its data", async () => {
     const path = file();
     await seeded(path);
-    assert.equal(await ended(child(["die-in-migration", path, R])), "SIGKILL");
+    assert.equal(await killedAtPoint(["die-in-migration", path, R]), "SIGKILL");
     const d = nodeDriver(path);
     const store = await openSqliteStore(d);
     assert.equal(await store.schemaVersion(), 1);
