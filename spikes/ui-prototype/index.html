@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="app.css">
+  <script src="messages.js" defer></script>
+  <script src="data.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#view" data-msg="skip"></a>
+  <header class="proto-banner"><p><span class="badge badge-sim" data-msg="sim.badge"></span> <span data-msg="proto.banner"></span></p></header>
+  <div class="app">
+    <nav class="rail" data-msg-label="nav.label">
+      <ul id="rail-links" class="rail-links"></ul>
+      <button type="button" class="rail-btn" data-action="palette" aria-keyshortcuts="Control+K"><span data-msg="palette.open"></span> <kbd data-msg="palette.shortcut"></kbd></button>
+      <details class="proto-controls">
+        <summary data-msg="proto.controls"></summary>
+        <p class="rail-note" data-msg="proto.controlsNote"></p>
+        <label><span data-msg="pref.theme"></span>
+          <select data-pref="theme">
+            <option value="system" data-msg="pref.theme.system"></option>
+            <option value="light" data-msg="pref.theme.light"></option>
+            <option value="dark" data-msg="pref.theme.dark"></option>
+            <option value="contrast" data-msg="pref.theme.contrast"></option>
+          </select></label>
+        <label><span data-msg="pref.density"></span>
+          <select data-pref="density">
+            <option value="comfortable" data-msg="pref.density.comfortable"></option>
+            <option value="compact" data-msg="pref.density.compact"></option>
+          </select></label>
+        <label class="check"><input type="checkbox" id="sim-failure"> <span data-msg="proto.simulateFailure"></span></label>
+        <button type="button" class="rail-btn" data-action="reset" data-msg="proto.reset"></button>
+      </details>
+    </nav>
+    <main id="view" tabindex="-1"></main>
+  </div>
+  <div id="toast" class="toast" hidden></div>
+  <p id="status" class="statusbar" role="status" aria-live="polite"></p>
+  <dialog id="dlg-add" class="dialog"></dialog>
+  <dialog id="dlg-palette" class="dialog dialog-palette"></dialog>
+</body>
+</html>
