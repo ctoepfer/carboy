@@ -61,27 +61,52 @@ On macOS, check 3's reports must also say `"apple": true` and `"fullfsync": 1`.
 
 ## macOS: the stall (open, no conclusion yet)
 
-Each run gets a new data folder, because the stall has grown more frequent as the
-library grows. Keep the visible window on screen, not minimized or covered, and
-leave the machine awake. **Run both under the same conditions:** the same sleep
-prevention (for example `caffeinate -dims`, or none, but the same for both), the
-same monitoring, and no other changes between them; report what was used.
+A matched experiment, not two long runs: one seed database is made once and
+copied fresh into every trial, every trial writes the same number of revisions,
+and three conditions run in rotated order (ABC, BCA, CAB, ...) with identical
+timeouts, monitoring, and hold:
+
+| Condition | Window | Sleep prevention |
+|---|---|---|
+| A | hidden | `caffeinate -dims` |
+| B | visible | `caffeinate -dims` |
+| C | hidden | none |
+
+A against B varies only the window; A against C varies only sleep prevention.
+Run it only when told to, after the main checks, from `spikes/phase1`:
 
 ```sh
-export SPIKE_DATA_DIR=$(mktemp -d)
-RECOVERY_WINDOW=hidden  tools/kill_recovery.sh "$EXE" 20 6 "$OUT/stall-hidden"
-export SPIKE_DATA_DIR=$(mktemp -d)
-RECOVERY_WINDOW=visible tools/kill_recovery.sh "$EXE" 20 6 "$OUT/stall-visible"
+tools/stall_experiment.sh "$EXE" "$OUT/stall-experiment"
 ```
 
-A nonzero exit is a result here, not a failure of the check. `HANG` means no
-report at all; `STALLED` means the page's own watchdog reported a call that
-never returned; `EXITED` is a crash or failed start. Report each separately. A
-round still running at 40 s is captured to `slow-N/` whatever happens next. Keep every
-`hang-N/` and `slow-N/` folder: `sample-webcontent-*.txt` and `taskinfo-*.txt` are the
-evidence still missing. `taskinfo` may need `sudo`; don't use it for this, and say
-if it was refused. A sampled process can be another app's if one started during
-the run, so note any browser use.
+Defaults: 6 blocks (18 trials), a 6,000-revision seed, 500 revisions per trial,
+90 s for each reopen, a 60 s hold of any hung or stalled app, and no new trial
+after 150 minutes. Expect about 10–30 minutes without hangs; each hang adds
+about 3 minutes (captures at 40 s and 90 s, the 60 s hold). One trial can't
+exceed about 6 minutes (180 s to write, 90 s to reopen, the hold, captures), so
+the whole run ends within about 2 hours 40 minutes even if every trial hangs. Results: `results.csv` (per trial: condition, times,
+database and WAL sizes before and after, revisions written, outcome) and
+`summary.txt` (counts only).
+
+During the run, keep condition B's window on screen and uncovered when it
+appears, and don't use the Mac for anything else. Don't change sleep or display
+settings between trials; `environment.txt` records them once. While a hung or
+stalled app is held, the run prints the web process ID; `sudo taskinfo <pid>`
+then is welcome **if the owner runs it**. An agent doesn't use `sudo`.
+
+`HANG` means no report at all; `STALLED` means the page's own watchdog reported a
+call that never returned (the app is now kept open for inspection); `EXITED` is a
+crash or failed start; `WRITE-LIMIT` means the trial didn't write its revisions in
+time, so its workload differs. Keep every trial folder that isn't `PASS`: `hang-N`,
+`slow-N`, `stall-N`, and `*-end-N` hold process lists, stack samples of the app
+and its web process, open files, and the database. Note any browser or other
+WebKit app in use, since a sampled process can be another app's.
+
+**Report observations and interpretations apart.** Counts, durations, sizes, and
+what the samples show are observations. Any mechanism (App Nap, suspension of the
+web process, timer throttling) is an interpretation unless an observation shows
+it directly (for example, a task state read by `taskinfo`). No significance tests:
+trials share one machine and session, so there is no justified sampling model.
 
 ## Report
 
@@ -92,7 +117,7 @@ Tools: node -v, npm -v, rustc -V, webview if known
 1. npm test:        tests / passed / failed / skipped
 2. spike.sh test:   each page PASS or FAIL
 3. Recipe Library:  each round; final revisions/verified; apple and fullfsync
-macOS stall:        hidden rounds/hangs; visible rounds/hangs; last step of each hang
+macOS stall:        summary.txt counts per condition; per non-PASS trial: outcome, last step, what the samples show (observations), then any interpretation, labelled as such
 Failures:           exact command, first error, log path
 Skips:              what, and why
 Not run:            what, and why
