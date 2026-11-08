@@ -12,8 +12,12 @@ py=python3; command -v python3 >/dev/null || py=python
 [ -f "$exe" ] || [ -f "$exe.exe" ] || { echo "no app at $exe: build it first" >&2; exit 2; }
 status=0
 hangs=0
+stalls=0
 exits=0
 limit=${RECOVERY_VERIFY_LIMIT:-90}
+# A slow round is captured early too: library.html's own watchdog reports a
+# stall at 45 s and the app then exits, so evidence must be taken before that.
+early=${RECOVERY_SAMPLE_AFTER:-40}
 # RECOVERY_WINDOW=visible is the control for the macOS hang: does it need a hidden window?
 hidden=1
 [ "${RECOVERY_WINDOW:-hidden}" = visible ] && hidden=0
@@ -24,7 +28,7 @@ db=${RECOVERY_DB:-spike.db}
 stop_app() { if command -v taskkill >/dev/null; then taskkill //F //IM spike-shell.exe >/dev/null 2>&1; else pkill -9 -x spike-shell 2>/dev/null; fi; }
 # What a stall looks like from outside, before the app is killed.
 capture() {
-  local dir="$out/hang-$1" data
+  local dir="$out/${2:-hang}-$1" data
   mkdir -p "$dir"
   ps -axo pid,ppid,stat,pcpu,etime,command 2>/dev/null | grep -iE 'spike-shell|WebKit|WebContent' | grep -v grep >"$dir/processes.txt"
   command -v sample >/dev/null && sample spike-shell 3 -file "$dir/sample.txt" >/dev/null 2>&1
@@ -61,6 +65,11 @@ for r in $(seq 1 "$rounds"); do
   while [ "$waited" -lt "$limit" ] && [ ! -s "$out/after-kill-$r.json" ] && kill -0 "$verify" 2>/dev/null; do
     sleep 1
     waited=$((waited + 1))
+    # Still no report: capture once, while the page may yet finish or stall.
+    if [ "$waited" -eq "$early" ] && [ ! -s "$out/after-kill-$r.json" ] && kill -0 "$verify" 2>/dev/null; then
+      echo "round $r: slow: no report after ${waited}s; captured to slow-$r/ (last step: $(grep -a 'step ' "$out/verify-$r.log" | tail -1))"
+      capture "$r" slow
+    fi
   done
   if [ ! -s "$out/after-kill-$r.json" ] && [ "$waited" -lt "$limit" ]; then
     # It stopped by itself: a crash or failed start, not a stall.
@@ -80,16 +89,21 @@ for r in $(seq 1 "$rounds"); do
     continue
   fi
   wait "$verify" 2>/dev/null
-  $py - "$out/after-kill-$r.json" "$r" <<'PY' || status=1
+  $py - "$out/after-kill-$r.json" "$r" <<'PY'
 import json, sys
 d = json.load(open(sys.argv[1]))
 if "stalled" in d:
     print(f"round {sys.argv[2]}: STALLED at {d['stalled']} after {d['after_ms']} ms -> FAIL (page alive, call stuck)")
-    sys.exit(1)
+    sys.exit(3)
 ok = d["integrity"] == "ok" and d["verified"] == d["revisions"] and not d["failures"]
 print(f"round {sys.argv[2]}: integrity={d['integrity']} journal={d['journal_mode']} synchronous={d.get('synchronous')} revisions={d['revisions']} verified={d['verified']} -> {'PASS' if ok else 'FAIL'}")
 sys.exit(0 if ok else 1)
 PY
+  case $? in
+    0) ;;
+    3) stalls=$((stalls + 1)); status=1 ;;
+    *) status=1 ;;
+  esac
 done
-echo "rounds: $rounds, hangs: $hangs, early exits: $exits"
+echo "rounds: $rounds, hangs: $hangs, stalls: $stalls, early exits: $exits"
 exit $status

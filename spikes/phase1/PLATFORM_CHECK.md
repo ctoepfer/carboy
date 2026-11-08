@@ -55,7 +55,7 @@ RECOVERY_PAGE=repo.html RECOVERY_DB=repo.db \
 |---|---|
 | 1. `npm test` | No failures, and none skipped on Node 22 or later. `npm test` runs each package in turn, so the last summary is only the last package's. Total them with `npm test 2>&1 \| tee "$OUT/npm-test.log" \| grep -E '^(# \|ℹ )tests '`. At `5db261f` and its successors until stated otherwise: **388** (recipe-core 184, ingredient-catalog 93, recipe-library 53, editor-commands 23, recipe-format 21, equipment-profiles 14) |
 | 2. `spike.sh test` | `PASS` on `checks`, `recipe`, `library`, `graph-react`, `graph-svelte`. Graph windows appear briefly |
-| 3. Recipe Library | Every round `PASS`, then `rounds: 3, hangs: 0, early exits: 0`. Each `after-kill-N.json` has `integrity` ok, `journal_mode` wal, `synchronous` 2, `verified` equal to `revisions`, and no `failures` |
+| 3. Recipe Library | Every round `PASS`, then `rounds: 3, hangs: 0, stalls: 0, early exits: 0`. Each `after-kill-N.json` has `integrity` ok, `journal_mode` wal, `synchronous` 2, `verified` equal to `revisions`, and no `failures` |
 
 On macOS, check 3's reports must also say `"apple": true` and `"fullfsync": 1`.
 
@@ -72,9 +72,11 @@ export SPIKE_DATA_DIR=$(mktemp -d)
 RECOVERY_WINDOW=visible tools/kill_recovery.sh "$EXE" 20 6 "$OUT/stall-visible"
 ```
 
-A nonzero exit is a result here, not a failure of the check. `HANG` is a stall;
-`EXITED` is a crash or failed start, so report those separately. Keep every
-`hang-N/` folder: `sample-webcontent-*.txt` and `taskinfo-*.txt` are the
+A nonzero exit is a result here, not a failure of the check. `HANG` means no
+report at all; `STALLED` means the page's own watchdog reported a call that
+never returned; `EXITED` is a crash or failed start. Report each separately. A
+round still running at 40 s is captured to `slow-N/` whatever happens next. Keep every
+`hang-N/` and `slow-N/` folder: `sample-webcontent-*.txt` and `taskinfo-*.txt` are the
 evidence still missing. `taskinfo` may need `sudo`; don't use it for this, and say
 if it was refused. A sampled process can be another app's if one started during
 the run, so note any browser use.
