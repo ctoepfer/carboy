@@ -51,7 +51,7 @@ RECOVERY_PAGE=repo.html RECOVERY_DB=repo.db \
 
 | Check | Expected |
 |---|---|
-| 1. `npm test` | No failures, and none skipped on Node 22 or later. The count is stated with the candidate |
+| 1. `npm test` | No failures, and none skipped on Node 22 or later. `npm test` runs each package in turn, so the last summary is only the last package's. Total them with `npm test 2>&1 \| tee "$OUT/npm-test.log" \| grep -E '^(# \|ℹ )tests '`. At `5db261f` and its successors until stated otherwise: **388** (recipe-core 184, ingredient-catalog 93, recipe-library 53, editor-commands 23, recipe-format 21, equipment-profiles 14) |
 | 2. `spike.sh test` | `PASS` on `checks`, `recipe`, `library`, `graph-react`, `graph-svelte`. Graph windows appear briefly |
 | 3. Recipe Library | Every round `PASS`, then `rounds: 3, hangs: 0, early exits: 0`. Each `after-kill-N.json` has `integrity` ok, `journal_mode` wal, `synchronous` 2, `verified` equal to `revisions`, and no `failures` |
 

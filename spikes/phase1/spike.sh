@@ -84,7 +84,10 @@ cmd_test() {
   check_tools
   [ -d "$core/node_modules" ] && [ -d "$graph/node_modules" ] || install_deps
   say "Core tests (Node)"
-  (cd "$core" && npm test --silent 2>&1 | grep -E '^# (pass|fail)')
+  # Node 22 prints TAP ("# pass 14") when output isn't a terminal; Node 23+
+  # prints the spec reporter ("ℹ pass 14"). Match both; npm's exit status still
+  # decides pass or fail (pipefail).
+  (cd "$core" && npm test --silent 2>&1 | grep -E '^(# |ℹ )(pass|fail) ')
   build
   local out fail=0
   out=$(mktemp -d)
