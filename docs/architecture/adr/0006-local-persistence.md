@@ -172,6 +172,57 @@ also starve a timer. `RECOVERY_WINDOW=visible` and web-process sampling are
 ready for the next macOS run. If the hypothesis holds, this is a test-harness
 condition, but a real app verifying in a background window would meet it too.
 
+**Visible-window control (2026-11-07, at `5db261f`; still OPEN).** On a native
+Intel Mac (macOS 15.8.1, WebKit 20621.3.11.11.3), 20 rounds each with a fresh
+database, `library.html`:
+
+| Window | Hangs (no report) | Stalls (watchdog reported) | Passed |
+|---|---|---|---|
+| Hidden | **13** (every round from 9 on; 3 at `read-rows`, the rest in verify) | 0 | 7 |
+| Visible, on screen and uncovered in every check, machine kept awake | **0** | 1 (round 19, see below) | 19 |
+
+**This comparison is weaker than its counts suggest.** Two confounds, pointed
+out by the Mac check itself:
+
+1. **More differed than the window.** Only the visible run had sleep prevention
+   (`caffeinate -dims`) and a window logger polling every 2 s. App Nap, timer
+   throttling, or idle behaviour could follow from the missing sleep prevention
+   as well as from the hidden window, so this pair can't separate them.
+2. **Rounds aren't independent.** Each run grows one database, the hidden hangs
+   cluster (every round from 9 on), and the visible run wrote about 4 times more
+   revisions per round (2,318 against 434 in round 1). A per-round significance
+   test overstates the evidence; this is closer to one run against one run.
+
+The slower writing while hidden is itself consistent with throttling, but it is
+not a measurement of it.
+The same run's `repo.html` (Recipe Library through the shell's own connection)
+hung in round 3 while hidden, and CI at the same commit (run 42440845204,
+hidden) hung in 10 of 20 `library.html` rounds and in round 3 of 3 `repo.html`
+rounds. Windows and Linux passed everything, natively and in CI.
+
+| Observation (14 sampled hangs) | Evidence |
+|---|---|
+| App process idle | Its main thread waiting in the event loop in all 14 |
+| Web process main thread | Idle in its run loop in 4. In 10, one unbranched stack at the same instruction in every sample, at frames that don't wait (text conversion, GC marking, a timer, JSON parsing, IPC decoding). That fits a thread that isn't being scheduled; the OS task state that would show it needs root and wasn't read |
+| JIT helper | Busy in 2 of 14, also on a single unchanging frame |
+| Stored data | Every report that finished verifies completely |
+
+**What this establishes:** on this Mac, one hidden run without sleep prevention
+hung often and one visible run with it didn't. **Not established:** whether the
+window, the sleep prevention, or both matter; the mechanism (for example, WebKit
+or the OS suspending a hidden window's web process); and any fix. **Next, a
+matched comparison:** hidden and visible each run with the same sleep prevention
+and the same logging, and ideally hidden with and without it, with the same
+write volume per round (a fixed number of revisions, not a fixed time). The hidden-window condition
+is set by the test harness, but a real app verifying in a background window
+could meet it.
+
+**Separate finding, visible run: verification slows as the library grows.**
+`read-rows` took 1.1 s in round 1 and 13–19 s by rounds 17–20 (about 50,000
+revisions); in round 19 it took 43.7 s, so the page's 45 s watchdog reported a
+stall although the page was alive. This is a performance question for the
+library's reads on that machine, not evidence of a hang.
+
 **Acceptance status.** The durability setting is supported by evidence. The
 ADR as a whole is **not yet acceptable**: evidence item 1 needs Android and a
 device run, item 2 still needs the Phase 3 migration-rollback tests, and the

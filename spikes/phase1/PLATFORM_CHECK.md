@@ -63,7 +63,9 @@ On macOS, check 3's reports must also say `"apple": true` and `"fullfsync": 1`.
 
 Each run gets a new data folder, because the stall has grown more frequent as the
 library grows. Keep the visible window on screen, not minimized or covered, and
-leave the machine awake.
+leave the machine awake. **Run both under the same conditions:** the same sleep
+prevention (for example `caffeinate -dims`, or none, but the same for both), the
+same monitoring, and no other changes between them; report what was used.
 
 ```sh
 export SPIKE_DATA_DIR=$(mktemp -d)
