@@ -32,6 +32,7 @@ if (stress > 0) {
     parent = revision_id;
     if (i % 100 === 0) await log(`stress: ${i} written`);
   }
+  await log(`stress: all ${stress} written`);
 }
 
 await mark("integrity-check");

@@ -26,7 +26,7 @@ const mark = (name) => {
 };
 const auto = await invoke("auto_mode");
 const watchdog = auto
-  ? setTimeout(() => invoke("report", { json: JSON.stringify({ page: "library", stalled: stage, after_ms: Math.round(performance.now() - started) }) }), 45000)
+  ? setTimeout(() => invoke("report", { json: JSON.stringify({ page: "library", stalled: stage, after_ms: Math.round(performance.now() - started) }), keepOpen: true }), 45000)
   : undefined;
 
 await mark("database-load");

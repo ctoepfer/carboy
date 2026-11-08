@@ -132,11 +132,13 @@ fn import_native(app: tauri::AppHandle, name: String) -> Result<String, String> 
 
 /// Writes the webview's results to $SPIKE_REPORT and exits if $SPIKE_EXIT=1.
 #[tauri::command]
-fn report(app: tauri::AppHandle, json: String) -> Result<(), String> {
+fn report(app: tauri::AppHandle, json: String, keep_open: Option<bool>) -> Result<(), String> {
     if let Ok(path) = std::env::var("SPIKE_REPORT") {
         fs::write(path, json).map_err(|e| e.to_string())?;
     }
-    if std::env::var("SPIKE_EXIT").as_deref() == Ok("1") {
+    // keep_open: a stall report leaves the stalled process running, so the
+    // recovery harness can sample and hold it before killing it.
+    if std::env::var("SPIKE_EXIT").as_deref() == Ok("1") && keep_open != Some(true) {
         app.exit(0);
     }
     Ok(())
