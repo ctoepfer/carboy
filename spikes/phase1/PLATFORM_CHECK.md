@@ -12,7 +12,9 @@ against it: a result on any other commit is a result for that commit.
   diagnostics. If something else is using `spike-shell`, stop and say so: the
   kill test kills every process with that name on the machine.
 - Set `SPIKE_DATA_DIR`, so nothing reads or writes the app's normal data folder.
-  The `XDG_*` variables don't work on macOS or Windows.
+  The `XDG_*` variables don't work on macOS or Windows. The webview's own profile
+  goes to `$SPIKE_DATA_DIR/webview` on Windows and Linux; macOS's WKWebView
+  ignores that setting and keeps its own website data store.
 - A skipped or unfinished check is reported as that, never as a pass.
 - Change no code in the candidate. Put a fix on its own branch and report it.
 

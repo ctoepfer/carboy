@@ -187,6 +187,15 @@ pub fn run() {
                 .inner_size(1100.0, 760.0)
                 // SPIKE_HIDDEN=1: automated runs without a window on the desktop.
                 .visible(std::env::var("SPIKE_HIDDEN").as_deref() != Ok("1"));
+            // The webview's own profile (cache, storage; WebView2's EBWebView)
+            // goes under $SPIKE_DATA_DIR too, or a test run writes into the
+            // normal app folder. WebView2 and WebKitGTK honour this; WKWebView
+            // ignores it (found by the Windows platform check of 5db261f).
+            #[cfg(desktop)]
+            let builder = match test_dir() {
+                Some(dir) => builder.data_directory(dir.join("webview")),
+                None => builder,
+            };
             builder.build()?;
             Ok(())
         })
