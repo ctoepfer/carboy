@@ -130,7 +130,7 @@ for b in $(seq 0 $((reps - 1))); do
       RECOVERY_HOLD=$hold $wake "$here/kill_recovery.sh" "$exe" 1 0 "$dir/run" >"$dir/run.log" 2>&1
     kill "$mon" 2>/dev/null; wait "$mon" 2>/dev/null
     end=$(date '+%T'); secs=$(( $(date +%s) - s0 ))
-    command -v pmset >/dev/null && pmset -g log 2>/dev/null | awk -v s="$(date -r "$s0" '+%F %T' 2>/dev/null)" '$0 >= s' \
+    command -v pmset >/dev/null && pmset -g log 2>/dev/null | awk -v s="$(date -r "$s0" '+%F %T' 2>/dev/null)" '/^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] / && $1 " " $2 >= s' \
       | grep -E ' (Sleep|Wake|DarkWake|Display is turned)' >"$dir/power-events.txt" 2>/dev/null
     rev=$(report_field "$dir/run/after-kill-1.json" revisions)
     written=-; [ "$rev" != - ] && [ "$seed_rev" != - ] && written=$((rev - seed_rev))

@@ -217,6 +217,64 @@ write volume per round (a fixed number of revisions, not a fixed time). The hidd
 is set by the test harness, but a real app verifying in a background window
 could meet it.
 
+**Matched comparison (2026-11-07, at `d032641`; still OPEN).** On the same Intel
+Mac (macOS 15.8.1), `tools/stall_experiment.sh`: one seed library of 6,000
+revisions (24,940,544 bytes, reopen verified) copied fresh into each of 18
+trials; each trial wrote 500 revisions, was killed, and reopened under
+identical timeouts and monitoring, in rotated blocks.
+
+| Condition | Hangs (no report) | Passed |
+|---|---|---|
+| A: hidden, `caffeinate -dims` | 3 of 6 | 3 |
+| B: visible, `caffeinate -dims` | 0 of 6 | 6 |
+| C: hidden, no `caffeinate` | 1 of 6 | 5 |
+
+Observations from the diagnostics and the macOS unified log (read-only review
+of the saved results; no runs):
+
+- Every trial wrote exactly 500 revisions; hung and passing trials had the same
+  file sizes and reached the same steps. Each hang stopped in the verify loop.
+- C wasn't "no sleep prevention": another application held system and display
+  sleep assertions throughout. No sleep, wake, or display-off event occurred
+  during the experiment. (The per-trial `power-events.txt` files are void: their
+  filter passed pmset's undated summary lines. Fixed in the script.)
+- In all four hangs, plus the `repo.html` round-3 hang the same evening,
+  `runningboardd` logged "Suspending task." for that trial's web content process
+  7.0–7.3 s after launch, with no later resume. CPU use by the web process
+  stopped at that time, and it stayed at 0% in a sleeping state for the
+  remaining ~3 minutes, the hold included.
+- Hidden web processes lost the Foreground assertion at ~1.15 s and their
+  Background assertion at ~7.0 s. Visible ones kept Foreground and were never
+  suspended. Every hidden reopen that finished before ~7 s passed; every one
+  still running then hung. No hidden page has reported later than 6.65 s on
+  this Mac; visible ones have reported as late as 36.9 s.
+- Hidden verification ran 3–5 times slower than visible (2.85–4.64 s against
+  0.89–1.05 s), so more hidden reopens ran past ~7 s.
+- In each hung web process, one thread stood at the same non-waiting
+  instruction in all three captures (40 s, 90 s, end of the hold); the frame
+  differed from hang to hang. No thread waited on a lock, and the app process
+  was idle. The 45 s page watchdog never fired.
+- The `repo.html` round-3 pattern fits the same timing: the chain grows each
+  round (107, 261, 417 revisions), and at round 2's rate round 3 needs about
+  7 s. The harness treats every round alike.
+- The task state (`taskinfo`) needs root and wasn't read. The older run at
+  `5db261f` shows the same log sequence (suspension 7.7–12.9 s after launch),
+  but one of its hangs was already late before its suspension, unexplained.
+
+**Interpretation, not established:** the OS suspends the web process of a
+hidden webview about 7 s after launch, and nothing resumes it; the slower
+background scheduling only decides which reopens run that long. Against it, or
+open: why a pending IPC reply doesn't resume the process; the late `5db261f`
+hang; and CI hasn't been checked against the log. Sleep, a SQLite or IPC
+deadlock, and a WebCrypto or JIT fault fit the evidence poorly (no sleep events,
+no lock waits, a different frame every time). **Discriminating tests, not yet
+run:** a hidden reopen kept busy past ~7 s should always hang and one finishing
+before ~6 s never; a live `log stream` should show the suspension at the stall;
+keeping the web process in the foreground should remove the hangs; `taskinfo`
+as root should show the task suspended. If this holds, the hang is a property
+of the test's hidden window, not of recovery itself, but whether a real app's
+background or minimized window meets it is a separate question.
+
 **Separate finding, visible run: verification slows as the library grows.**
 `read-rows` took 1.1 s in round 1 and 13–19 s by rounds 17–20 (about 50,000
 revisions); in round 19 it took 43.7 s, so the page's 45 s watchdog reported a
