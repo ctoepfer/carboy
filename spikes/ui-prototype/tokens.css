@@ -1,0 +1,141 @@
+/*
+ * Design tokens, proposal v0 (docs/product/UI_DESIGN.md §4).
+ * Prototype only: these values are a proposal, not the product's tokens.
+ *
+ * Origin: spacing, radii, and the light palette start from Lumina's
+ * admin/static/lumina/tokens.css (the maintainer's own code, D-002), read
+ * only. Changed from Lumina: accent darkened for text use (#b9571d -> #a84d17),
+ * a stronger control border, a blue focus colour (Lumina's #ff9c3d is 2.2:1
+ * on white), dark and increased-contrast themes added.
+ *
+ * Contrast of every text, control, and focus pair is checked in all three
+ * themes; results are in UI_DESIGN.md §4.3. Components use only these tokens.
+ */
+:root {
+  color-scheme: light;
+  --bg: #f3f5f8;
+  --surface: #ffffff;
+  --surface-sunken: #eef1f5;
+  --chrome: #1a2637;
+  --on-chrome: #e8edf4;
+  --on-chrome-muted: #c4cfdd;
+  --text: #172033;
+  --text-muted: #586579;
+  --border: #cad2dd;          /* decorative separators only */
+  --border-strong: #7b8797;   /* control boundaries: >= 3:1 */
+  --accent: #a84d17;
+  --accent-strong: #81360f;
+  --on-accent: #ffffff;
+  --link: #175a78;
+  --focus: #2457c5;
+  --focus-on-chrome: #8ab4ff;
+  --selected: #fdf0e6;
+  --danger: #9d2727;   --danger-bg: #fbeceb;
+  --success: #246b3c;  --success-bg: #e9f4ed;
+  --warning: #815d08;  --warning-bg: #fbf3dc;
+  --info: #175a78;     --info-bg: #e6f1f6;
+  --simulated: #5b4a8a;
+
+  /* Type: system fonts (USABILITY §2.5); sizes in rem so OS text size applies. */
+  --font: system-ui, -apple-system, "Segoe UI", "Cantarell", "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "DejaVu Sans Mono", monospace;
+  --text-xs: .8125rem;   /* 13px: captions, badges */
+  --text-sm: .875rem;    /* 14px: table cells in compact density */
+  --text-md: 1rem;       /* 16px: body */
+  --text-lg: 1.125rem;   /* 18px: section headings */
+  --text-xl: 1.375rem;   /* 22px: view title */
+  --text-2xl: 1.75rem;   /* 28px: statistic values */
+  --leading: 1.45;
+
+  /* Spacing: Lumina's scale plus two larger steps. */
+  --space-1: .25rem;
+  --space-2: .5rem;
+  --space-3: .75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  --radius-sm: .3rem;
+  --radius-md: .55rem;
+  --shadow: 0 1px 3px rgb(23 32 51 / .12);
+  --focus-width: 3px;
+
+  /* Density: comfortable is the default; compact keeps targets >= 24px (WCAG 2.5.8). */
+  --control-height: 2.5rem;
+  --row-pad: var(--space-2);
+  --cell-text: var(--text-md);
+}
+
+:root[data-density="compact"] {
+  --control-height: 2rem;
+  --row-pad: var(--space-1);
+  --cell-text: var(--text-sm);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="contrast"]) {
+    color-scheme: dark;
+    --bg: #11161d; --surface: #19202a; --surface-sunken: #141a22;
+    --chrome: #0c1117; --on-chrome: #e6ebf2; --on-chrome-muted: #a9b4c2;
+    --text: #e6ebf2; --text-muted: #a3aebd;
+    --border: #2f3946; --border-strong: #75828f;
+    --accent: #f0965c; --accent-strong: #ffb98a; --on-accent: #1c0d03;
+    --link: #7cc4e4; --focus: #8ab4ff; --focus-on-chrome: #8ab4ff; --selected: #3a2414;
+    --danger: #ff8f86; --danger-bg: #3a1d1c;
+    --success: #7fd49a; --success-bg: #17301f;
+    --warning: #e8c35a; --warning-bg: #33290f;
+    --info: #7cc4e4; --info-bg: #132b36;
+    --simulated: #c3b5f0;
+    --shadow: 0 1px 3px rgb(0 0 0 / .5);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #11161d; --surface: #19202a; --surface-sunken: #141a22;
+  --chrome: #0c1117; --on-chrome: #e6ebf2; --on-chrome-muted: #a9b4c2;
+  --text: #e6ebf2; --text-muted: #a3aebd;
+  --border: #2f3946; --border-strong: #75828f;
+  --accent: #f0965c; --accent-strong: #ffb98a; --on-accent: #1c0d03;
+  --link: #7cc4e4; --focus: #8ab4ff; --focus-on-chrome: #8ab4ff; --selected: #3a2414;
+  --danger: #ff8f86; --danger-bg: #3a1d1c;
+  --success: #7fd49a; --success-bg: #17301f;
+  --warning: #e8c35a; --warning-bg: #33290f;
+  --info: #7cc4e4; --info-bg: #132b36;
+  --simulated: #c3b5f0;
+  --shadow: 0 1px 3px rgb(0 0 0 / .5);
+}
+
+/* Increased contrast: chosen explicitly, or by the OS setting. */
+@media (prefers-contrast: more) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    color-scheme: light;
+    --bg: #ffffff; --surface: #ffffff; --surface-sunken: #f2f2f2;
+    --chrome: #000000; --on-chrome: #ffffff; --on-chrome-muted: #ffffff;
+    --text: #000000; --text-muted: #1f1f1f;
+    --border: #000000; --border-strong: #000000;
+    --accent: #7a2e00; --accent-strong: #5a2100; --on-accent: #ffffff;
+    --link: #00366e; --focus: #0000c8; --focus-on-chrome: #ffff00; --selected: #ffe9d6;
+    --danger: #8a0000; --danger-bg: #ffffff;
+    --success: #004d1a; --success-bg: #ffffff;
+    --warning: #5c4000; --warning-bg: #ffffff;
+    --info: #00366e; --info-bg: #ffffff;
+    --simulated: #3b1f7a;
+    --focus-width: 4px;
+  }
+}
+:root[data-theme="contrast"] {
+  color-scheme: light;
+  --bg: #ffffff; --surface: #ffffff; --surface-sunken: #f2f2f2;
+  --chrome: #000000; --on-chrome: #ffffff; --on-chrome-muted: #ffffff;
+  --text: #000000; --text-muted: #1f1f1f;
+  --border: #000000; --border-strong: #000000;
+  --accent: #7a2e00; --accent-strong: #5a2100; --on-accent: #ffffff;
+  --link: #00366e; --focus: #0000c8; --focus-on-chrome: #ffff00; --selected: #ffe9d6;
+  --danger: #8a0000; --danger-bg: #ffffff;
+  --success: #004d1a; --success-bg: #ffffff;
+  --warning: #5c4000; --warning-bg: #ffffff;
+  --info: #00366e; --info-bg: #ffffff;
+  --simulated: #3b1f7a;
+  --focus-width: 4px;
+}

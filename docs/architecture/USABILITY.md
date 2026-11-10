@@ -289,6 +289,12 @@ Features that make Carboy usable, with where they land. "Spike" means
 throwaway code exists in `spikes/phase1/`; it informs the real build but is
 not carried over.
 
+A design proposal for the Library, Editor, and change review, with proposed
+design tokens, a throwaway prototype, and a task-based usability checklist for
+Linux, macOS, and Windows, is in [UI_DESIGN.md](../product/UI_DESIGN.md)
+(**Proposed**, 2026-11-07; open decisions UD1–UD10). It applies the rules on
+this page; it doesn't change them.
+
 | Feature | Phase | Status | Accessibility / localization notes |
 |---|---|---|---|
 | Navigation shell with named landmarks | 4 | Spike | Skip link to main content; current page announced |
