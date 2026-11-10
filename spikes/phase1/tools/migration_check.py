@@ -12,6 +12,7 @@ database read happens in the shell, over its own connection.
   migration_check.py rolled-back <report.json>
   migration_check.py sha256 <file>
   migration_check.py version <report.json>   (prints the database version after)
+  migration_check.py wal <file> empty|uncommitted   (WAL frame evidence, JSON)
 Exit 0 when the check passes; otherwise prints why and exits 1.
 """
 import hashlib
@@ -20,6 +21,7 @@ import sys
 
 COLUMN = "test_migration_note"
 TABLE = "test_migration_marker"
+SPILL = "test_migration_spill"
 EXPECTED = {"recipes": 4, "deleted": 1, "revisions": 26}
 
 
@@ -70,6 +72,8 @@ def state(manifest, report, want, library):
     v = s["user_version"]
     has_column = s["recipe_columns"].count(COLUMN)
     has_table = TABLE in s["tables"]
+    if SPILL in s["tables"]:
+        fail("the spill mode's test table survived; it must never be committed")
     if v == 1:
         if has_column or has_table or s["marker_rows"] is not None:
             fail(f"version 1 but the test step's schema is partly there (column {has_column}, table {has_table})")
@@ -129,6 +133,68 @@ def rolled_back(report):
     print(f"in the transaction before the failure: version 2, column and table present; reported as migration-failed (step {mig.get('details', {}).get('version')}); same session back at version 1")
 
 
+def wal_frames(path):
+    """Reads a WAL file by SQLite's documented format (fileformat2, "The WAL
+    file"): a 32-byte header, then frames of a 24-byte header plus one page.
+    A frame is valid when its salts match the header's and its running checksum
+    matches; a commit frame has a non-zero database size. Reading stops at the
+    first frame that is incomplete or invalid, as SQLite's recovery does."""
+    import os
+    import struct
+    size = os.path.getsize(path) if os.path.exists(path) else None
+    info = {"bytes": size, "header": False, "page_size": None, "valid_frames": 0, "commit_frames": 0, "uncommitted_frames": 0, "trailing_bytes": 0}
+    if not size or size < 32:
+        info["trailing_bytes"] = size or 0
+        return info
+    with open(path, "rb") as f:
+        data = f.read()
+    magic, version, page_size, _seq, salt1, salt2, c1, c2 = struct.unpack(">8I", data[:32])
+    if magic not in (0x377F0682, 0x377F0683):
+        info["error"] = f"bad magic {magic:#x}"
+        return info
+    order = ">" if magic & 1 else "<"
+
+    def checksum(block, s0, s1):
+        words = struct.unpack(f"{order}{len(block) // 4}I", block)
+        for i in range(0, len(words), 2):
+            s0 = (s0 + words[i] + s1) & 0xFFFFFFFF
+            s1 = (s1 + words[i + 1] + s0) & 0xFFFFFFFF
+        return s0, s1
+
+    if checksum(data[:24], 0, 0) != (c1, c2):
+        info["error"] = "header checksum mismatch"
+        return info
+    info.update(header=True, page_size=page_size, version=version)
+    s = (c1, c2)
+    pos = 32
+    frame = 24 + page_size
+    while pos + frame <= len(data):
+        pgno, commit, fs1, fs2, fc1, fc2 = struct.unpack(">6I", data[pos:pos + 24])
+        if (fs1, fs2) != (salt1, salt2):
+            break
+        s = checksum(data[pos:pos + 8] + data[pos + 24:pos + frame], *s)
+        if s != (fc1, fc2):
+            break
+        info["valid_frames"] += 1
+        if commit:
+            info["commit_frames"] += 1
+        else:
+            info["uncommitted_frames"] += 1
+        pos += frame
+    info["trailing_bytes"] = len(data) - pos
+    return info
+
+
+def wal(path, want):
+    """wal <file> empty|uncommitted: prints the evidence as one JSON line."""
+    info = wal_frames(path)
+    print(json.dumps(info, sort_keys=True))
+    if want == "empty" and info["valid_frames"] != 0:
+        sys.exit(1)
+    if want == "uncommitted" and not (info["bytes"] and info["bytes"] > 32 and info["uncommitted_frames"] >= 1 and info["commit_frames"] == 0):
+        sys.exit(1)
+
+
 def sha256(path):
     h = hashlib.sha256()
     with open(path, "rb") as f:
@@ -149,6 +215,8 @@ if __name__ == "__main__":
         rolled_back(*args)
     elif cmd == "sha256":
         sha256(*args)
+    elif cmd == "wal":
+        wal(*args)
     elif cmd == "version":
         print(load(args[0])["after"]["user_version"])
     else:

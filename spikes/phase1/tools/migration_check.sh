@@ -8,7 +8,7 @@
 # The library has no product step after version 1 yet; repeat this check
 # against the first real schema upgrade when one exists.
 #
-#   tools/migration_check.sh <exe> <rounds> <outdir>
+#   tools/migration_check.sh <exe> <rounds> <outdir>   (4 cases per round)
 #
 # Needs $SPIKE_DATA_DIR (every database, backup, and webview profile goes under
 # $SPIKE_DATA_DIR/migration-check/, which must not exist yet). One fixture is
@@ -16,9 +16,18 @@
 #   success    migrate 1 -> 2; reopen; backup is the fixture at version 1
 #   fail       the step throws after its DDL, before the commit; reopen at
 #              version 1 with the fixture's data; backup intact; retry migrates
-#   interrupt  the step reports a barrier after its DDL; the shell is killed
-#              there (no timed sleep); reopen complete (never partial); backup
-#              intact; retry migrates
+#   interrupt-memory  the step reports a barrier after its DDL; the shell is
+#              killed there (no timed sleep); reopen complete (never partial);
+#              backup intact; retry migrates. The step's changes are small and
+#              stay in SQLite's page cache: this case does NOT cover WAL recovery
+#   interrupt-wal  as interrupt-memory, but the page stops first at a "step
+#              start" barrier, where the WAL must hold no frames; then the step
+#              shrinks its connection's cache and writes enough rows to force
+#              uncommitted frames into the WAL. At the "spill barrier" the
+#              harness parses the WAL and kills the shell only if it holds at
+#              least one complete, valid, uncommitted frame and no commit frame;
+#              otherwise the case fails and the app is only stopped (no reopen).
+#              Reopen must be version 1 exactly; backup unchanged; retry migrates
 # Optional: MIGRATION_LIMIT=S seconds per launch (default 90);
 #           MIGRATION_WINDOW=visible to show the window.
 # Exit 0 only if every case in every round passes.
@@ -114,6 +123,41 @@ retry() {
   launched "$2-retry" $? report && step "$2-retry" check migrated "$out/$2-retry.json" &&
     reopened "$1" "$2-retry-reopen" v2 && backup_ok "$1" migrate.db.backup-retry "$2-retry-backup"
 }
+# launch_spill <dir> <name>: the interrupt-wal launch. Returns 0 when the
+# shell was killed with uncommitted WAL frames on disk; 1 otherwise (the app is
+# stopped as cleanup, and the case fails).
+launch_spill() {
+  local dir=$1 name=$2 pid t=0 log="$out/$2.log"
+  SPIKE_DATA_DIR="$dir" SPIKE_HIDDEN=$hidden SPIKE_START=migrate.html SPIKE_AUTO=1 SPIKE_EXIT=1 \
+    SPIKE_REPORT="$out/$name.json" SPIKE_MIGRATE=spill SPIKE_MIGRATE_DB=migrate.db SPIKE_MIGRATE_BACKUP=migrate.db.backup \
+    run "$exe" >"$log" 2>&1 &
+  pid=$!
+  until grep -q "migration: step start" "$log" 2>/dev/null || [ "$t" -ge "$limit" ] || ! kill -0 "$pid" 2>/dev/null; do sleep 1; t=$((t + 1)); done
+  if ! grep -q "migration: step start" "$log" 2>/dev/null; then
+    echo "  $name: FAIL: no step-start barrier within ${limit}s; log: $log"; stop_app; wait "$pid" 2>/dev/null; return 1
+  fi
+  [ -f "$dir/migrate.db-wal" ] && cp "$dir/migrate.db-wal" "$out/$name-start.wal"
+  if ! step "$name-wal-at-step-start" check wal "$dir/migrate.db-wal" empty; then
+    echo "  $name: FAIL: the WAL already held frames before the step wrote anything; stopped without a kill test"; stop_app; wait "$pid" 2>/dev/null; return 1
+  fi
+  : >"$dir/migrate.go"
+  t=0
+  until grep -q "migration: spill barrier reached" "$log" 2>/dev/null || [ "$t" -ge "$limit" ] || ! kill -0 "$pid" 2>/dev/null; do sleep 1; t=$((t + 1)); done
+  if ! grep -q "migration: spill barrier reached" "$log" 2>/dev/null || [ -s "$out/$name.json" ]; then
+    echo "  $name: FAIL: no spill barrier within ${limit}s (or the page finished); log: $log"; stop_app; wait "$pid" 2>/dev/null; return 1
+  fi
+  if ! grep -q "spill barrier reached (in transaction: version 2, column true, table true, spill rows 256)" "$log"; then
+    echo "  $name: FAIL: $(grep -a 'spill barrier' "$log")"; stop_app; wait "$pid" 2>/dev/null; return 1
+  fi
+  echo "  $name: in the transaction at the spill barrier: version 2, column and table present, 256 spill rows"
+  cp "$dir/migrate.db-wal" "$out/$name-prekill.wal"
+  if ! step "$name-wal-before-kill" check wal "$dir/migrate.db-wal" uncommitted; then
+    echo "  $name: FAIL: no complete uncommitted frame in the WAL; not killed for a recovery test (app stopped as cleanup)"; stop_app; wait "$pid" 2>/dev/null; return 1
+  fi
+  backup_sha=$(check sha256 "$dir/migrate.db.backup")
+  stop_app; wait "$pid" 2>/dev/null
+  step "$name-wal-after-kill" check wal "$dir/migrate.db-wal" uncommitted
+}
 # The barrier line must show the step's changes inside the open transaction.
 barrier_state() {
   if grep -q "barrier reached (in transaction: version 2, column true, table true)" "$1"; then echo "in the transaction at the barrier: version 2, column and table present"
@@ -125,7 +169,7 @@ fresh() { mkdir -p "$1"; cp "$base/fixture/migrate.db" "$1/"; [ "$(check sha256 
 
 passed=0; total=0
 for r in $(seq 1 "$rounds"); do
-  for c in success fail interrupt; do
+  for c in success fail interrupt-memory interrupt-wal; do
     total=$((total + 1)); case_ok=1
     dir=$base/r$r-$c; n=r$r-$c
     echo "round $r, $c:"
@@ -144,7 +188,7 @@ for r in $(seq 1 "$rounds"); do
           retry "$dir" "$n" && step "$n-backup-unchanged" same "$n" "$dir/migrate.db.backup" "$b"
         fi
         ;;
-      interrupt)
+      interrupt-memory)
         launch "$dir" barrier "$n-barrier" migrate.db migrate.db.backup
         if launched "$n-barrier" $? barrier && step "$n-barrier" barrier_state "$out/$n-barrier.log"; then
           echo "  $n-barrier: killed at the barrier; files after the kill: $(files "$dir")"
@@ -156,6 +200,18 @@ for r in $(seq 1 "$rounds"); do
               retry "$dir" "$n" && step "$n-backup-unchanged" same "$n" "$dir/migrate.db.backup" "$b"
             fi
           fi
+        fi
+        ;;
+      interrupt-wal)
+        echo "  $n: fresh copy before launch: $(files "$dir")(no WAL file)"
+        if launch_spill "$dir" "$n-spill"; then
+          echo "  $n-spill: killed with uncommitted frames in the WAL; files after the kill: $(files "$dir")"
+          if reopened "$dir" "$n-reopen" v1 && step "$n-wal-after-reopen" check wal "$dir/migrate.db-wal" any &&
+            backup_ok "$dir" migrate.db.backup "$n-backup" && step "$n-backup-unchanged" same "$n" "$dir/migrate.db.backup" "$backup_sha"; then
+            retry "$dir" "$n" && step "$n-backup-unchanged-after-retry" same "$n" "$dir/migrate.db.backup" "$backup_sha"
+          fi
+        else
+          case_ok=0
         fi
         ;;
     esac; fi
