@@ -59,6 +59,55 @@ RECOVERY_PAGE=repo.html RECOVERY_DB=repo.db \
 
 On macOS, check 3's reports must also say `"apple": true` and `"fullfsync": 1`.
 
+## Migration check (all desktops)
+
+Real migration machinery exercised through the Tauri shell using a
+test-defined migration step; this is not a real product schema migration.
+
+The Recipe Library's only product migration is the 0 → 1 bootstrap, which
+creates the tables in an empty database. This check uses that bootstrap to make
+a version 1 library with representative data (4 recipes, one of them deleted;
+26 revisions), then passes a **test-defined** 1 → 2 step through the existing
+`migrations` option of `openSqliteStore`. Everything else is the library's real
+`migrate()`, on the shell's own `rusqlite` connection: the `VACUUM INTO` backup,
+one `BEGIN IMMEDIATE` transaction for every pending step, and the rollback on
+failure. The step adds a column, creates a table, inserts one row, and sets the
+version. The failure and the barrier are test-only hooks in that step, on the
+test-only page `migrate.html`, which refuses to run without `SPIKE_AUTO=1` and
+`SPIKE_DATA_DIR`. Repeat this check against Carboy's first real schema upgrade
+when one exists.
+
+Run it after checks 1–3, from `spikes/phase1`, with the same `SPIKE_DATA_DIR`
+and `OUT` as above. No other `spike-shell` may be running, because the
+interrupted case kills every process with that name.
+
+```sh
+tools/migration_check.sh "$EXE" 3 "$OUT/migration"
+```
+
+One fixture is made once and copied fresh (checked by SHA-256) into every case.
+Every database, backup, and webview profile stays under
+`$SPIKE_DATA_DIR/migration-check/`; reports and logs go to `$OUT/migration/`.
+Each round runs three cases:
+
+| Case | What happens | Passes when |
+|---|---|---|
+| success | The step migrates 1 → 2; the app is reopened | Version 2 with the step's column exactly once, its table, and one marker row; integrity ok; every recipe row and revision (id, recipe, parents, content hash) identical to the fixture, and every document verifies; the library reopens every live recipe's head as editable; the backup reads as the fixture at version 1 |
+| fail | The step throws after its changes, before the commit | Inside the transaction, the changes were there (version 2, column, table); the library reports `migration-failed`; after a reopen, version 1 with no trace of the step and the fixture's data; the backup is intact; a retry migrates once and passes the success checks; the first backup is unchanged |
+| interrupt | The step logs a barrier after its changes and waits; the harness kills the shell when the line appears (no timed sleep) | Same as fail: the changes were inside the open transaction; the reopen is complete, never partial (version 1 as expected, or a completely migrated version 2); the backup is intact; a retry migrates once; the first backup is unchanged |
+
+Expected: every case `PASS`, then `migration check: rounds: 3, cases passed: 9
+of 9`. A launch with no report within 90 s (`MIGRATION_LIMIT`) is a `HANG`; a
+launch that stops without a report is `EXITED`. Either fails its case, and its
+log stays in `$OUT/migration/`. A failed case's databases stay under
+`$SPIKE_DATA_DIR/migration-check/`. The checker (`tools/migration_check.py`)
+compares the page's JSON reports and hashes files; every database read happens
+in the shell.
+
+On macOS the window is hidden, as in check 3. If a launch hangs, report it with
+its log rather than rerunning; `MIGRATION_WINDOW=visible` is a control to run
+only when asked.
+
 ## macOS: the stall (open, no conclusion yet)
 
 A matched experiment, not two long runs: one seed database is made once and
@@ -117,6 +166,7 @@ Tools: node -v, npm -v, rustc -V, webview if known
 1. npm test:        tests / passed / failed / skipped
 2. spike.sh test:   each page PASS or FAIL
 3. Recipe Library:  each round; final revisions/verified; apple and fullfsync
+Migration check:    cases passed of 9; per failed case, the step that failed and its log
 macOS stall:        summary.txt counts per condition; per non-PASS trial: outcome, last step, what the samples show (observations), then any interpretation, labelled as such
 Failures:           exact command, first error, log path
 Skips:              what, and why

@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Migration check (spike)</title>
+    <link rel="stylesheet" href="./shared/app.css" />
+    <script type="module" src="./migrate.js"></script>
+  </head>
+  <body>
+    <header id="header"></header>
+    <main>
+      <h1>Migration check</h1>
+      <p class="note">Test-only spike page, run by tools/migration_check.sh. Real migration machinery exercised through the Tauri shell using a test-defined migration step; this is not a real product schema migration.</p>
+      <p id="summary" role="status">Working…</p>
+    </main>
+  </body>
+</html>
