@@ -15,6 +15,13 @@
 //   fail      the test step throws after its DDL, before the commit
 //   barrier   the test step logs "migration: barrier reached" after its DDL and
 //             waits forever, so the harness can kill the shell at that point
+//             (the step's changes are small and stay in the page cache)
+//   spill     as barrier, but first: a "step start" barrier before any DDL,
+//             released by the harness creating migrate.go in $SPIKE_DATA_DIR
+//             (so it can read the WAL before the step writes anything); then,
+//             after the DDL, this connection's cache is shrunk and a fixed
+//             volume of rows goes into a test-only table, so SQLite must spill
+//             uncommitted pages to the WAL before the "spill barrier"
 //   verify    reopen as the app would (openSqliteStore with the steps matching
 //             the file's version, so nothing migrates), then read everything
 //   inspect   raw reads only, without openSqliteStore (for backups, which
@@ -32,20 +39,39 @@ const report = (data) => invoke("report", { json: JSON.stringify(data, null, 2) 
 
 const MARKER_COLUMN = "test_migration_note";
 const MARKER_TABLE = "test_migration_marker";
+const SPILL_TABLE = "test_migration_spill";
+// Spill mode: a 16-page cache against about 1 MB of new rows (256 rows of
+// 4,000 characters) can't hold the transaction, so pages must reach the WAL.
+const SPILL_CACHE_PAGES = 16;
+const SPILL_ROWS = 256;
 
-// The test-defined step. Everything before the hook is ordinary migration
+// The test-defined step. Everything between the hooks is ordinary migration
 // work inside migrate()'s transaction: two DDL statements, one row, and the
-// version. The hook decides what happens before the commit.
-const testStep = (hook) => ({
+// version. The hooks decide what happens before the work and before the commit.
+const testStep = (hook, before = async () => {}) => ({
   version: 2,
   up: async (run) => {
+    await before();
     await run(`ALTER TABLE recipe ADD COLUMN ${MARKER_COLUMN} TEXT`);
     await run(`CREATE TABLE ${MARKER_TABLE} (id INTEGER PRIMARY KEY, note TEXT NOT NULL)`);
     await run(`INSERT INTO ${MARKER_TABLE} (id, note) VALUES (1, 'test step ran')`);
     await run("PRAGMA user_version = 2");
-    await hook();
+    await hook(run);
   },
 });
+// Spill mode's first barrier: the transaction has begun, nothing is written
+// yet. Waits for the harness's go-file (an event, not a timed delay).
+const stepStart = async () => {
+  await log("migration: step start");
+  for (;;) {
+    try {
+      await invoke("import_native", { name: "migrate.go" });
+      return;
+    } catch {
+      await new Promise((r) => setTimeout(r, 100));
+    }
+  }
+};
 // What the open transaction holds at the hook, read on the same connection:
 // evidence that the step's changes exist before the failure or the kill.
 let connection;
@@ -64,6 +90,15 @@ const hooks = {
     const t = await inTransaction();
     await log(`migration: barrier reached (in transaction: version ${t.user_version}, column ${t.column}, table ${t.table})`);
     await new Promise(() => {}); // the harness kills the shell here
+  },
+  spill: async (run) => {
+    await run(`PRAGMA cache_size = ${SPILL_CACHE_PAGES}`); // this test connection only
+    await run(`CREATE TABLE ${SPILL_TABLE} (id INTEGER PRIMARY KEY, filler TEXT NOT NULL)`);
+    await run(`WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n WHERE i < ${SPILL_ROWS}) INSERT INTO ${SPILL_TABLE} (id, filler) SELECT i, substr(replace(hex(zeroblob(2000)), '0', 'x'), 1, 4000) FROM n`);
+    const t = await inTransaction();
+    const rows = Number(first(await connection.all(`SELECT COUNT(*) FROM ${SPILL_TABLE}`)));
+    await log(`migration: spill barrier reached (in transaction: version ${t.user_version}, column ${t.column}, table ${t.table}, spill rows ${rows})`);
+    await new Promise(() => {}); // the harness checks the WAL, then kills the shell here
   },
 };
 
@@ -115,7 +150,7 @@ try {
   const dataDir = await env("SPIKE_DATA_DIR");
   result.mode = mode;
   if (!(await invoke("auto_mode")) || !dataDir) throw new Error("test-only page: needs SPIKE_AUTO=1 and SPIKE_DATA_DIR");
-  if (!["populate", "migrate", "fail", "barrier", "verify", "inspect"].includes(mode)) throw new Error(`unknown SPIKE_MIGRATE: ${mode}`);
+  if (!["populate", "migrate", "fail", "barrier", "spill", "verify", "inspect"].includes(mode)) throw new Error(`unknown SPIKE_MIGRATE: ${mode}`);
   const name = (await env("SPIKE_MIGRATE_DB")) ?? "migrate.db";
   result.db = name;
   const { apple } = await invoke("library_open", { name });
@@ -146,7 +181,7 @@ try {
     result.backup = `${dataDir.replace(/[\\/]+$/, "")}${sep}${backup}`;
     await log(`${mode}: migrating, backup ${result.backup}`);
     try {
-      await openSqliteStore(driver, { apple, backupPath: result.backup, migrations: [...LIBRARY_MIGRATIONS, testStep(hooks[mode])] });
+      await openSqliteStore(driver, { apple, backupPath: result.backup, migrations: [...LIBRARY_MIGRATIONS, testStep(hooks[mode], mode === "spill" ? stepStart : undefined)] });
       result.migration = { status: "migrated" };
     } catch (e) {
       result.migration = { status: "error", code: e.code ?? null, message: String(e.message ?? e), details: e.details ?? null };

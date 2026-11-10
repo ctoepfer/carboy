@@ -79,7 +79,7 @@ when one exists.
 
 Run it after checks 1–3, from `spikes/phase1`, with the same `SPIKE_DATA_DIR`
 and `OUT` as above. No other `spike-shell` may be running, because the
-interrupted case kills every process with that name.
+interrupted cases kill every process with that name.
 
 ```sh
 tools/migration_check.sh "$EXE" 3 "$OUT/migration"
@@ -88,16 +88,20 @@ tools/migration_check.sh "$EXE" 3 "$OUT/migration"
 One fixture is made once and copied fresh (checked by SHA-256) into every case.
 Every database, backup, and webview profile stays under
 `$SPIKE_DATA_DIR/migration-check/`; reports and logs go to `$OUT/migration/`.
-Each round runs three cases:
+Each round runs four cases:
 
 | Case | What happens | Passes when |
 |---|---|---|
 | success | The step migrates 1 → 2; the app is reopened | Version 2 with the step's column exactly once, its table, and one marker row; integrity ok; every recipe row and revision (id, recipe, parents, content hash) identical to the fixture, and every document verifies; the library reopens every live recipe's head as editable; the backup reads as the fixture at version 1 |
 | fail | The step throws after its changes, before the commit | Inside the transaction, the changes were there (version 2, column, table); the library reports `migration-failed`; after a reopen, version 1 with no trace of the step and the fixture's data; the backup is intact; a retry migrates once and passes the success checks; the first backup is unchanged |
-| interrupt | The step logs a barrier after its changes and waits; the harness kills the shell when the line appears (no timed sleep) | Same as fail: the changes were inside the open transaction; the reopen is complete, never partial (version 1 as expected, or a completely migrated version 2); the backup is intact; a retry migrates once; the first backup is unchanged |
+| interrupt-memory | The step logs a barrier after its changes and waits; the harness kills the shell when the line appears (no timed sleep). The changes are small and stay in SQLite's page cache, so the WAL stays empty: **this case doesn't cover WAL recovery** | Same as fail: the changes were inside the open transaction; the reopen is complete, never partial (version 1 as expected, or a completely migrated version 2); the backup is intact; a retry migrates once; the first backup is unchanged |
+| interrupt-wal | The page stops first at a step-start barrier (transaction begun, nothing written) and continues when the harness creates `migrate.go`. After its changes, the step shrinks its own connection's cache to 16 pages and writes 256 rows of 4,000 characters to a test-only table, so SQLite must spill uncommitted pages to the WAL; then a spill barrier. The harness reads the WAL file itself (header, salts, running checksums, commit field) | At step start the WAL holds no frames. At the spill barrier the WAL is larger than its 32-byte header and holds at least one complete, valid frame, none of them a commit frame; only then is the shell killed, otherwise the case fails and the app is only stopped. Uncommitted frames are still on disk after the kill. The reopen is version 1 exactly, with no trace of the step or the spill table; integrity ok; the fixture's data; the backup unchanged; a retry migrates once |
 
-Expected: every case `PASS`, then `migration check: rounds: 3, cases passed: 9
-of 9`. A launch with no report within 90 s (`MIGRATION_LIMIT`) is a `HANG`; a
+Expected: every case `PASS`, then `migration check: rounds: 3, cases passed: 12
+of 12`. Only `interrupt-wal`, with its WAL evidence printed before the kill,
+counts as evidence of recovery from uncommitted WAL frames; copies of the WAL at
+step start and before the kill stay in `$OUT/migration/` (`*-start.wal`,
+`*-prekill.wal`). A launch with no report within 90 s (`MIGRATION_LIMIT`) is a `HANG`; a
 launch that stops without a report is `EXITED`. Either fails its case, and its
 log stays in `$OUT/migration/`. A failed case's databases stay under
 `$SPIKE_DATA_DIR/migration-check/`. The checker (`tools/migration_check.py`)
@@ -166,7 +170,7 @@ Tools: node -v, npm -v, rustc -V, webview if known
 1. npm test:        tests / passed / failed / skipped
 2. spike.sh test:   each page PASS or FAIL
 3. Recipe Library:  each round; final revisions/verified; apple and fullfsync
-Migration check:    cases passed of 9; per failed case, the step that failed and its log
+Migration check:    cases passed of 12; interrupt-wal WAL bytes and frames before the kill; per failed case, the step that failed and its log
 macOS stall:        summary.txt counts per condition; per non-PASS trial: outcome, last step, what the samples show (observations), then any interpretation, labelled as such
 Failures:           exact command, first error, log path
 Skips:              what, and why
