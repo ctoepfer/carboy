@@ -3,7 +3,7 @@
 // TypeScript core inside the webview.
 use rusqlite::{types::ValueRef, Connection};
 use serde_json::{Map, Value};
-use std::{fs, path::PathBuf, sync::Mutex};
+use std::{collections::HashMap, fs, path::PathBuf, sync::{Mutex, OnceLock}};
 use tauri::{Manager, State};
 
 /// The Recipe Library's one connection (SqlDriver in `@carboy/recipe-library`).
@@ -98,11 +98,36 @@ fn library_all(state: State<LibraryConnection>, sql: String, params: Vec<Value>)
     }
 }
 
+/// Test settings from `spike-env.txt` in the app data directory, read once at
+/// startup on mobile only. A phone app can't be given environment variables
+/// (adb and devicectl launch apps without them), so a device test writes this
+/// file into the app's own data before each launch. One `SPIKE_NAME=value`
+/// per line; other names are ignored. Test-only: a missing file changes nothing.
+static MOBILE_SETTINGS: OnceLock<HashMap<String, String>> = OnceLock::new();
+
+#[cfg(mobile)]
+fn load_mobile_settings(app: &tauri::App) {
+    let file = app.path().app_data_dir().ok().map(|d| d.join("spike-env.txt"));
+    let text = file.and_then(|f| fs::read_to_string(f).ok()).unwrap_or_default();
+    let settings = text
+        .lines()
+        .filter_map(|line| line.trim().split_once('='))
+        .filter(|(name, _)| name.starts_with("SPIKE_"))
+        .map(|(name, value)| (name.to_string(), value.to_string()))
+        .collect();
+    let _ = MOBILE_SETTINGS.set(settings);
+}
+
+/// A SPIKE_* setting: the environment first, then the mobile settings file.
+fn spike_var(name: &str) -> Option<String> {
+    std::env::var(name).ok().or_else(|| MOBILE_SETTINGS.get()?.get(name).cloned())
+}
+
 /// $SPIKE_DATA_DIR: where a test run keeps everything, on every OS. macOS and
 /// Windows ignore the XDG variables, so nothing else isolates a run from the
 /// machine's normal spike data.
 fn test_dir() -> Option<PathBuf> {
-    std::env::var_os("SPIKE_DATA_DIR").map(PathBuf::from)
+    std::env::var_os("SPIKE_DATA_DIR").map(PathBuf::from).or_else(|| spike_var("SPIKE_DATA_DIR").map(PathBuf::from))
 }
 
 fn data_dir(app: &tauri::AppHandle) -> Result<PathBuf, String> {
@@ -131,14 +156,17 @@ fn import_native(app: tauri::AppHandle, name: String) -> Result<String, String> 
 }
 
 /// Writes the webview's results to $SPIKE_REPORT and exits if $SPIKE_EXIT=1.
+/// A relative report path is inside the data directory, so a device test can
+/// copy it out of the app's own storage.
 #[tauri::command]
 fn report(app: tauri::AppHandle, json: String, keep_open: Option<bool>) -> Result<(), String> {
-    if let Ok(path) = std::env::var("SPIKE_REPORT") {
+    if let Some(path) = spike_var("SPIKE_REPORT").map(PathBuf::from) {
+        let path = if path.is_relative() { data_dir(&app)?.join(path) } else { path };
         fs::write(path, json).map_err(|e| e.to_string())?;
     }
     // keep_open: a stall report leaves the stalled process running, so the
     // recovery harness can sample and hold it before killing it.
-    if std::env::var("SPIKE_EXIT").as_deref() == Ok("1") && keep_open != Some(true) {
+    if spike_var("SPIKE_EXIT").as_deref() == Some("1") && keep_open != Some(true) {
         app.exit(0);
     }
     Ok(())
@@ -147,16 +175,16 @@ fn report(app: tauri::AppHandle, json: String, keep_open: Option<bool>) -> Resul
 /// $SPIKE_NAV: a nav label for the checks page to click once its checks finish (navigation test).
 #[tauri::command]
 fn nav_test() -> Option<String> {
-    std::env::var("SPIKE_NAV").ok()
+    spike_var("SPIKE_NAV")
 }
 
-/// Any SPIKE_* environment variable, for spike pages (e.g. SPIKE_STRESS).
+/// Any SPIKE_* setting, for spike pages (e.g. SPIKE_STRESS).
 #[tauri::command]
 fn spike_env(name: String) -> Option<String> {
     if !name.starts_with("SPIKE_") {
         return None;
     }
-    std::env::var(name).ok()
+    spike_var(&name)
 }
 
 /// Webview errors and progress, printed to stderr for automated runs.
@@ -165,10 +193,10 @@ fn log(message: String) {
     eprintln!("[webview] {message}");
 }
 
-/// True when $SPIKE_AUTO=1: the page runs its measurements and reports.
+/// True when SPIKE_AUTO=1: the page runs its measurements and reports.
 #[tauri::command]
 fn auto_mode() -> bool {
-    std::env::var("SPIKE_AUTO").as_deref() == Ok("1")
+    spike_var("SPIKE_AUTO").as_deref() == Some("1")
 }
 
 /// App entry point for desktop (`main.rs`) and mobile (Tauri's mobile entry).
@@ -178,9 +206,11 @@ pub fn run() {
         .plugin(tauri_plugin_sql::Builder::default().build())
         .manage(LibraryConnection::default())
         .setup(|app| {
+            #[cfg(mobile)]
+            load_mobile_settings(app);
             // The window opens directly on $SPIKE_START (a page path such as
             // "graph-react/index.html"), so automated runs never navigate in-page.
-            let start = std::env::var("SPIKE_START").unwrap_or_else(|_| "recipe.html".into());
+            let start = spike_var("SPIKE_START").unwrap_or_else(|| "recipe.html".into());
             let builder = tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App(start.into()));
             // Window size, title, and visibility exist on desktop only.
             #[cfg(desktop)]
@@ -188,7 +218,7 @@ pub fn run() {
                 .title("Phase 1 shell spike")
                 .inner_size(1100.0, 760.0)
                 // SPIKE_HIDDEN=1: automated runs without a window on the desktop.
-                .visible(std::env::var("SPIKE_HIDDEN").as_deref() != Ok("1"));
+                .visible(spike_var("SPIKE_HIDDEN").as_deref() != Some("1"));
             // The webview's own profile (cache, storage; WebView2's EBWebView)
             // goes under $SPIKE_DATA_DIR too, or a test run writes into the
             // normal app folder. WebView2 and WebKitGTK honour this; WKWebView
