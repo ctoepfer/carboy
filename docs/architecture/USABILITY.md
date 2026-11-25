@@ -206,8 +206,8 @@ evidence for "supported", as with every other support claim (principle 5).
   - **Project Fluent** (Mozilla; Apache-2.0; `@fluent/bundle`)
   - **ICU MessageFormat** (via FormatJS, MIT), or its successor Unicode
     MessageFormat 2 (status of JS implementations: to verify)
-  The choice is UQ2 and depends on D-010 (React vs. Svelte), so it is
-  evaluated in the Phase 1 spike.
+  The choice is UQ2. It depended on D-010, which chose React
+  (owner, 2026-11-24); UQ2 itself is still open.
 - Messages contain **no HTML**. Formatting (bold, links) is applied by the
   UI around placeholders. This keeps translations from injecting markup and
   keeps the accessibility tree predictable.
