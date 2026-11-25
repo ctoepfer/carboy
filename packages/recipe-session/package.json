@@ -1,0 +1,31 @@
+{
+  "name": "@carboy/recipe-session",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Recipe Session: one open recipe's editing session, headless. Composes Editor Commands' undo history with the Recipe Library's drafts and autosave: open, edit, undo, autosave, save, discard, and recovery of unsaved work after a crash, offered and never silent. No DOM, Node, storage, network, or shell dependency; a UI binds to it.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@carboy/editor-commands": "0.0.0",
+    "@carboy/recipe-core": "0.0.0",
+    "@carboy/recipe-library": "0.0.0"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

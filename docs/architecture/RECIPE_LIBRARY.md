@@ -95,6 +95,32 @@ writes (owner, 2026-11-24):
 Each write stores the whole history (at most 100 steps). The recovery dialog
 (USABILITY §3) and the editor wiring are not started.
 
+## Sessions
+
+`@carboy/recipe-session` ([`packages/recipe-session/`](../../packages/recipe-session/))
+puts the pieces into the first end-to-end workflow, headless, so a UI binds to
+it whichever framework D-010 picks:
+
+- `newRecipe(host, beverage, name)` and `openRecipe(host, recipeId)` give a
+  session: `edit`, `undo`, `redo`, `flush`, `retry`, `save`, `discard`, and
+  `state` (`new`, `clean`, `unsaved`) beside the autosave status.
+- **Recovery is offered, never silent (UD3).** Opening a recipe that has a
+  draft returns `draft-found` with the draft's name, base, current head,
+  whether it is stale, and whether it can be read, plus `resume()` and
+  `discard()`. `recoverable(library)` lists every draft for a startup offer.
+  A damaged draft, or one whose history no longer replays, can be discarded
+  but not resumed.
+- **Saving** makes a revision from the current content and removes the draft in
+  one transaction. Edits are refused (`busy`) while a save or a discard runs.
+  A stale draft's save is refused (`stale-head`) and the draft kept; resolving
+  it (rebasing) belongs with the review screens (EDITOR_COMMANDS §9).
+- **Undo survives saving and crashes:** it can reach back before a save, and the
+  edits it makes are new unsaved changes. `discard` clears it.
+- The host passes `newId` and `now`; the session makes no ids and reads no
+  clock.
+
+Not yet: "Undo discard" (UI_DESIGN §3.2), rebasing a stale draft, and any UI.
+
 ## Stores
 
 Every rule lives above the store, in `library.ts`. A store only keeps rows and
@@ -160,7 +186,7 @@ these Phase 3 requirements.
 | Requirement | State |
 |---|---|
 | **Autosave** (transactional drafts, unsaved-draft behavior) | **Draft storage, autosave scheduling, and undo history done** (2026-11-24): library and Editor Commands. Not in an editor or the app: no unsaved-draft UI |
-| **Crash recovery** (restoring a draft after a crash, in the app) | **Not started.** Kill tests show saved data survives; they don't recover unsaved work |
+| **Crash recovery** (restoring a draft after a crash, in the app) | **Headless workflow done** (2026-11-24, `@carboy/recipe-session`): offered after SIGKILL on SQLite, resumed with every acknowledged edit and its undo history. No recovery dialog yet (needs the UI, D-010) |
 | Backups as a user feature | Not started. `VACUUM INTO` before migration only |
 | Restoring from a migration backup as a user action | Not started. The backup is made and verified to open |
 | Search, duplicate | Not started |
