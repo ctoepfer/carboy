@@ -72,7 +72,9 @@ export interface Draft {
   readonly schema_version: string;
   /** The working recipe as the editor last showed it. */
   readonly content: Content;
-  /** Undo history, oldest first: each entry is one command list (one user action). */
+  /** The recipe before the first `history` entry. Older entries may have been pruned, so this isn't always the base revision's content. */
+  readonly history_start: Content;
+  /** Undo history, oldest first: each entry is one command list (one undo step). */
   readonly history: readonly (readonly Json[])[];
   /** How many history entries are in effect; the entries after them are redo. */
   readonly applied: number;
@@ -169,6 +171,7 @@ export interface DraftRow {
   readonly schema_version: string;
   readonly name: string;
   readonly content: string;
+  readonly history_start: string;
   readonly history: string;
   readonly applied: number;
   readonly updated_at: string;

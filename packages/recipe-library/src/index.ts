@@ -6,3 +6,5 @@ export { LIBRARY_MIGRATIONS, openSqliteStore } from "./sqlite.js";
 export type { LibraryMigration, SqlDriver, SqliteOptions, SqliteStore } from "./sqlite.js";
 export { tauriDriver } from "./tauri.js";
 export type { Invoke } from "./tauri.js";
+export { AUTOSAVE_DEBOUNCE_MS, createAutosave } from "./autosave.js";
+export type { Autosave, AutosaveOptions, AutosaveStatus } from "./autosave.js";

@@ -211,7 +211,7 @@ export function conformance(name, makeStore) {
   // Drafts (UD3): unsaved work, kept apart from revisions.
   const step = (name) => [{ op: "set_name", name }];
   const draftOf = (recipe, base, c = content("Pale ale, draft"), history = [step("Pale ale, draft")], applied = history.length) =>
-    ({ recipe_id: recipe, base_revision: base, schema_version: "0.3", content: c, history, applied, updated_at: AT });
+    ({ recipe_id: recipe, base_revision: base, schema_version: "0.3", content: c, history_start: content(), history, applied, updated_at: AT });
 
   test(`${name}: a draft saves and reopens whole, with its undo history, and is not a revision`, async () => {
     const lib = await library();
@@ -278,6 +278,7 @@ export function conformance(name, makeStore) {
       draftOf(R1, A, content(), ["not a command list"], 1),
       draftOf(R1, A, content(), [["not a command"]], 1),
       { ...draftOf(R1, A), updated_at: "" },
+      { ...draftOf(R1, A), history_start: { ...content(), name: "" } },
     ];
     for (const d of bad) assert.equal(await code(lib.saveDraft(d, null)), "invalid-draft", JSON.stringify(d).slice(0, 120));
     assert.equal(await lib.openDraft(R1), undefined);

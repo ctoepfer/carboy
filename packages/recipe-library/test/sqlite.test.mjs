@@ -143,7 +143,7 @@ if (available) {
     assert.equal(await store.integrityCheck(), "ok");
     const lib = createLibrary(store);
     assert.equal((await lib.open(R)).status, "editable");
-    const { sequence } = await lib.saveDraft({ recipe_id: R, base_revision: U(10), schema_version: "0.3", content: { name: "Pale ale, draft", beverage: { type: "beer" }, targets: {}, ingredients: [], process: { stages: [], flows: [] }, additions: [], statistics: {}, calculation_settings: {}, notes: [] }, history: [], applied: 0, updated_at: "2026-11-24T00:00:00.000Z" }, null);
+    const { sequence } = await lib.saveDraft({ recipe_id: R, base_revision: U(10), schema_version: "0.3", content: { name: "Pale ale, draft", beverage: { type: "beer" }, targets: {}, ingredients: [], process: { stages: [], flows: [] }, additions: [], statistics: {}, calculation_settings: {}, notes: [] }, history_start: { name: "Pale ale", beverage: { type: "beer" }, targets: {}, ingredients: [], process: { stages: [], flows: [] }, additions: [], statistics: {}, calculation_settings: {}, notes: [] }, history: [], applied: 0, updated_at: "2026-11-24T00:00:00.000Z" }, null);
     assert.equal((await createLibrary(await open(path)).openDraft(R)).sequence, sequence);
     const backup = await open(backupPath, { migrations: v1 });
     assert.equal(await backup.schemaVersion(), 1);

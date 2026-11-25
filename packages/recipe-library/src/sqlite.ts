@@ -35,7 +35,7 @@ export const LIBRARY_MIGRATIONS: readonly LibraryMigration[] = [
     // never reuses one, even after a draft is discarded.
     version: 2,
     up: async (run) => {
-      await run("CREATE TABLE draft (seq INTEGER PRIMARY KEY AUTOINCREMENT, recipe_id TEXT NOT NULL UNIQUE, base_revision TEXT, schema_version TEXT NOT NULL, name TEXT NOT NULL, content TEXT NOT NULL, history TEXT NOT NULL, applied INTEGER NOT NULL, updated_at TEXT NOT NULL)");
+      await run("CREATE TABLE draft (seq INTEGER PRIMARY KEY AUTOINCREMENT, recipe_id TEXT NOT NULL UNIQUE, base_revision TEXT, schema_version TEXT NOT NULL, name TEXT NOT NULL, content TEXT NOT NULL, history_start TEXT NOT NULL, history TEXT NOT NULL, applied INTEGER NOT NULL, updated_at TEXT NOT NULL)");
     },
   },
 ];
@@ -156,6 +156,7 @@ const draftRow = (r: Row): DraftRow => ({
   schema_version: String(r["schema_version"]),
   name: String(r["name"]),
   content: String(r["content"]),
+  history_start: String(r["history_start"]),
   history: String(r["history"]),
   applied: Number(r["applied"]),
   updated_at: String(r["updated_at"]),
@@ -199,8 +200,8 @@ function transaction(d: SqlDriver): StoreTransaction {
     async putDraft(r) {
       await d.run("DELETE FROM draft WHERE recipe_id = ?", [r.recipe_id]);
       const [row] = await d.all(
-        "INSERT INTO draft (recipe_id, base_revision, schema_version, name, content, history, applied, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING seq",
-        [r.recipe_id, r.base_revision, r.schema_version, r.name, r.content, r.history, r.applied, r.updated_at],
+        "INSERT INTO draft (recipe_id, base_revision, schema_version, name, content, history_start, history, applied, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING seq",
+        [r.recipe_id, r.base_revision, r.schema_version, r.name, r.content, r.history_start, r.history, r.applied, r.updated_at],
       );
       return Number(row?.["seq"]);
     },

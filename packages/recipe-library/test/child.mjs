@@ -44,7 +44,7 @@ if (mode === "draft-loop") {
   let sequence = (await lib.openDraft(recipe))?.sequence ?? null;
   for (let i = 0; ; i++) {
     const history = Array.from({ length: i % 50 }, (_, k) => [{ op: "set_name", name: `step ${k}` }]);
-    ({ sequence } = await lib.saveDraft({ recipe_id: recipe, base_revision: firstParent, schema_version: "0.3", content: { ...content(`autosave ${i}`) }, history, applied: history.length, updated_at: "2026-11-24T00:00:00.000Z" }, sequence));
+    ({ sequence } = await lib.saveDraft({ recipe_id: recipe, base_revision: firstParent, schema_version: "0.3", content: { ...content(`autosave ${i}`) }, history_start: content(), history, applied: history.length, updated_at: "2026-11-24T00:00:00.000Z" }, sequence));
     process.stdout.write(`${sequence} ${i}\n`);
   }
 }

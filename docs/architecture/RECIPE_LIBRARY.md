@@ -49,8 +49,10 @@ apart from its revisions, and never a revision by itself. Only a save makes one.
 - **One per recipe**, written whole on each autosave: the working content, the
   revision it started from (`base_revision`, null for a recipe never saved), the
   content schema version, and the undo history (owner, 2026-11-24): one command
-  list per user action, oldest first, with `applied` counting the entries in
-  effect; the rest are redo.
+  list per undo step, oldest first, with `applied` counting the entries in
+  effect (the rest are redo), and `history_start`, the recipe before the first
+  entry. Old steps may have been pruned (EDITOR_COMMANDS §7a, at most 100), so
+  `history_start` isn't always the base revision's content.
 - **Checked, not interpreted.** Content is validated like a revision's, against
   its schema version; history must be a list of command lists. Replaying or
   undoing the commands is the editor's job, not the library's.
@@ -69,9 +71,26 @@ apart from its revisions, and never a revision by itself. Only a save makes one.
   `unreadable-draft`. It is never repaired or dropped, and `drafts()` still
   lists it.
 
-Not decided yet: how often the editor autosaves, any limit on history length,
-and the recovery dialog (USABILITY §3). Each write stores the whole history, so
-its cost grows with the history.
+### Autosave
+
+`createAutosave(library, { sequence })` schedules one open recipe's draft
+writes (owner, 2026-11-24):
+
+- **Typing** (`changed(draft, "typing")`) is written 750 ms after it stops
+  (`AUTOSAVE_DEBOUNCE_MS`); a **discrete edit** (`"discrete"`) at once.
+- **`flush()`** writes anything pending now, for blur, navigation, and an
+  explicit save. **`commit(revision)`** flushes, then saves the revision and
+  removes the draft in one transaction.
+- **Writes never overlap**, and each names the draft it replaces, so the
+  `stale-draft` check guards every one. Edits that arrive during a write are
+  written after it, newest only.
+- **Status** is `saved` (the latest draft is durable), `pending` (waiting for the
+  debounce), `saving`, or `failed`, reported on every change. A failed draft is
+  kept and never retried silently: a new edit or `retry()` writes it again;
+  `flush()` and `commit()` don't.
+
+Each write stores the whole history (at most 100 steps). The recovery dialog
+(USABILITY §3) and the editor wiring are not started.
 
 ## Stores
 
@@ -137,7 +156,7 @@ these Phase 3 requirements.
 
 | Requirement | State |
 |---|---|
-| **Autosave** (transactional drafts, unsaved-draft behavior) | **Draft storage done** in the library (2026-11-24), both stores. Not in the editor or the app: no autosave timing, no unsaved-draft UI |
+| **Autosave** (transactional drafts, unsaved-draft behavior) | **Draft storage, autosave scheduling, and undo history done** (2026-11-24): library and Editor Commands. Not in an editor or the app: no unsaved-draft UI |
 | **Crash recovery** (restoring a draft after a crash, in the app) | **Not started.** Kill tests show saved data survives; they don't recover unsaved work |
 | Backups as a user feature | Not started. `VACUUM INTO` before migration only |
 | Restoring from a migration backup as a user action | Not started. The backup is made and verified to open |

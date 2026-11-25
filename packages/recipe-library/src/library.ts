@@ -188,6 +188,8 @@ function draftIssues(d: Draft): string[] {
   if (typeof d.schema_version !== "string") out.push("schema_version is a string");
   else out.push(...checkSchemaVersion(d.content, d.schema_version).map((i) => `${i.code} ${i.path}`));
   out.push(...validateContent(d.content).map((i) => `${i.code} ${i.path}`));
+  if (typeof d.schema_version === "string") out.push(...checkSchemaVersion(d.history_start, d.schema_version, "/history_start").map((i) => `${i.code} ${i.path}`));
+  out.push(...validateContent(d.history_start, "/history_start").map((i) => `${i.code} ${i.path}`));
   if (!Array.isArray(d.history) || !d.history.every((step) => Array.isArray(step) && step.every((c) => typeof c === "object" && c !== null && !Array.isArray(c)))) {
     out.push("history is a list of command lists");
   } else if (!Number.isInteger(d.applied) || d.applied < 0 || d.applied > d.history.length) {
@@ -205,6 +207,7 @@ function draftRow(d: Draft): Omit<DraftRow, "sequence"> {
     schema_version: d.schema_version,
     name: String((d.content as { name?: unknown }).name ?? ""),
     content: JSON.stringify(d.content),
+    history_start: JSON.stringify(d.history_start),
     history: JSON.stringify(d.history),
     applied: d.applied,
     updated_at: d.updated_at,
@@ -212,14 +215,15 @@ function draftRow(d: Draft): Omit<DraftRow, "sequence"> {
 }
 
 function readDraft(r: DraftRow, head: string | null): StoredDraft {
-  let content: Content, history: readonly (readonly Json[])[];
+  let content: Content, history_start: Content, history: readonly (readonly Json[])[];
   try {
     content = JSON.parse(r.content) as Content;
+    history_start = JSON.parse(r.history_start) as Content;
     history = JSON.parse(r.history) as Json[][];
   } catch (e) {
     throw new LibraryError("unreadable-draft", "the stored draft can't be read", { recipe_id: r.recipe_id, sequence: r.sequence, cause: String(e) });
   }
-  const draft: Draft = { recipe_id: r.recipe_id, base_revision: r.base_revision, schema_version: r.schema_version, content, history, applied: r.applied, updated_at: r.updated_at };
+  const draft: Draft = { recipe_id: r.recipe_id, base_revision: r.base_revision, schema_version: r.schema_version, content, history_start, history, applied: r.applied, updated_at: r.updated_at };
   const issues = draftIssues(draft);
   if (issues.length > 0) throw new LibraryError("unreadable-draft", "the stored draft isn't valid", { recipe_id: r.recipe_id, sequence: r.sequence, issues });
   return { ...draft, sequence: r.sequence, head };
