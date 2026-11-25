@@ -60,7 +60,7 @@ spike or test confirms it.
 
 ### 1.2 How Carboy reaches assistive technology
 
-Carboy's UI is HTML in a system webview (ADR 0003, Proposed). Assistive
+Carboy's UI is HTML in a system webview (ADR 0003, accepted for development). Assistive
 technology does not talk to Carboy directly; it talks to the operating
 system's accessibility API, which the webview fills from the page's
 accessibility tree. **Compatibility with third-party assistive software

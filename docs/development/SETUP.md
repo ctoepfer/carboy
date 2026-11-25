@@ -3,8 +3,9 @@
 ## Current state
 
 Product code is TypeScript in npm workspaces under `packages/`
-(ADR 0004). Only Recipe Core exists so far. The application shell is not
-chosen yet (ADR 0003 Proposed); the throwaway Phase 1 spike can be run: see
+(ADR 0004). Only Recipe Core exists so far. The application shell is Tauri 2
+(ADR 0003, accepted for development), but the production shell doesn't exist
+yet; the throwaway Phase 1 spike can be run: see
 [spikes/phase1/README.md](../../spikes/phase1/README.md)
 (`spikes/phase1/spike.sh start | test`). Phases and the current focus:
 [ROADMAP.md](../ROADMAP.md).
