@@ -80,7 +80,10 @@ writes (owner, 2026-11-24):
   (`AUTOSAVE_DEBOUNCE_MS`); a **discrete edit** (`"discrete"`) at once.
 - **`flush()`** writes anything pending now, for blur, navigation, and an
   explicit save. **`commit(revision)`** flushes, then saves the revision and
-  removes the draft in one transaction.
+  removes the draft in one transaction. If an edit arrives after `commit` is
+  called and before the save is made, the save is refused (`stale-draft`) and
+  the draft kept, so that edit can't be lost; the caller saves again with the
+  latest content. Holding back edits while the save runs is the caller's job.
 - **Writes never overlap**, and each names the draft it replaces, so the
   `stale-draft` check guards every one. Edits that arrive during a write are
   written after it, newest only.

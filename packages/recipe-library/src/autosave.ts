@@ -39,7 +39,10 @@ export interface Autosave {
   /**
    * An explicit save: flush, then save the revision and remove the draft in
    * one transaction. Throws if the flush failed or the save is refused; the
-   * draft stays either way.
+   * draft stays either way. `revision` must hold the latest content: if
+   * changed() is called after commit() and before the save is made, the save
+   * is refused (`stale-draft`), because removing the draft would lose that
+   * edit. Edits made while the save is running are the caller's to hold back.
    */
   commit(revision: Revision): Promise<SaveResult>;
   readonly status: AutosaveStatus;
@@ -59,6 +62,8 @@ export function createAutosave(library: RecipeRepository, options: AutosaveOptio
   let pending: Draft | undefined;
   /** The pending draft already failed: written again only after a new edit or retry(). */
   let held = false;
+  /** Counts changed() calls, so commit() can tell whether an edit arrived after it was called. */
+  let edits = 0;
   let timer: unknown;
   let status: AutosaveStatus = "saved";
   let error: unknown;
@@ -104,6 +109,7 @@ export function createAutosave(library: RecipeRepository, options: AutosaveOptio
 
   return {
     changed(draft, kind) {
+      edits++;
       pending = draft;
       held = false;
       cancelTimer();
@@ -128,10 +134,11 @@ export function createAutosave(library: RecipeRepository, options: AutosaveOptio
     },
     commit(revision) {
       cancelTimer();
+      const asked = edits;
       return enqueue(async () => {
         await writeAll();
         if (held || status === "failed") throw error;
-        if (pending) throw new LibraryError("stale-draft", "changes arrived during the save; save again", {});
+        if (pending || edits !== asked) throw new LibraryError("stale-draft", "the recipe changed after Save was chosen; save again", {});
         set("saving");
         try {
           const result = await library.save(revision, sequence === null ? {} : { draft: sequence });

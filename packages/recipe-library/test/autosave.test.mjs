@@ -159,6 +159,18 @@ test("an explicit save flushes, then saves the revision and removes the draft to
   assert.equal(await auto.flush(), "saved", "a new draft starts after the save");
 });
 
+test("an edit made after Save is chosen is never lost: the save is refused and the draft kept", async () => {
+  const { lib, auto } = await setup();
+  auto.changed(draft("edit 1"), "discrete");
+  const saving = auto.commit(rev(R, B, [A], content("edit 1")));
+  auto.changed(draft("edit 2, after Save"), "discrete");
+  await assert.rejects(saving, (e) => e.code === "stale-draft");
+  assert.equal((await lib.list())[0].head, A, "no revision without the later edit");
+  assert.equal(await auto.flush(), "saved");
+  assert.equal((await lib.openDraft(R)).content.name, "edit 2, after Save", "the later edit is in the draft");
+  assert.deepEqual(await auto.commit(rev(R, B, [A], content("edit 2, after Save"))), { status: "saved", head: B }, "saving again with the latest content works");
+});
+
 test("an explicit save that's refused keeps the draft and reports the failure", async () => {
   const { lib, auto } = await setup();
   auto.changed(draft("edit"), "discrete");

@@ -69,6 +69,15 @@ test("coalescing stops after a pause, on another field, without a key, or after 
   assert.equal(h.state.entries.length, 6);
 });
 
+test("an edit that coalesces must say when it happened, so a pause always starts a new step", () => {
+  const h = fresh();
+  assert.throws(() => h.edit(rename("one"), { coalesce: "name" }), RangeError);
+  assert.equal(h.state.entries.length, 0, "and the refused edit changed nothing");
+  h.edit(rename("one"), { coalesce: "name", at: 0 });
+  h.edit(rename("two"), { coalesce: "name", at: 10_000 });
+  assert.equal(h.state.entries.length, 2);
+});
+
 test("coalesced edits that don't simply overwrite are appended, so the result is exact", () => {
   const h = fresh();
   h.edit(note(1), { coalesce: "notes", at: 0 });

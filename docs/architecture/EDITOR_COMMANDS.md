@@ -345,7 +345,8 @@ indexes shift, and a reviewer needs "Cascade: 28 g → 21 g", not
 - **A new edit discards the redo steps.**
 - **Typing coalesces.** An edit with the same `coalesce` key (the field) as the
   previous step, within 750 ms of it (`COALESCE_MS`), with no undo or redo in
-  between, joins that step. If the new commands alone, applied before the step,
+  between, joins that step. An edit with a key must give `at`, its time in
+  milliseconds; without one it is refused (`RangeError`). If the new commands alone, applied before the step,
   give the same recipe as the whole run, they replace the step's commands (a
   field typed over keeps only its final value); otherwise they are appended.
   Coalescing state isn't stored: a reopened history starts a new step.

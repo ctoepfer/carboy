@@ -38,7 +38,7 @@ export interface UndoHistory {
   readonly state: HistoryState;
   readonly canUndo: boolean;
   readonly canRedo: boolean;
-  /** Apply one user action. A rejected edit changes nothing. */
+  /** Apply one user action. A rejected edit changes nothing. `coalesce` needs `at`, the edit's time in milliseconds. */
   edit(commands: readonly Json[], options?: { readonly coalesce?: string; readonly at?: number }): EditResult;
   undo(): boolean;
   redo(): boolean;
@@ -91,9 +91,11 @@ export function createUndoHistory(state: HistoryState, options: HistoryOptions &
       return applied < entries.length;
     },
     edit(commands, opts = {}) {
+      // Without a time, a keyed edit would join the previous step however long ago it was.
+      if (opts.coalesce !== undefined && !Number.isFinite(opts.at)) throw new RangeError("an edit that coalesces needs `at`, its time in milliseconds");
       const result = applyCommands(content, commands, { channel: "editor" });
       if (result.status === "rejected") return { status: "rejected", diagnostics: result.diagnostics };
-      const at = opts.at ?? 0;
+      const at = opts.at ?? Number.NaN;
       const key = opts.coalesce;
       const joins = key !== undefined && open !== undefined && open.key === key && at - open.at <= coalesceMs && applied === entries.length && applied > 0;
       if (joins) {
