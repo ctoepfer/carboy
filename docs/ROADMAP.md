@@ -39,9 +39,10 @@ parity comes with the BeerXML port in Phase 4.
 under [`spikes/phase1/`](../spikes/phase1/README.md)
 ([SPIKE_PLAN.md](../spikes/phase1/SPIKE_PLAN.md)). The shell now runs in the iOS
 Simulator and starts on an Android emulator, and stages are spoken by Orca once
-exposed as buttons ([GRAPH_REPORT](../spikes/phase1/GRAPH_REPORT.md)). Still
-open: the shell (ADR 0003), persistence (ADR 0006), the graph library, physical
-devices, and checks that need a person listening.
+exposed as buttons ([GRAPH_REPORT](../spikes/phase1/GRAPH_REPORT.md)). The shell (ADR 0003) is accepted for development (2026-11-25), with a
+signed, notarized macOS build as a Phase 6 release gate. Still open:
+persistence (ADR 0006, including the macOS kill-test hang), the graph library,
+and checks that need a person listening.
 
 ## Goal
 
@@ -101,7 +102,7 @@ mobile, and the paid cloud connector. Their interfaces are anticipated early; no
 | 3 | Library, catalog, equipment profiles, recovery | 2 |
 | 4 | Direct editing, BeerXML port, import review, printing | 2, 3 |
 | 5 | Interactive process graph | 4 |
-| 6 | Desktop 1.0 and open-source launch | 1–5 |
+| 6 | Desktop 1.0 and open-source launch; release gate: a signed, notarized macOS build (ADR 0003) | 1–5 |
 | 7 | Batches, guided brewing, recipe improvement | 6 |
 | 8 | AI tiers 1–2: in-app assistant and local AI connector | 4, 6 |
 | 9 | BrewIO host integration and monitoring | 1, 7 |
@@ -137,6 +138,7 @@ Architecture decisions with lasting consequences also have an
 | D-030 | Cultures as organism → strain → product with separate functional groups and lineage; evidence with kind, certainty, stance; first-class negative relations, non-transitive equivalence; research data staged as unreviewed claims; no identity inferred from names or function | [INGREDIENT_CATALOG §8](architecture/INGREDIENT_CATALOG.md#8-culture-catalog-decisions-d-030-owner-2026-10-13) |
 | IQ1–IQ4 | Ingredient catalog: group/product hierarchy with `group_ref`; display; curated catalog plus data packs; start with cultures, hops, malt | [INGREDIENT_CATALOG §7](architecture/INGREDIENT_CATALOG.md#7-decisions-owner-2026-10-13) |
 | — | SHA-256 from `@noble/hashes` (vetted dependency), never implemented in-house; the content hash is integrity, not authentication | [RECIPE_CORE §5](architecture/RECIPE_CORE.md#5-canonical-json-and-the-content-hash) |
+| ADR 0003 | Tauri 2 shell with a web UI, accepted for development (2026-11-25); a signed, notarized macOS build is a Phase 6 release gate | [ADR 0003](architecture/adr/0003-application-shell.md) |
 | — | SQLite durability default: WAL with `synchronous=FULL`, pending measurement | [ADR 0006](architecture/adr/0006-local-persistence.md) |
 | ADR 0004 | Recipe Core and Recipe Format in pure TypeScript, kept in agreement with the Python implementations by a shared fixture suite (accepted 2026-10-13) | [ADR 0004](architecture/adr/0004-typescript-recipe-core.md) |
 | D-013 | "Carboy" is a permanent codename; the user-facing brand is configurable | [NAMING.md](architecture/NAMING.md) |
