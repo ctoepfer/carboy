@@ -2,7 +2,7 @@
   "name": "@carboy/recipe-library",
   "version": "0.0.0",
   "private": true,
-  "description": "Recipe Library: stable recipe identity, immutable revisions, save, open, list, and recoverable deletion behind one repository contract. Stores plug in beneath it. No DOM, Node, network, or shell dependency.",
+  "description": "Recipe Library: stable recipe identity, immutable revisions, save, open, list, drafts of unsaved work, and recoverable deletion behind one repository contract. Stores plug in beneath it. No DOM, Node, network, or shell dependency.",
   "license": "Apache-2.0",
   "type": "module",
   "main": "dist/index.js",

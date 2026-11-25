@@ -17,8 +17,9 @@ and equipment profiles with snapshots
 models with no interface yet. No catalog data ships until D-009 is decided. The
 Recipe Library ([`packages/recipe-library/`](../packages/recipe-library/),
 [RECIPE_LIBRARY.md](architecture/RECIPE_LIBRARY.md)) has its repository contract
-and in-memory and SQLite stores; it isn't in the app yet. **Autosave and crash
-recovery are not started.**
+and in-memory and SQLite stores, now with draft storage for autosave (unsaved
+work kept apart from revisions, with its undo history); none of it is in the
+app yet. **Autosave timing and crash recovery in the app are not started.**
 
 **Phase 2, Recipe Core, is complete** (2026-11-05): decimal arithmetic, units,
 canonical JSON and revision hashing, the formula registry and provenance,

@@ -83,19 +83,21 @@ if (available) {
     assert.equal(await pragma(d, "user_version"), 99);
   });
 
-  const V2 = { version: 2, up: async (run) => { await run("ALTER TABLE recipe ADD COLUMN extra TEXT"); } };
-  const V3 = { version: 3, up: async (run) => { await run("ALTER TABLE recipe ADD COLUMN more TEXT"); } };
-  const BAD = { version: 3, up: async (run) => { await run("ALTER TABLE recipe ADD COLUMN more TEXT"); throw new Error("step failed"); } };
+  // Test-only steps after the real ones, so these tests don't change when a real step is added.
+  const LATEST = LIBRARY_MIGRATIONS.at(-1).version;
+  const V2 = { version: LATEST + 1, up: async (run) => { await run("ALTER TABLE recipe ADD COLUMN extra TEXT"); } };
+  const V3 = { version: LATEST + 2, up: async (run) => { await run("ALTER TABLE recipe ADD COLUMN more TEXT"); } };
+  const BAD = { version: LATEST + 2, up: async (run) => { await run("ALTER TABLE recipe ADD COLUMN more TEXT"); throw new Error("step failed"); } };
 
   test("a migration runs after a backup, and the data comes through", async () => {
     const path = file();
     await seeded(path);
     const backupPath = `${path}.backup`;
     const store = await open(path, { backupPath, migrations: [...LIBRARY_MIGRATIONS, V2] });
-    assert.equal(await store.schemaVersion(), 2);
+    assert.equal(await store.schemaVersion(), LATEST + 1);
     assert.equal((await createLibrary(store).open(R)).status, "editable");
     assert.ok(existsSync(backupPath));
-    assert.equal(await (await open(backupPath)).schemaVersion(), 1);
+    assert.equal(await (await open(backupPath)).schemaVersion(), LATEST);
   });
 
   test("a failed migration rolls back completely: version, schema, and data stay as they were", async () => {
@@ -105,8 +107,8 @@ if (available) {
     const d = nodeDriver(path);
     const err = await openSqliteStore(d, { backupPath, migrations: [...LIBRARY_MIGRATIONS, V2, BAD] }).catch((e) => e);
     assert.equal(err.code, "migration-failed");
-    assert.equal(err.details.version, 3);
-    assert.equal(await pragma(d, "user_version"), 1);
+    assert.equal(err.details.version, LATEST + 2);
+    assert.equal(await pragma(d, "user_version"), LATEST);
     assert.deepEqual((await d.all("SELECT name FROM pragma_table_info('recipe')")).map((c) => c.name).filter((c) => c === "extra" || c === "more"), []);
     assert.equal((await createLibrary(await open(path)).open(R)).status, "editable");
     assert.ok(existsSync(backupPath), "the backup stays for recovery");
@@ -117,7 +119,7 @@ if (available) {
     const path = file();
     await seeded(path);
     assert.equal(await code(open(path, { migrations: [...LIBRARY_MIGRATIONS, V2] })), "backup-required");
-    assert.equal(await (await open(path)).schemaVersion(), 1);
+    assert.equal(await (await open(path)).schemaVersion(), LATEST);
   });
 
   test("if the backup can't be made, the migration doesn't start", async () => {
@@ -126,7 +128,26 @@ if (available) {
     const taken = `${path}.backup`;
     await open(path, { backupPath: taken, migrations: [...LIBRARY_MIGRATIONS, V2] }); // leaves a file there
     assert.equal(await code(open(path, { backupPath: taken, migrations: [...LIBRARY_MIGRATIONS, V2, V3] })), "backup-failed");
-    assert.equal(await (await open(path, { migrations: [...LIBRARY_MIGRATIONS, V2] })).schemaVersion(), 2);
+    assert.equal(await (await open(path, { migrations: [...LIBRARY_MIGRATIONS, V2] })).schemaVersion(), LATEST + 1);
+  });
+
+  test("a library from before drafts (version 1) upgrades with a backup, keeps its data, and takes drafts", async () => {
+    const path = file();
+    const v1 = LIBRARY_MIGRATIONS.filter((m) => m.version === 1);
+    const old = createLibrary(await open(path, { migrations: v1 }));
+    await old.save(rev(R, U(10), []));
+    assert.equal(await code(open(path)), "backup-required", "existing data is never migrated without a backup");
+    const backupPath = `${path}.backup`;
+    const store = await open(path, { backupPath });
+    assert.equal(await store.schemaVersion(), 2);
+    assert.equal(await store.integrityCheck(), "ok");
+    const lib = createLibrary(store);
+    assert.equal((await lib.open(R)).status, "editable");
+    const { sequence } = await lib.saveDraft({ recipe_id: R, base_revision: U(10), schema_version: "0.3", content: { name: "Pale ale, draft", beverage: { type: "beer" }, targets: {}, ingredients: [], process: { stages: [], flows: [] }, additions: [], statistics: {}, calculation_settings: {}, notes: [] }, history_start: { name: "Pale ale", beverage: { type: "beer" }, targets: {}, ingredients: [], process: { stages: [], flows: [] }, additions: [], statistics: {}, calculation_settings: {}, notes: [] }, history: [], applied: 0, updated_at: "2026-11-24T00:00:00.000Z" }, null);
+    assert.equal((await createLibrary(await open(path)).openDraft(R)).sequence, sequence);
+    const backup = await open(backupPath, { migrations: v1 });
+    assert.equal(await backup.schemaVersion(), 1);
+    assert.equal((await createLibrary(backup).open(R)).status, "editable");
   });
 
   test("the lock timeout is set on the connection, with a default", async () => {
@@ -181,9 +202,43 @@ if (available) {
     assert.equal(await killedAtPoint(["die-in-migration", path, R]), "SIGKILL");
     const d = nodeDriver(path);
     const store = await openSqliteStore(d);
-    assert.equal(await store.schemaVersion(), 1);
+    assert.equal(await store.schemaVersion(), LIBRARY_MIGRATIONS.at(-1).version);
     assert.equal(await store.integrityCheck(), "ok");
     assert.equal((await createLibrary(store).open(R)).status, "editable");
+  });
+
+  test("killed during autosave, three rounds: the draft is the last acknowledged write or the one after it, and opens", async () => {
+    const path = file();
+    await seeded(path);
+    let writes = 0;
+    for (let round = 0; round < 3; round++) {
+      const p = child(["draft-loop", path, R, U(10)]);
+      let text = "";
+      await new Promise((resolve) => {
+        p.stdout.on("data", (b) => {
+          text += b;
+          if (text.split("\n").length > 60) {
+            p.kill("SIGKILL");
+            resolve();
+          }
+        });
+      });
+      assert.equal(await ended(p), "SIGKILL");
+      const acked = text.split("\n").filter((l) => /^\d+ \d+$/.test(l)).map((l) => l.split(" ").map(Number));
+      writes += acked.length;
+      const [lastSequence, lastCounter] = acked.at(-1);
+      const store = await open(path);
+      assert.equal(await store.integrityCheck(), "ok");
+      const draft = await createLibrary(store).openDraft(R);
+      assert.ok(draft, "the draft survived");
+      // A write can commit before its line is printed, so the draft may be one step ahead.
+      assert.ok(draft.sequence === lastSequence || draft.sequence === lastSequence + 1, `sequence ${draft.sequence} after acknowledged ${lastSequence}`);
+      const counter = Number(draft.content.name.replace("autosave ", ""));
+      assert.equal(counter, draft.sequence === lastSequence ? lastCounter : lastCounter + 1);
+      assert.equal(draft.history.length, counter % 50);
+      assert.equal(draft.applied, draft.history.length);
+    }
+    assert.ok(writes > 100);
   });
 
   test("killed during saves, three rounds: every acknowledged revision is there and verifies", async () => {

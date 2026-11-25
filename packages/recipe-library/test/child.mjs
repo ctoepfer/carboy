@@ -2,7 +2,7 @@
 import { writeSync } from "node:fs";
 import { openSqliteStore, LIBRARY_MIGRATIONS, createLibrary } from "../dist/index.js";
 import { nodeDriver } from "./node-driver.mjs";
-import { U, rev } from "./conformance.mjs";
+import { U, content, rev } from "./conformance.mjs";
 
 const [mode, path, recipe, firstParent] = process.argv.slice(2);
 // Asks the parent for the kill and waits for it, holding everything open: a
@@ -34,6 +34,17 @@ if (mode === "die-in-transaction") {
 if (mode === "die-in-migration") {
   await openSqliteStore(nodeDriver(path), {
     backupPath: `${path}.backup`,
-    migrations: [...LIBRARY_MIGRATIONS, { version: 2, up: async (run) => { await run("ALTER TABLE recipe ADD COLUMN extra TEXT"); await run("PRAGMA user_version = 2"); die(); } }],
+    migrations: [...LIBRARY_MIGRATIONS, { version: LIBRARY_MIGRATIONS.at(-1).version + 1, up: async (run) => { await run("ALTER TABLE recipe ADD COLUMN extra TEXT"); await run(`PRAGMA user_version = ${LIBRARY_MIGRATIONS.at(-1).version + 1}`); die(); } }],
   });
+}
+if (mode === "draft-loop") {
+  // Autosave as fast as it can: each write replaces the last, and its sequence
+  // and counter are printed only after it has committed.
+  const lib = createLibrary(await openSqliteStore(nodeDriver(path)));
+  let sequence = (await lib.openDraft(recipe))?.sequence ?? null;
+  for (let i = 0; ; i++) {
+    const history = Array.from({ length: i % 50 }, (_, k) => [{ op: "set_name", name: `step ${k}` }]);
+    ({ sequence } = await lib.saveDraft({ recipe_id: recipe, base_revision: firstParent, schema_version: "0.3", content: { ...content(`autosave ${i}`) }, history_start: content(), history, applied: history.length, updated_at: "2026-11-24T00:00:00.000Z" }, sequence));
+    process.stdout.write(`${sequence} ${i}\n`);
+  }
 }

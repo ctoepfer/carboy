@@ -328,9 +328,33 @@ indexes shift, and a reviewer needs "Cascade: 28 g → 21 g", not
   side is shown as such, never as zero.
 - Presentation changes are listed separately so a reviewer can tell layout
   from substance.
-- Undo/redo inside the editor may use an internal patch format (for example
-  Immer patches, OVERVIEW §7); that is an implementation detail, not this
-  contract.
+- Undo/redo is a history of command lists (§7a), not patches, so replaying
+  it passes the same checks as editing.
+
+### 7a. Undo history
+
+`createUndoHistory({ start, entries, applied })` (owner settings, 2026-11-24):
+
+- **One entry per undo step**, each a command list applied through
+  `applyCommands`. `start` is the recipe before the first entry; `applied`
+  counts the entries in effect, and the rest are redo.
+- **At most 100 steps** (`UNDO_LIMIT`). When a new step would exceed it, the
+  oldest is folded into `start`: the current recipe never changes, only how far
+  back undo reaches. A stored history over the limit is trimmed the same way,
+  oldest first; only if no step is in effect are redo steps dropped.
+- **A new edit discards the redo steps.**
+- **Typing coalesces.** An edit with the same `coalesce` key (the field) as the
+  previous step, within 750 ms of it (`COALESCE_MS`), with no undo or redo in
+  between, joins that step. An edit with a key must give `at`, its time in
+  milliseconds; without one it is refused (`RangeError`). If the new commands alone, applied before the step,
+  give the same recipe as the whole run, they replace the step's commands (a
+  field typed over keeps only its final value); otherwise they are appended.
+  Coalescing state isn't stored: a reopened history starts a new step.
+- **Reopening checks the replay.** Given the draft's content as `expected`, a
+  history that no longer applies or doesn't reproduce it is a `HistoryError`.
+
+The stored form is what a Recipe Library draft keeps (`history_start`,
+`history`, `applied`).
 
 ## 8. Proposals
 

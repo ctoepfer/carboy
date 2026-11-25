@@ -4,7 +4,7 @@
   in Phase 3** in [`packages/recipe-library/`](../../packages/recipe-library/)
   (`@carboy/recipe-library`). Nothing here is frozen. ADR 0006 stays Proposed:
   this is evidence for it, not an acceptance.
-- Date: 2026-11-06
+- Date: 2026-11-06; drafts added 2026-11-24
 - Decision owner: Charles Toepfer
 
 Saved recipes are reached only through this module (OVERVIEW §2). It keeps
@@ -23,6 +23,11 @@ revisions; it doesn't calculate, edit, or interpret them.
 | `remove(recipe, at)` | Recoverable delete: hidden, and refused for open and save | `not-found`, `recipe-deleted` |
 | `restore(recipe)` | Brings it back whole | `not-found`, `not-deleted` |
 | `purge(recipe)` | Permanent, and only after `remove` | `not-found`, `not-deleted` |
+| `saveDraft(draft, replaces)` | Writes the recipe's draft whole; `replaces` is the sequence it replaces, or null | `invalid-draft`, `stale-draft`, `recipe-exists`, `not-found`, `recipe-deleted` |
+| `openDraft(recipe)` | The draft with its sequence and the recipe's current head, or nothing | `recipe-deleted`, `unreadable-draft` |
+| `drafts()` | Every draft, without content or history, for recovery | |
+| `discardDraft(recipe, sequence)` | Removes the draft | `not-found`, `stale-draft` |
+| `save(revision, { draft })` | Also removes the draft at that sequence, in the same transaction | as `save`, plus `stale-draft` |
 
 - **Identity:** `recipe_id` is stable across revisions. A revision id always
   means the same bytes: other content under that id is `revision-conflict`.
@@ -35,6 +40,60 @@ revisions; it doesn't calculate, edit, or interpret them.
   unreadable document is `unreadable-revision`.
 - **Order:** `list` sorts by code units, for one answer everywhere. Display
   sorting is the UI's job (U12).
+
+## Drafts
+
+A draft is a recipe's unsaved work (UD3, accepted by the owner 2026-11-24): kept
+apart from its revisions, and never a revision by itself. Only a save makes one.
+
+- **One per recipe**, written whole on each autosave: the working content, the
+  revision it started from (`base_revision`, null for a recipe never saved), the
+  content schema version, and the undo history (owner, 2026-11-24): one command
+  list per undo step, oldest first, with `applied` counting the entries in
+  effect (the rest are redo), and `history_start`, the recipe before the first
+  entry. Old steps may have been pruned (EDITOR_COMMANDS §7a, at most 100), so
+  `history_start` isn't always the base revision's content.
+- **Checked, not interpreted.** Content is validated like a revision's, against
+  its schema version; history must be a list of command lists. Replaying or
+  undoing the commands is the editor's job, not the library's.
+- **Nothing is overwritten.** Every write names the sequence it replaces, and
+  `sequence` changes on each write and is never reused, even after a discard. A
+  writer holding an older sequence gets `stale-draft`.
+- **Stale drafts are visible.** `openDraft` returns the recipe's current head
+  beside `base_revision`; when they differ, the draft started from an older
+  revision, and the person decides what to do with it.
+- **Saving clears it atomically.** `save(revision, { draft: sequence })` stores
+  the revision and removes the draft in one transaction. A failed save keeps
+  it; a retried save that already committed is still harmless.
+- **Deletion:** a deleted recipe's draft is hidden and refused until restore;
+  purge removes it.
+- **Damage:** a draft that can't be parsed or no longer validates is
+  `unreadable-draft`. It is never repaired or dropped, and `drafts()` still
+  lists it.
+
+### Autosave
+
+`createAutosave(library, { sequence })` schedules one open recipe's draft
+writes (owner, 2026-11-24):
+
+- **Typing** (`changed(draft, "typing")`) is written 750 ms after it stops
+  (`AUTOSAVE_DEBOUNCE_MS`); a **discrete edit** (`"discrete"`) at once.
+- **`flush()`** writes anything pending now, for blur, navigation, and an
+  explicit save. **`commit(revision)`** flushes, then saves the revision and
+  removes the draft in one transaction. If an edit arrives after `commit` is
+  called and before the save is made, the save is refused (`stale-draft`) and
+  the draft kept, so that edit can't be lost; the caller saves again with the
+  latest content. Holding back edits while the save runs is the caller's job.
+- **Writes never overlap**, and each names the draft it replaces, so the
+  `stale-draft` check guards every one. Edits that arrive during a write are
+  written after it, newest only.
+- **Status** is `saved` (the latest draft is durable), `pending` (waiting for the
+  debounce), `saving`, or `failed`, reported on every change. A failed draft is
+  kept and never retried silently: a new edit or `retry()` writes it again;
+  `flush()` and `commit()` don't.
+
+Each write stores the whole history (at most 100 steps). The recovery dialog
+(USABILITY §3) and the editor wiring are not started.
 
 ## Stores
 
@@ -69,6 +128,9 @@ platform, for `fullfsync`.
 - **Documents:** a revision is stored as its native document, byte for byte, with
   a few index columns, so the stored and exchanged forms share one schema and
   one migration path.
+- **Version 2** adds the `draft` table, the library's first real schema upgrade.
+  A write deletes and inserts the row, so `seq` (AUTOINCREMENT) is the draft's
+  sequence and is never reused. A version-1 library upgrades only with a backup.
 - **Migrations:** `user_version` is the database's own version, separate from
   document schema versions. Before migrating existing data, a backup is made with
   `VACUUM INTO`, and if it can't be made, nothing starts. All pending steps run
@@ -77,7 +139,9 @@ platform, for `fullfsync`.
 
 **Verified with Node's SQLite on Linux:** real `SIGKILL` during a transaction,
 during a migration, and during saves over three rounds: integrity ok, every
-acknowledged revision present and verifying, head on the last revision.
+acknowledged revision present and verifying, head on the last revision. Killed
+during back-to-back draft writes over three rounds: the draft opens, and it is
+the last acknowledged write or the one after it (committed, not yet reported).
 
 **Verified through the real shell on Linux (spike `repo.html`):** the same library
 over Tauri IPC and the shell's connection, hard-killed during saves for 5 rounds:
@@ -95,7 +159,7 @@ these Phase 3 requirements.
 
 | Requirement | State |
 |---|---|
-| **Autosave** (transactional drafts, unsaved-draft behavior) | **Not started** |
+| **Autosave** (transactional drafts, unsaved-draft behavior) | **Draft storage, autosave scheduling, and undo history done** (2026-11-24): library and Editor Commands. Not in an editor or the app: no unsaved-draft UI |
 | **Crash recovery** (restoring a draft after a crash, in the app) | **Not started.** Kill tests show saved data survives; they don't recover unsaved work |
 | Backups as a user feature | Not started. `VACUUM INTO` before migration only |
 | Restoring from a migration backup as a user action | Not started. The backup is made and verified to open |

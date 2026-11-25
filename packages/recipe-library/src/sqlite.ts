@@ -1,4 +1,4 @@
-import { LibraryError, type LibraryStore, type RecipeRow, type RevisionRow, type StoreTransaction } from "./contract.js";
+import { LibraryError, type DraftRow, type LibraryStore, type RecipeRow, type RevisionRow, type StoreTransaction } from "./contract.js";
 
 // SQLite store (ADR 0006, still Proposed): revisions as whole documents with a
 // few index columns, ordinary tables around them. It takes a driver, so this
@@ -27,6 +27,15 @@ export const LIBRARY_MIGRATIONS: readonly LibraryMigration[] = [
       await run("CREATE TABLE recipe (recipe_id TEXT PRIMARY KEY, name TEXT NOT NULL, beverage TEXT NOT NULL, head TEXT NOT NULL, updated_at TEXT NOT NULL, deleted_at TEXT)");
       await run("CREATE TABLE revision (seq INTEGER PRIMARY KEY AUTOINCREMENT, revision_id TEXT NOT NULL UNIQUE, recipe_id TEXT NOT NULL, parents TEXT NOT NULL, created_at TEXT NOT NULL, origin TEXT NOT NULL, content_hash TEXT NOT NULL, document TEXT NOT NULL)");
       await run("CREATE INDEX revision_by_recipe ON revision (recipe_id, seq)");
+    },
+  },
+  {
+    // Drafts (UD3): one per recipe, replaced whole on each write. A write is a
+    // delete and an insert, so `seq` changes every time, and AUTOINCREMENT
+    // never reuses one, even after a draft is discarded.
+    version: 2,
+    up: async (run) => {
+      await run("CREATE TABLE draft (seq INTEGER PRIMARY KEY AUTOINCREMENT, recipe_id TEXT NOT NULL UNIQUE, base_revision TEXT, schema_version TEXT NOT NULL, name TEXT NOT NULL, content TEXT NOT NULL, history_start TEXT NOT NULL, history TEXT NOT NULL, applied INTEGER NOT NULL, updated_at TEXT NOT NULL)");
     },
   },
 ];
@@ -140,6 +149,19 @@ const revisionRow = (r: Row): RevisionRow => ({
   document: String(r["document"]),
 });
 
+const draftRow = (r: Row): DraftRow => ({
+  sequence: Number(r["seq"]),
+  recipe_id: String(r["recipe_id"]),
+  base_revision: r["base_revision"] === null ? null : String(r["base_revision"]),
+  schema_version: String(r["schema_version"]),
+  name: String(r["name"]),
+  content: String(r["content"]),
+  history_start: String(r["history_start"]),
+  history: String(r["history"]),
+  applied: Number(r["applied"]),
+  updated_at: String(r["updated_at"]),
+});
+
 function transaction(d: SqlDriver): StoreTransaction {
   return {
     async getRecipe(id) {
@@ -168,7 +190,26 @@ function transaction(d: SqlDriver): StoreTransaction {
     },
     async deleteRecipe(id) {
       await d.run("DELETE FROM revision WHERE recipe_id = ?", [id]);
+      await d.run("DELETE FROM draft WHERE recipe_id = ?", [id]);
       await d.run("DELETE FROM recipe WHERE recipe_id = ?", [id]);
+    },
+    async getDraft(id) {
+      const [row] = await d.all("SELECT * FROM draft WHERE recipe_id = ?", [id]);
+      return row ? draftRow(row) : undefined;
+    },
+    async putDraft(r) {
+      await d.run("DELETE FROM draft WHERE recipe_id = ?", [r.recipe_id]);
+      const [row] = await d.all(
+        "INSERT INTO draft (recipe_id, base_revision, schema_version, name, content, history_start, history, applied, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING seq",
+        [r.recipe_id, r.base_revision, r.schema_version, r.name, r.content, r.history_start, r.history, r.applied, r.updated_at],
+      );
+      return Number(row?.["seq"]);
+    },
+    async deleteDraft(id) {
+      await d.run("DELETE FROM draft WHERE recipe_id = ?", [id]);
+    },
+    async listDrafts() {
+      return (await d.all("SELECT * FROM draft ORDER BY seq")).map(draftRow);
     },
   };
 }
