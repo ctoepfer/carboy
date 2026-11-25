@@ -53,7 +53,7 @@ RECOVERY_PAGE=repo.html RECOVERY_DB=repo.db \
 
 | Check | Expected |
 |---|---|
-| 1. `npm test` | No failures, and none skipped on Node 22 or later. `npm test` runs each package in turn, so the last summary is only the last package's. Total them with `npm test 2>&1 \| tee "$OUT/npm-test.log" \| grep -E '^(# \|ℹ )tests '`. At `5db261f` and its successors until stated otherwise: **388** (recipe-core 184, ingredient-catalog 93, recipe-library 53, editor-commands 23, recipe-format 21, equipment-profiles 14) |
+| 1. `npm test` | No failures, and none skipped on Node 22 or later. `npm test` runs each package in turn, so the last summary is only the last package's. Total them with `npm test 2>&1 \| tee "$OUT/npm-test.log" \| grep -E '^(# \|ℹ )tests '`. From `29b2e28` (draft storage, autosave, undo history) until stated otherwise: **431** (recipe-core 184, ingredient-catalog 93, recipe-library 86, editor-commands 33, recipe-format 21, equipment-profiles 14). Before it, from `5db261f`: 388 |
 | 2. `spike.sh test` | `PASS` on `checks`, `recipe`, `library`, `graph-react`, `graph-svelte`. Graph windows appear briefly |
 | 3. Recipe Library | Every round `PASS`, then `rounds: 3, hangs: 0, stalls: 0, early exits: 0`. Each `after-kill-N.json` has `integrity` ok, `journal_mode` wal, `synchronous` 2, `verified` equal to `revisions`, and no `failures` |
 
@@ -61,21 +61,32 @@ On macOS, check 3's reports must also say `"apple": true` and `"fullfsync": 1`.
 
 ## Migration check (all desktops)
 
-Real migration machinery exercised through the Tauri shell using a
-test-defined migration step; this is not a real product schema migration.
+The Recipe Library's real 1 → 2 upgrade, which adds the `draft` table, run
+through the Tauri shell on its own `rusqlite` connection. This replaces the
+earlier version of this check (`b7d3781`), which used a test-defined step.
 
-The Recipe Library's only product migration is the 0 → 1 bootstrap, which
-creates the tables in an empty database. This check uses that bootstrap to make
-a version 1 library with representative data (4 recipes, one of them deleted;
-26 revisions), then passes a **test-defined** 1 → 2 step through the existing
-`migrations` option of `openSqliteStore`. Everything else is the library's real
-`migrate()`, on the shell's own `rusqlite` connection: the `VACUUM INTO` backup,
-one `BEGIN IMMEDIATE` transaction for every pending step, and the rollback on
-failure. The step adds a column, creates a table, inserts one row, and sets the
-version. The failure and the barrier are test-only hooks in that step, on the
-test-only page `migrate.html`, which refuses to run without `SPIKE_AUTO=1` and
-`SPIKE_DATA_DIR`. Repeat this check against Carboy's first real schema upgrade
-when one exists.
+- **The fixture** is an old library: only the production version-1 step
+  (`LIBRARY_MIGRATIONS` filtered to version 1), as an app from before drafts
+  made it, with representative data (4 recipes, one of them deleted; 26
+  revisions).
+- **`success` and every retry** call `openSqliteStore(driver, { apple,
+  backupPath })` with no `migrations` option: the library's own
+  `LIBRARY_MIGRATIONS` and `migrate()`, exactly the app's path (`VACUUM INTO`
+  backup, one `BEGIN IMMEDIATE` transaction, rollback on failure). Reports say
+  `"migration_path": "production-default"`.
+- **`fail`, `interrupt-memory`, and `interrupt-wal`** need a point inside the
+  transaction, so they pass `LIBRARY_MIGRATIONS` with the production version-2
+  step wrapped: its own `up` runs unchanged, then the test hook (and, for
+  `interrupt-wal`, a step-start barrier before it). `migrate()` sets the version
+  after the step returns, so inside the hook the version is still 1 and the
+  draft table exists. Reports say `"production-step-with-test-hook"`.
+- **Reopening** at version 2 uses `openSqliteStore` with no options and lists
+  drafts through the library; at version 1 it uses the version-1 steps only.
+  The checker compares tables and columns with the production schema, stated
+  independently in `tools/migration_check.py`.
+
+The hooks live on the test-only page `migrate.html`, which refuses to run
+without `SPIKE_AUTO=1` and `SPIKE_DATA_DIR`.
 
 Run it after checks 1–3, from `spikes/phase1`, with the same `SPIKE_DATA_DIR`
 and `OUT` as above. No other `spike-shell` may be running, because the
@@ -92,10 +103,10 @@ Each round runs four cases:
 
 | Case | What happens | Passes when |
 |---|---|---|
-| success | The step migrates 1 → 2; the app is reopened | Version 2 with the step's column exactly once, its table, and one marker row; integrity ok; every recipe row and revision (id, recipe, parents, content hash) identical to the fixture, and every document verifies; the library reopens every live recipe's head as editable; the backup reads as the fixture at version 1 |
-| fail | The step throws after its changes, before the commit | Inside the transaction, the changes were there (version 2, column, table); the library reports `migration-failed`; after a reopen, version 1 with no trace of the step and the fixture's data; the backup is intact; a retry migrates once and passes the success checks; the first backup is unchanged |
-| interrupt-memory | The step logs a barrier after its changes and waits; the harness kills the shell when the line appears (no timed sleep). The changes are small and stay in SQLite's page cache, so the WAL stays empty: **this case doesn't cover WAL recovery** | Same as fail: the changes were inside the open transaction; the reopen is complete, never partial (version 1 as expected, or a completely migrated version 2); the backup is intact; a retry migrates once; the first backup is unchanged |
-| interrupt-wal | The page stops first at a step-start barrier (transaction begun, nothing written) and continues when the harness creates `migrate.go`. After its changes, the step shrinks its own connection's cache to 16 pages and writes 256 rows of 4,000 characters to a test-only table, so SQLite must spill uncommitted pages to the WAL; then a spill barrier. The harness reads the WAL file itself (header, salts, running checksums, commit field) | At step start the WAL holds no frames. At the spill barrier the WAL is larger than its 32-byte header and holds at least one complete, valid frame, none of them a commit frame; only then is the shell killed, otherwise the case fails and the app is only stopped. Uncommitted frames are still on disk after the kill. The reopen is version 1 exactly, with no trace of the step or the spill table; integrity ok; the fixture's data; the backup unchanged; a retry migrates once |
+| success | The production upgrade migrates 1 → 2, unmodified; the app is reopened | Version 2 with exactly the production `draft` table (its columns, no rows) and no other schema change; integrity ok; every recipe row and revision (id, recipe, parents, content hash) identical to the fixture, and every document verifies; the library reopens every live recipe's head as editable and lists no drafts; the backup reads as the fixture at version 1 |
+| fail | The production step runs, then the hook throws, before the commit | Inside the transaction, the draft table was there (version still 1); the library reports `migration-failed`; after a reopen, version 1 with no draft table and the fixture's data; the backup is intact; a retry migrates once and passes the success checks; the first backup is unchanged |
+| interrupt-memory | The production step runs, then the hook logs a barrier and waits; the harness kills the shell when the line appears (no timed sleep). The changes are small and stay in SQLite's page cache, so the WAL stays empty: **this case doesn't cover WAL recovery** | Same as fail: the draft table was inside the open transaction; the reopen is complete, never partial (version 1 as expected, or a completely migrated version 2); the backup is intact; a retry migrates once; the first backup is unchanged |
+| interrupt-wal | The page stops first at a step-start barrier (transaction begun, nothing written) and continues when the harness creates `migrate.go`. After the production step, the hook shrinks its own connection's cache to 16 pages and writes 256 rows of 4,000 characters to a test-only table, so SQLite must spill uncommitted pages to the WAL; then a spill barrier. The harness reads the WAL file itself (header, salts, running checksums, commit field) | At step start the WAL holds no frames. At the spill barrier the WAL is larger than its 32-byte header and holds at least one complete, valid frame, none of them a commit frame; only then is the shell killed, otherwise the case fails and the app is only stopped. Uncommitted frames are still on disk after the kill. The reopen is version 1 exactly, with no draft table and no spill table; integrity ok; the fixture's data; the backup unchanged; a retry migrates once |
 
 Expected: every case `PASS`, then `migration check: rounds: 3, cases passed: 12
 of 12`. Only `interrupt-wal`, with its WAL evidence printed before the kill,

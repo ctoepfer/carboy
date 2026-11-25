@@ -3,10 +3,10 @@
 # machinery (backup, one transaction, rollback) on the Tauri shell's own
 # rusqlite connection.
 #
-# Real migration machinery exercised through the Tauri shell using a
-# test-defined migration step; this is not a real product schema migration.
-# The library has no product step after version 1 yet; repeat this check
-# against the first real schema upgrade when one exists.
+# The library's real version 1 -> 2 upgrade (the draft table). The fixture is
+# an old library (the production version-1 step only); `success` and every
+# retry run the production upgrade unmodified; `fail` and the interrupt cases
+# wrap the production version-2 step with a test hook (migrate.js).
 #
 #   tools/migration_check.sh <exe> <rounds> <outdir>   (4 cases per round)
 #
@@ -146,10 +146,10 @@ launch_spill() {
   if ! grep -q "migration: spill barrier reached" "$log" 2>/dev/null || [ -s "$out/$name.json" ]; then
     echo "  $name: FAIL: no spill barrier within ${limit}s (or the page finished); log: $log"; stop_app; wait "$pid" 2>/dev/null; return 1
   fi
-  if ! grep -q "spill barrier reached (in transaction: version 2, column true, table true, spill rows 256)" "$log"; then
+  if ! grep -q "spill barrier reached (in transaction: version 1, draft table true, spill rows 256)" "$log"; then
     echo "  $name: FAIL: $(grep -a 'spill barrier' "$log")"; stop_app; wait "$pid" 2>/dev/null; return 1
   fi
-  echo "  $name: in the transaction at the spill barrier: version 2, column and table present, 256 spill rows"
+  echo "  $name: in the transaction at the spill barrier: production draft table present, version still 1, 256 spill rows"
   cp "$dir/migrate.db-wal" "$out/$name-prekill.wal"
   if ! step "$name-wal-before-kill" check wal "$dir/migrate.db-wal" uncommitted; then
     echo "  $name: FAIL: no complete uncommitted frame in the WAL; not killed for a recovery test (app stopped as cleanup)"; stop_app; wait "$pid" 2>/dev/null; return 1
@@ -160,7 +160,7 @@ launch_spill() {
 }
 # The barrier line must show the step's changes inside the open transaction.
 barrier_state() {
-  if grep -q "barrier reached (in transaction: version 2, column true, table true)" "$1"; then echo "in the transaction at the barrier: version 2, column and table present"
+  if grep -q "barrier reached (in transaction: version 1, draft table true)" "$1"; then echo "in the transaction at the barrier: production draft table present, version still 1"
   else echo "FAIL: $(grep -a 'barrier reached' "$1" || echo 'no barrier line')"; return 1; fi
 }
 # same <name> <file> <sha>: a backup must not change after it was made.

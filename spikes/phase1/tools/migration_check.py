@@ -1,7 +1,8 @@
 """Checks for tools/migration_check.sh: compares migrate.html reports.
 
-Real migration machinery exercised through the Tauri shell using a test-defined
-migration step; this is not a real product schema migration.
+The library's real version 1 -> 2 upgrade (the draft table) through the Tauri
+shell. Version 1 has no draft table; version 2 has exactly the production
+draft table, and nothing else changes.
 
 This reads JSON reports and hashes files. It never opens a database: every
 database read happens in the shell, over its own connection.
@@ -19,8 +20,13 @@ import hashlib
 import json
 import sys
 
-COLUMN = "test_migration_note"
-TABLE = "test_migration_marker"
+DRAFT = "draft"
+# The production version-2 table's columns, stated independently of the code
+# under test (packages/recipe-library/src/sqlite.ts, LIBRARY_MIGRATIONS).
+DRAFT_COLUMNS = ["seq", "recipe_id", "base_revision", "schema_version", "name", "content", "history_start", "history", "applied", "updated_at"]
+V1_TABLES = ["recipe", "revision", "sqlite_sequence"]
+RECIPE_COLUMNS = ["recipe_id", "name", "beverage", "head", "updated_at", "deleted_at"]
+REVISION_COLUMNS = ["seq", "revision_id", "recipe_id", "parents", "created_at", "origin", "content_hash", "document"]
 SPILL = "test_migration_spill"
 EXPECTED = {"recipes": 4, "deleted": 1, "revisions": 26}
 
@@ -50,8 +56,8 @@ def fixture(report, manifest):
     s = d["after"]
     if s["user_version"] != 1 or s["integrity"] != "ok":
         fail(f"fixture at version {s['user_version']}, integrity {s['integrity']}")
-    if COLUMN in s["recipe_columns"] or TABLE in s["tables"]:
-        fail("fixture already has the test step's schema")
+    if s["tables"] != V1_TABLES or s["recipe_columns"] != RECIPE_COLUMNS or s["revision_columns"] != REVISION_COLUMNS:
+        fail(f"fixture isn't a version-1 library: tables {s['tables']}")
     deleted = sum(1 for r in s["recipes"] if r["deleted_at"] is not None)
     got = {"recipes": len(s["recipes"]), "deleted": deleted, "revisions": len(s["revisions"])}
     if got != EXPECTED:
@@ -70,17 +76,17 @@ def state(manifest, report, want, library):
         fail(f"page error: {d.get('error')}")
     s = d["after"]
     v = s["user_version"]
-    has_column = s["recipe_columns"].count(COLUMN)
-    has_table = TABLE in s["tables"]
     if SPILL in s["tables"]:
         fail("the spill mode's test table survived; it must never be committed")
+    if s["recipe_columns"] != RECIPE_COLUMNS or s["revision_columns"] != REVISION_COLUMNS:
+        fail(f"recipe or revision columns changed: {s['recipe_columns']}, {s['revision_columns']}")
     if v == 1:
-        if has_column or has_table or s["marker_rows"] is not None:
-            fail(f"version 1 but the test step's schema is partly there (column {has_column}, table {has_table})")
+        if s["tables"] != V1_TABLES:
+            fail(f"version 1 but the tables are {s['tables']} (draft table partly there?)")
         found = "v1"
     elif v == 2:
-        if has_column != 1 or not has_table or s["marker_rows"] != 1:
-            fail(f"version 2 but incomplete or duplicated: column x{has_column}, table {has_table}, marker rows {s['marker_rows']}")
+        if s["tables"] != sorted(V1_TABLES + [DRAFT]) or s["draft_columns"] != DRAFT_COLUMNS or s["draft_rows"] != 0:
+            fail(f"version 2 but not the production draft table: tables {s['tables']}, columns {s['draft_columns']}, rows {s['draft_rows']}")
         found = "v2"
     else:
         fail(f"unexpected version {v}")
@@ -101,7 +107,11 @@ def state(manifest, report, want, library):
             fail(f"library reopen: heads {heads}")
         if sorted((h["recipe_id"], h["head"]) for h in heads) != sorted((r["recipe_id"], r["head"]) for r in live):
             fail("library heads differ from the fixture")
-    extra = f"; library reopened, {len(d['library_heads'])} live heads editable" if library else ""
+        if found == "v2" and (d.get("verify_path") != "production-default" or d.get("library_drafts") != 0):
+            fail(f"version-2 reopen wasn't the production path or drafts didn't list: {d.get('verify_path')}, {d.get('library_drafts')}")
+    extra = f"; library reopened ({d['verify_path']}), {len(d['library_heads'])} live heads editable" if library else ""
+    if library and found == "v2":
+        extra += ", drafts list empty"
     print(f"{found}, integrity ok, {len(s['recipes'])} recipes and {len(s['revisions'])} revisions identical to the fixture, all verified{extra}")
 
 
@@ -114,7 +124,10 @@ def migrated(report):
         fail(f"migration: {mig}")
     if d["before"]["user_version"] != 1 or d["after"]["user_version"] != 2:
         fail(f"versions {d['before']['user_version']} -> {d['after']['user_version']}")
-    print("migrated 1 -> 2 in the shell")
+    path = d.get("migration_path")
+    if path not in ("production-default", "production-step-with-test-hook"):
+        fail(f"unknown migration path {path}")
+    print(f"migrated 1 -> 2 in the shell ({path})")
 
 
 def rolled_back(report):
@@ -124,13 +137,15 @@ def rolled_back(report):
     mig = d.get("migration") or {}
     if mig.get("status") != "error" or mig.get("code") != "migration-failed":
         fail(f"expected migration-failed, got {mig}")
+    if d.get("migration_path") != "production-step-with-test-hook":
+        fail(f"migration path {d.get('migration_path')}")
     t = d.get("in_transaction")
-    if t != {"user_version": 2, "column": True, "table": True}:
-        fail(f"the step's changes weren't all in the transaction before the failure: {t}")
+    if t != {"user_version": 1, "draft_table": True}:
+        fail(f"the production step's table wasn't in the transaction before the failure: {t}")
     s = d["after"]
-    if s["user_version"] != 1 or COLUMN in s["recipe_columns"] or TABLE in s["tables"]:
-        fail(f"after the failure, in the same session: version {s['user_version']}, columns {s['recipe_columns']}, tables {s['tables']}")
-    print(f"in the transaction before the failure: version 2, column and table present; reported as migration-failed (step {mig.get('details', {}).get('version')}); same session back at version 1")
+    if s["user_version"] != 1 or s["tables"] != V1_TABLES:
+        fail(f"after the failure, in the same session: version {s['user_version']}, tables {s['tables']}")
+    print(f"in the transaction before the failure: draft table present, version still 1 (set after the step); reported as migration-failed (step {mig.get('details', {}).get('version')}); same session back at version 1 with no draft table")
 
 
 def wal_frames(path):
