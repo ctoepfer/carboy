@@ -1,6 +1,6 @@
 # Desktop UI Design Proposal v0
 
-- Status: **Proposed. Nothing here is accepted or implemented.** Open decisions UD1–UD10 (§8).
+- Status: **Proposed.** Open decisions UD1–UD10 (§8); only UD3 is accepted (owner, 2026-11-24). Nothing else here is accepted or implemented.
 - Date: 2026-11-07
 - Decision owner: Charles Toepfer
 - Prototype: [`spikes/ui-prototype/`](../../spikes/ui-prototype/README.md) (throwaway; simulated behaviour labelled in the page)
@@ -371,7 +371,7 @@ Windows). Everything else can also be scripted, and partly is.
 |---|---|---|
 | UD1 | Adopt this direction (§5) as the Phase 4 starting point? | Yes, after T12–T14 with at least one newer and one experienced brewer |
 | UD2 | Save directly, or always through review? | Direct save for your own edits; review mandatory for suggestions and imports. Optionally a "review before saving" preference |
-| UD3 | Drafts separate from revisions; a revision only on an explicit save | Yes (shapes autosave, §3.4) |
+| UD3 | Drafts separate from revisions; a revision only on an explicit save | **Accepted by the owner 2026-11-24**, with drafts keeping their undo history; implemented in the Recipe Library (RECIPE_LIBRARY, Drafts) |
 | UD4 | Palette: neutral greys, navy rail, amber accent, blue focus (§4.3) | Yes, as the default light, dark, and increased-contrast token packs |
 | UD5 | Ingredient editing: native tables per kind, or an ARIA grid | Native tables now; a grid only if T13 shows the need |
 | UD6 | Details in an inspector panel | Yes, moving under the lists below 70em |

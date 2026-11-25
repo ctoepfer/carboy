@@ -1,4 +1,4 @@
-import type { LibraryStore, RecipeRow, RevisionRow, StoreTransaction } from "./contract.js";
+import type { DraftRow, LibraryStore, RecipeRow, RevisionRow, StoreTransaction } from "./contract.js";
 
 // A store with no persistence, for tests and hosts without storage. A
 // transaction works on a copy and replaces the state only on success, and
@@ -7,15 +7,18 @@ import type { LibraryStore, RecipeRow, RevisionRow, StoreTransaction } from "./c
 interface State {
   readonly recipes: Map<string, RecipeRow>;
   readonly revisions: Map<string, RevisionRow>;
+  readonly drafts: Map<string, DraftRow>;
+  /** The last draft sequence given; never goes back, so a sequence is never reused. */
+  sequence: number;
 }
 
 export function memoryStore(): LibraryStore {
-  let state: State = { recipes: new Map(), revisions: new Map() };
+  let state: State = { recipes: new Map(), revisions: new Map(), drafts: new Map(), sequence: 0 };
   let queue: Promise<unknown> = Promise.resolve();
   return {
     transaction<T>(fn: (tx: StoreTransaction) => Promise<T>): Promise<T> {
       const run = async (): Promise<T> => {
-        const work: State = { recipes: new Map(state.recipes), revisions: new Map(state.revisions) };
+        const work: State = { recipes: new Map(state.recipes), revisions: new Map(state.revisions), drafts: new Map(state.drafts), sequence: state.sequence };
         const result = await fn(transaction(work));
         state = work;
         return result;
@@ -37,7 +40,16 @@ function transaction(s: State): StoreTransaction {
     listRevisions: async (id) => [...s.revisions.values()].filter((v) => v.recipe_id === id),
     deleteRecipe: async (id) => {
       s.recipes.delete(id);
+      s.drafts.delete(id);
       for (const [k, v] of s.revisions) if (v.recipe_id === id) s.revisions.delete(k);
     },
+    getDraft: async (id) => s.drafts.get(id),
+    putDraft: async (row) => {
+      const sequence = ++s.sequence;
+      s.drafts.set(row.recipe_id, { ...row, sequence });
+      return sequence;
+    },
+    deleteDraft: async (id) => void s.drafts.delete(id),
+    listDrafts: async () => [...s.drafts.values()],
   };
 }
