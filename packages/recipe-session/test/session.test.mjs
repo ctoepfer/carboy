@@ -145,6 +145,25 @@ test("edits while a save runs are refused, so the save can't drop them", async (
   assert.equal(s.edit(rename("After save")).status, "applied");
 });
 
+test("edits while a discard runs are refused, so the discard can't drop them silently", async () => {
+  const library = fresh();
+  let release;
+  const slow = { ...library, saveDraft: async (...a) => (await new Promise((r) => (release = r)), library.saveDraft(...a)) };
+  const s = newRecipe(host(slow), "beer", "Base");
+  s.edit(rename("Unsaved"));
+  const discarding = s.discard();
+  await settle();
+  assert.equal(s.discarding, true);
+  assert.equal(s.edit(rename("Typed during discard")).status, "busy");
+  assert.equal(s.undo(), false);
+  await assert.rejects(s.save(), (e) => e.code === "stale-draft");
+  release();
+  await discarding;
+  assert.equal(s.discarding, false);
+  assert.equal(s.content.name, "Base");
+  assert.equal(s.edit(rename("After discard")).status, "applied");
+});
+
 test("a draft from an older revision is offered as stale; saving it is refused and the draft kept", async () => {
   const library = fresh();
   const h = host(library);

@@ -40,7 +40,7 @@ export type SessionState = "new" | "clean" | "unsaved";
 export type EditOutcome =
   | { readonly status: "applied" }
   | { readonly status: "rejected"; readonly diagnostics: readonly Diagnostic[] }
-  /** A save is running; the edit wasn't applied, so it can't be lost by the save. */
+  /** A save or a discard is running; the edit wasn't applied, so it can't be lost by either. */
   | { readonly status: "busy" };
 
 export interface RecipeSession {
@@ -53,6 +53,8 @@ export interface RecipeSession {
   readonly saveStatus: AutosaveStatus;
   readonly saveError: unknown;
   readonly saving: boolean;
+  /** A discard is running: edits, undo, redo, and save are refused until it ends. */
+  readonly discarding: boolean;
   readonly canUndo: boolean;
   readonly canRedo: boolean;
   /** Apply one user action. `field` marks typing in one field: written after the debounce, and coalesced into one undo step. */
@@ -181,6 +183,8 @@ function session(host: SessionHost, init: Start): RecipeSession {
   let baseContent = init.baseContent;
   let history = init.history;
   let saving = false;
+  let discarding = false;
+  const busy = () => saving || discarding;
   let edited = init.sequence !== null; // a resumed draft counts as edited
   let self: RecipeSession;
   const notify = () => host.onChange?.(self);
@@ -226,6 +230,9 @@ function session(host: SessionHost, init: Start): RecipeSession {
     get saving() {
       return saving;
     },
+    get discarding() {
+      return discarding;
+    },
     get canUndo() {
       return history.canUndo;
     },
@@ -233,26 +240,26 @@ function session(host: SessionHost, init: Start): RecipeSession {
       return history.canRedo;
     },
     edit(commands, options = {}) {
-      if (saving) return { status: "busy" };
+      if (busy()) return { status: "busy" };
       const r = options.field === undefined ? history.edit(commands) : history.edit(commands, { coalesce: options.field, at: now() });
       if (r.status === "rejected") return { status: "rejected", diagnostics: r.diagnostics };
       changed(options.field === undefined ? "discrete" : "typing");
       return { status: "applied" };
     },
     undo() {
-      if (saving || !history.undo()) return false;
+      if (busy() || !history.undo()) return false;
       changed("discrete");
       return true;
     },
     redo() {
-      if (saving || !history.redo()) return false;
+      if (busy() || !history.redo()) return false;
       changed("discrete");
       return true;
     },
     flush: () => autosave.flush(),
     retry: () => autosave.retry(),
     async save() {
-      if (saving) throw new LibraryError("stale-draft", "a save is already running", { recipe_id: init.recipeId });
+      if (busy()) throw new LibraryError("stale-draft", saving ? "a save is already running" : "a discard is running", { recipe_id: init.recipeId });
       if (self.state !== "unsaved") return { status: "unchanged" };
       saving = true;
       notify();
@@ -269,14 +276,22 @@ function session(host: SessionHost, init: Start): RecipeSession {
       }
     },
     async discard() {
-      if (saving) throw new LibraryError("stale-draft", "a save is running", { recipe_id: init.recipeId });
-      await autosave.flush(); // nothing may land after the delete
-      const sequence = autosave.sequence;
-      if (sequence !== null) await library.discardDraft(init.recipeId, sequence);
-      history = createUndoHistory({ start: baseContent ?? init.history.state.start, entries: [], applied: 0 });
-      autosave = makeAutosave(null);
-      edited = false;
+      if (busy()) throw new LibraryError("stale-draft", saving ? "a save is running" : "a discard is already running", { recipe_id: init.recipeId });
+      // Edits are refused until the discard ends: one made while the draft is
+      // flushed and deleted would otherwise be reported applied, then dropped.
+      discarding = true;
       notify();
+      try {
+        await autosave.flush(); // nothing may land after the delete
+        const sequence = autosave.sequence;
+        if (sequence !== null) await library.discardDraft(init.recipeId, sequence);
+        history = createUndoHistory({ start: baseContent ?? init.history.state.start, entries: [], applied: 0 });
+        autosave = makeAutosave(null);
+        edited = false;
+      } finally {
+        discarding = false;
+        notify();
+      }
     },
   };
   return self;

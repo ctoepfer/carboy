@@ -111,9 +111,9 @@ it whichever framework D-010 picks:
   A damaged draft, or one whose history no longer replays, can be discarded
   but not resumed.
 - **Saving** makes a revision from the current content and removes the draft in
-  one transaction. Edits are refused (`busy`) while a save runs. A stale draft's
-  save is refused (`stale-head`) and the draft kept; resolving it (rebasing)
-  belongs with the review screens (EDITOR_COMMANDS §9).
+  one transaction. Edits are refused (`busy`) while a save or a discard runs.
+  A stale draft's save is refused (`stale-head`) and the draft kept; resolving
+  it (rebasing) belongs with the review screens (EDITOR_COMMANDS §9).
 - **Undo survives saving and crashes:** it can reach back before a save, and the
   edits it makes are new unsaved changes. `discard` clears it.
 - The host passes `newId` and `now`; the session makes no ids and reads no
