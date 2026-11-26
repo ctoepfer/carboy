@@ -99,7 +99,7 @@ Each write stores the whole history (at most 100 steps). The recovery dialog
 
 `@carboy/recipe-session` ([`packages/recipe-session/`](../../packages/recipe-session/))
 puts the pieces into the first end-to-end workflow, headless, so a UI binds to
-it whichever framework D-010 picks:
+it from the UI (React, D-010):
 
 - `newRecipe(host, beverage, name)` and `openRecipe(host, recipeId)` give a
   session: `edit`, `undo`, `redo`, `flush`, `retry`, `save`, `discard`, and
@@ -186,7 +186,7 @@ these Phase 3 requirements.
 | Requirement | State |
 |---|---|
 | **Autosave** (transactional drafts, unsaved-draft behavior) | **Draft storage, autosave scheduling, and undo history done** (2026-11-24): library and Editor Commands. Not in an editor or the app: no unsaved-draft UI |
-| **Crash recovery** (restoring a draft after a crash, in the app) | **Headless workflow done** (2026-11-24, `@carboy/recipe-session`): offered after SIGKILL on SQLite, resumed with every acknowledged edit and its undo history. No recovery dialog yet (needs the UI, D-010) |
+| **Crash recovery** (restoring a draft after a crash, in the app) | **Headless workflow done** (2026-11-24, `@carboy/recipe-session`): offered after SIGKILL on SQLite, resumed with every acknowledged edit and its undo history. No recovery dialog yet (needs the UI: D-035 UD1 and the Phase 4 slice) |
 | Backups as a user feature | Not started. `VACUUM INTO` before migration only |
 | Restoring from a migration backup as a user action | Not started. The backup is made and verified to open |
 | Search, duplicate | Not started |

@@ -1,6 +1,6 @@
 # Desktop UI Design Proposal v0
 
-- Status: **Proposed.** Open decisions UD1–UD10 (§8); only UD3 is accepted (owner, 2026-11-24). Nothing else here is accepted or implemented.
+- Status: **Proposed.** Open decisions UD1–UD10 (§8); only UD3 is accepted (owner, 2026-11-24). Nothing else here is accepted or implemented. Separately, the UI framework is decided: React (D-010, owner, 2026-11-24); that doesn't accept this proposal.
 - Date: 2026-11-07
 - Decision owner: Charles Toepfer
 - Prototype: [`spikes/ui-prototype/`](../../spikes/ui-prototype/README.md) (throwaway; simulated behaviour labelled in the page)
@@ -15,12 +15,19 @@ the Recipe Library, the Recipe Editor, and change review. The aim is an
 application that a new brewer finds approachable and an experienced brewer
 finds fast.
 
-**It decides nothing about architecture.** The UI framework (D-010), graph
-library (D-017), message format (UQ2), application shell (ADR 0003), and
-persistence (ADR 0006) stay open. The prototype is plain HTML, CSS, and
-JavaScript with no dependencies, so it favours none of them. Autosave and crash
-recovery are not designed here beyond what the editing model needs to assume
-(§3.4).
+**It decides nothing about architecture.** The UI framework was decided
+separately: **React** (D-010, owner, 2026-11-24). The evidence is limited:
+both candidates (React 19.3 with React Flow 12.12, Svelte 5.57 with Svelte
+Flow 1.7) passed the same graph checks, 7/7, and Svelte Flow exposed 16
+focusable "Handle" controls where React Flow exposed none
+([GRAPH_REPORT](../../spikes/phase1/GRAPH_REPORT.md)). The report notes that
+Svelte Flow's handles may be fixable and that bundle size favoured Svelte.
+That choice doesn't decide this proposal's direction (UD1, which waits on
+T12–T14) or the graph library (D-017). The graph library (D-017), message
+format (UQ2), application shell (ADR 0003), and persistence (ADR 0006) stay
+open here. The prototype is plain HTML, CSS, and JavaScript with no
+dependencies, so it favours none of them. Autosave and crash recovery are not
+designed here beyond what the editing model needs to assume (§3.4).
 
 ## 1. Who and what for
 
@@ -380,7 +387,10 @@ Windows). Everything else can also be scripted, and partly is.
 | UD9 | One recipe open at a time in 1.0; no tabs or multiple windows | Yes |
 | UD10 | Shortcut set (§2): Ctrl/Cmd+K, S, Z, Shift+Z, F6; no single-key shortcuts by default | Yes; shown in the palette, remappable later |
 
-**Not decided here and still open elsewhere:** D-010 framework, D-017 graph
+**Decided elsewhere:** D-010, the UI framework: React (owner, 2026-11-24; see
+the introduction for the evidence and its limits).
+
+**Not decided here and still open elsewhere:** D-017 graph
 library, UQ2 message format, RECIPE_SCHEMA Q4 (whether layout edits make
 revisions), D-014 (AI writing into drafts), D-015 (list-only 1.0), and the
 autosave and recovery design.

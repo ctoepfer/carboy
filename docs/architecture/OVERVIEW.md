@@ -18,7 +18,7 @@ storage. Two processes outside the app are optional and separately owned:
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
-│ TypeScript UI (framework: D-010)                                         │
+│ TypeScript UI (React, D-010)                                             │
 │   ingredient list · process list · process graph · inspectors · batches  │
 ├──────────────────────────────────────────────────────────────────────────┤
 │ TypeScript modules                                                       │
